@@ -42,22 +42,16 @@ export default function App() {
     };
 
     const jsonString = JSON.stringify(graphRepresentation, null, 2);
-
-    // Create a blob from the JSON string
     const blob = new Blob([jsonString], { type: "application/json" });
-
-    // Create a download link
     const link = document.createElement("a");
     const downloadFilename = "bigraph.json";
     link.href = URL.createObjectURL(blob);
     link.download = downloadFilename
 
-    // Trigger the download
+    // trigger dwnld
     link.click();
 
-    // Revoke the object URL to free up resources
     URL.revokeObjectURL(link.href);
-
     alert(`Graph exported and downloaded as ${downloadFilename}!`);
   };
 
