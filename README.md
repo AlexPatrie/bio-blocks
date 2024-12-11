@@ -1,4 +1,4 @@
-# React Flow Example App - Next.js
+![BioBlocks with Reactflow Demo](public/flow-demo.png)
 
 This app was bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
 
