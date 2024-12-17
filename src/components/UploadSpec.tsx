@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { BigraphSpec } from "../data_model";
 
 interface  UploadSpecProps {
-  onLoadGraph?: (data: BigraphSpec) => void;
+  onLoadGraph: (data: BigraphSpec) => void;
 }
 
-const UploadSpec: React.FC<UploadSpecProps> = () => {
+const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps) => {
   const [jsonData, setJsonData] = useState<BigraphSpec | null | any>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

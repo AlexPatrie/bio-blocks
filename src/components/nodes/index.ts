@@ -9,7 +9,6 @@ import { ConstructBigraphNode } from "./BigraphNode";
 
 // define example nodes
 const nodeA: BigraphNode = {
-  label: 'ODE(copasi)',
   _type: 'process',
   address: 'local:copasi-process',
   inputs: {
@@ -27,7 +26,6 @@ const nodeA: BigraphNode = {
 }
 
 const nodeB: BigraphNode = {
-  label: 'FBA(cobra)',
   _type: 'process',
   address: 'local:cobra-process',
   inputs: {
@@ -44,7 +42,6 @@ const nodeB: BigraphNode = {
 }
 
 const nodeC: BigraphNode = {
-  label: 'StochasticParticle(Smoldyn)',
   _type: 'process',
   address: 'local:smoldyn-process',
   inputs: {
@@ -59,17 +56,17 @@ const nodeC: BigraphNode = {
 }
 
 export const initialNodes = [
-  { id: "a", type: "bigraph-node", position: { x: 200, y: -200 }, data: nodeA },
-  { id: "b", type: "bigraph-node", position: { x: 200, y: 200 }, data: nodeB },
-  { id: "c", type: "bigraph-node", position: { x: -200, y: 0 }, data: nodeC },
+  { id: "ODE", type: "bigraph-node", position: { x: 200, y: -200 }, data: nodeA },
+  { id: "FBA", type: "bigraph-node", position: { x: 200, y: 200 }, data: nodeB },
+  { id: "particle", type: "bigraph-node", position: { x: -200, y: 0 }, data: nodeC },
 ] satisfies Node[];
 
 
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
   "bigraph-node": ConstructBigraphNode
-  // Add any of your custom nodes here!
+  // add any of your custom nodes here!
 } satisfies NodeTypes;
 
-// Append the types of you custom edges to the BuiltInNode type
+// append the types of you custom edges to the BuiltInNode type
 export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | BigraphNodeType;

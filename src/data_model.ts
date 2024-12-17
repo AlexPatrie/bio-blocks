@@ -2,7 +2,6 @@ import type { Edge, Node, NodeProps } from "@xyflow/react";
 
 /*** bigraph nodes ***/
 export type BigraphNode = {
-  label: string | any;
   _type: string | any;
   address: string | any;
   inputs: Record<string, string[]> | any;

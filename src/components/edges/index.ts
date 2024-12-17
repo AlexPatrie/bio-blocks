@@ -3,9 +3,9 @@ import ConstructButtonEdge from "./ButtonEdge";
 import { type ButtonEdge as ButtonEdgeType } from "../../data_model";
 
 export const initialEdges = [
-  { id: "a->b", source: "a", target: "b", animated: true, type: 'button-edge' },
-  { id: "b->c", source: "b", target: "c", animated: true, type: 'button-edge' },
-  { id: "c->a", source: "c", target: "a", animated: true, type: "button-edge" },
+  { id: "ODE->FBA", source: "ODE", target: "FBA", animated: true, type: 'button-edge' },
+  { id: "FBA->particle", source: "FBA", target: "particle", animated: true, type: 'button-edge' },
+  { id: "particle->ODE", source: "particle", target: "ODE", animated: true, type: "button-edge" },
 ] satisfies Edge[];
 
 export const edgeTypes = {

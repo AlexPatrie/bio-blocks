@@ -13,6 +13,8 @@ import "@xyflow/react/dist/style.css";
 import { initialNodes, nodeTypes, type CustomNodeType } from "./nodes";
 import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
+import {BigraphNode, BigraphSpec, BigraphState} from "../data_model";
+import JSZip from "jszip";
 
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
@@ -25,7 +27,7 @@ export default function App() {
   );
 
   const exportGraph = () => {
-    const graphRepresentation = {
+    const flowRepresentation = {
       nodes: nodes.map((node) => ({
         id: node.id,
         data: node.data,
@@ -39,22 +41,29 @@ export default function App() {
         type: edge.type,
       })),
     };
+    
+    const bigraphState: BigraphState = {};
+    nodes.forEach((node: CustomNodeType) => {
+      bigraphState[node.id] = node.data as BigraphNode;
+    });
 
-    const jsonString = JSON.stringify(graphRepresentation, null, 2);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const link = document.createElement("a");
-    const downloadFilename = "bigraph.json";
-    link.href = URL.createObjectURL(blob);
-    link.download = downloadFilename
+    // add both bigraph and blocks (webapp) representations to the zipfile
+    const zip = new JSZip();
+    zip.file("blocks.json", JSON.stringify(flowRepresentation, null, 2));
+    zip.file("bigraph.json", JSON.stringify(bigraphState, null, 2));
+    zip.generateAsync({ type: "blob" }).then((content) => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(content);
+        link.download = "composition.zip";
+        link.click();
 
-    // trigger dwnld
-    link.click();
-
-    URL.revokeObjectURL(link.href);
-    alert(`Graph exported and downloaded as ${downloadFilename}!`);
+        URL.revokeObjectURL(link.href);
+        alert("Graph and metadata exported as composition.zip!");
+    });
   };
 
-  const handleLoadGraph = (data: { nodes: CustomNodeType[]; edges: CustomEdgeType[] }) => {
+  const handleLoadGraph: (data: BigraphSpec) => void = (data: BigraphSpec): void => {
+    console.log(`Data: ${JSON.stringify(data)}`);
     // setNodes(data.nodes);
     // setEdges(data.edges);
 
@@ -92,7 +101,7 @@ export default function App() {
       >
         Export to JSON
       </button>
-      <UploadSpec />
+      <UploadSpec onLoadGraph={handleLoadGraph} />
   </div>
   );
 }
