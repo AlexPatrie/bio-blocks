@@ -18,6 +18,7 @@ import JSZip from "jszip";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
+// TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry
 
 export default function App() {
   // hooks
