@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import {useCallback, useState} from "react";
 import {
   Background,
   Controls,
@@ -16,18 +16,23 @@ import UploadSpec from "./UploadSpec";
 import {BigraphNode, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 
-export default function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
-  const [edges, setEdges, onEdgesChange] =
-    useEdgesState<CustomEdgeType>(initialEdges);
+// TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 
+export default function App() {
+  // hooks
+  const [inputValue, setInputValue] = useState<string>('My Composition');
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>(initialEdges);
+  
+  // graph connector
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((edges) => addEdge(connection, edges)),
     [setEdges]
   );
-
+  
+  // graph exporter
   const exportGraph = () => {
-    const flowRepresentation = {
+    const flowRepresentation = {  // translation of process bigraph spec to bio blocks upload
       nodes: nodes.map((node) => ({
         id: node.id,
         data: node.data,
@@ -43,34 +48,52 @@ export default function App() {
     };
     
     const bigraphState: BigraphState = {};
-    nodes.forEach((node: CustomNodeType) => {
+    nodes.forEach((node: CustomNodeType) => {  // process-bigraph representation of "state"
       bigraphState[node.id] = node.data as BigraphNode;
     });
-
-    // add both bigraph and blocks (webapp) representations to the zipfile
+    
+    // get project name
+    const projectName = inputValue.split(" ").join("_").toLowerCase();
+    
     const zip = new JSZip();
     zip.file("blocks.json", JSON.stringify(flowRepresentation, null, 2));
     zip.file("bigraph.json", JSON.stringify(bigraphState, null, 2));
     zip.generateAsync({ type: "blob" }).then((content) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);
-        link.download = "composition.zip";
+        link.download = `${projectName}.zip`;
         link.click();
 
         URL.revokeObjectURL(link.href);
         alert("Graph and metadata exported as composition.zip!");
     });
   };
-
+  
+  // graph loader (reader)
   const handleLoadGraph: (data: BigraphSpec) => void = (data: BigraphSpec): void => {
     console.log(`Data: ${JSON.stringify(data)}`);
     // setNodes(data.nodes);
     // setEdges(data.edges);
 
   };
+  
+  // project name setter
+  const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value); // Update state with input value
+  };
 
   return (
     <div className="reactflow-wrapper" style={{ height: "100vh", width: "100vw" }}>
+      <div className="project-name">
+          <input
+            id="inputField"
+            type="text"
+            value={inputValue}
+            onChange={handleProjectNameChange}
+            className="border rounded p-2 mt-1 w-full"
+            placeholder="Enter project name..."
+          />
+      </div>
       <ReactFlow<CustomNodeType, CustomEdgeType>
         nodes={nodes}
         nodeTypes={nodeTypes}

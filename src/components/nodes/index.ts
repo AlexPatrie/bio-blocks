@@ -62,6 +62,8 @@ export const initialNodes = [
 ] satisfies Node[];
 
 
+
+
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
   "bigraph-node": ConstructBigraphNode
