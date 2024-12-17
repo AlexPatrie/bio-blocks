@@ -1,0 +1,68 @@
+{
+  "ODE": {
+    "_type": "process",
+    "address": "local:copasi-process",
+    "inputs": {
+      "species_concentrations": [
+        "species_concentrations_store"
+      ],
+      "time": [
+        "time_store"
+      ],
+      "parameters": [
+        "parameters_store"
+      ]
+    },
+    "outputs": {
+      "species_concentrations": [
+        "species_concentrations_store"
+      ],
+      "time": [
+        "time_store"
+      ]
+    },
+    "config": {
+      "model_file": "/some/path/to/a/file"
+    }
+  },
+  "FBA": {
+    "_type": "process",
+    "address": "local:cobra-process",
+    "inputs": {
+      "species_concentrations": [
+        "species_concentrations_store"
+      ],
+      "time": [
+        "time_store"
+      ],
+      "parameters": [
+        "parameters_store"
+      ]
+    },
+    "outputs": {
+      "fluxes": [
+        "fluxes_store"
+      ]
+    },
+    "config": {
+      "model_file": "/some/path/to/a/file"
+    }
+  },
+  "particle": {
+    "_type": "process",
+    "address": "local:smoldyn-process",
+    "inputs": {
+      "fluxes": [
+        "fluxes_store"
+      ]
+    },
+    "outputs": {
+      "particles": [
+        "particles_store"
+      ]
+    },
+    "config": {
+      "model_file": "/some/path/to/a/file"
+    }
+  }
+}
