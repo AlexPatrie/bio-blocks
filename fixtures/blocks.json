@@ -1,0 +1,99 @@
+{
+  "nodes": [
+    {
+      "id": "ODE",
+      "data": {
+        "_type": "process",
+        "address": "local:copasi-process",
+        "inputs": {
+          "species_concentrations": [
+            "species_concentrations_store"
+          ],
+          "time": [
+            "time_store"
+          ],
+          "parameters": [
+            "parameters_store"
+          ]
+        },
+        "outputs": {
+          "species_concentrations": [
+            "species_concentrations_store"
+          ],
+          "time": [
+            "time_store"
+          ]
+        },
+        "config": {
+          "model_file": "/some/path/to/a/file"
+        }
+      }
+    },
+    {
+      "id": "FBA",
+      "data": {
+        "_type": "process",
+        "address": "local:cobra-process",
+        "inputs": {
+          "species_concentrations": [
+            "species_concentrations_store"
+          ],
+          "time": [
+            "time_store"
+          ],
+          "parameters": [
+            "parameters_store"
+          ]
+        },
+        "outputs": {
+          "fluxes": [
+            "fluxes_store"
+          ]
+        },
+        "config": {
+          "model_file": "/some/path/to/a/file"
+        }
+      }
+    },
+    {
+      "id": "particle",
+      "data": {
+        "_type": "process",
+        "address": "local:smoldyn-process",
+        "inputs": {
+          "fluxes": [
+            "fluxes_store"
+          ]
+        },
+        "outputs": {
+          "particles": [
+            "particles_store"
+          ]
+        },
+        "config": {
+          "model_file": "/some/path/to/a/file"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "ODE->FBA",
+      "source": "ODE",
+      "target": "FBA",
+      "type": "button-edge"
+    },
+    {
+      "id": "FBA->particle",
+      "source": "FBA",
+      "target": "particle",
+      "type": "button-edge"
+    },
+    {
+      "id": "particle->ODE",
+      "source": "particle",
+      "target": "ODE",
+      "type": "button-edge"
+    }
+  ]
+}
