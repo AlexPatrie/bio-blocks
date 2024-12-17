@@ -9,14 +9,13 @@ import {
   useEdgesState,
   type OnConnect,
 } from "@xyflow/react";
-
 import "@xyflow/react/dist/style.css";
-
 import { initialNodes, nodeTypes, type CustomNodeType } from "./nodes";
 import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
+import UploadSpec from "./UploadSpec";
 
 export default function App() {
-  const [nodes, , onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
   const [edges, setEdges, onEdgesChange] =
     useEdgesState<CustomEdgeType>(initialEdges);
 
@@ -55,6 +54,12 @@ export default function App() {
     alert(`Graph exported and downloaded as ${downloadFilename}!`);
   };
 
+  const handleLoadGraph = (data: { nodes: CustomNodeType[]; edges: CustomEdgeType[] }) => {
+    // setNodes(data.nodes);
+    // setEdges(data.edges);
+
+  };
+
   return (
     <div className="reactflow-wrapper" style={{ height: "100vh", width: "100vw" }}>
       <ReactFlow<CustomNodeType, CustomEdgeType>
@@ -72,21 +77,22 @@ export default function App() {
         <Controls />
       </ReactFlow>
       <button
-      onClick={exportGraph}
-      style={{
-        position: "absolute",
-        top: 10,
-        right: 10,
-        padding: "8px 16px",
-        backgroundColor: "#4CAF50",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      Export to JSON
-    </button>
+        onClick={exportGraph}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          padding: "8px 16px",
+          backgroundColor: "#4CAF50",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+      >
+        Export to JSON
+      </button>
+      <UploadSpec />
   </div>
   );
 }

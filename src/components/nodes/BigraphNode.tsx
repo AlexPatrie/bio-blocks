@@ -1,24 +1,14 @@
 import type { Node, NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
-
-export type BigraphNodeData = {
-  label: string;
-  _type: string;
-  address: string;
-  inputs: Record<string, string[]>;
-  outputs: Record<string, string[]>;
-  config: Record<string, string>;
-};
-
-export type BigraphNode = Node<BigraphNodeData>;
+import { BigraphFlowNode } from "../../data_model";
 
 const handleStyle = { left: 10 };
 
-export default function BigraphNode({
+export function ConstructBigraphNode({
   positionAbsoluteX,
   positionAbsoluteY,
   data,
-}: NodeProps<BigraphNode>) {
+}: NodeProps<BigraphFlowNode>) {
   const x = `${Math.round(positionAbsoluteX)}px`;
   const y = `${Math.round(positionAbsoluteY)}px`;
   const onConnection = () => {

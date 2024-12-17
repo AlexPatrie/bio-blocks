@@ -2,15 +2,13 @@ import type { BuiltInNode, Node, NodeTypes } from "@xyflow/react";
 import PositionLoggerNode, {
   type PositionLoggerNode as PositionLoggerNodeType,
 } from "./PositionLoggerNode";
-
-import BigraphNode, {
-  type BigraphNode as BigraphNodeType,
-} from "./BigraphNode";
-
-import { BigraphNodeData } from "./BigraphNode";
+import {
+  type BigraphFlowNode as BigraphNodeType, BigraphNode
+} from "../../data_model";
+import { ConstructBigraphNode } from "./BigraphNode";
 
 // define example nodes
-const nodeA: BigraphNodeData = {
+const nodeA: BigraphNode = {
   label: 'ODE(copasi)',
   _type: 'process',
   address: 'local:copasi-process',
@@ -28,7 +26,7 @@ const nodeA: BigraphNodeData = {
   }
 }
 
-const nodeB: BigraphNodeData = {
+const nodeB: BigraphNode = {
   label: 'FBA(cobra)',
   _type: 'process',
   address: 'local:cobra-process',
@@ -45,7 +43,7 @@ const nodeB: BigraphNodeData = {
   }
 }
 
-const nodeC: BigraphNodeData = {
+const nodeC: BigraphNode = {
   label: 'StochasticParticle(Smoldyn)',
   _type: 'process',
   address: 'local:smoldyn-process',
@@ -69,7 +67,7 @@ export const initialNodes = [
 
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
-  "bigraph-node": BigraphNode
+  "bigraph-node": ConstructBigraphNode
   // Add any of your custom nodes here!
 } satisfies NodeTypes;
 

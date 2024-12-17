@@ -6,6 +6,7 @@ import {
   type EdgeProps,
   type Edge,
 } from "@xyflow/react";
+import { type ButtonEdge } from "../../data_model";
 
 const buttonStyle = {
   width: 20,
@@ -18,11 +19,7 @@ const buttonStyle = {
   lineHeight: 1,
 };
 
-type ButtonEdgeData = {};
-
-export type ButtonEdge = Edge<ButtonEdgeData>;
-
-export default function ButtonEdge({
+export default function ConstructButtonEdge({
   id,
   sourceX,
   sourceY,
