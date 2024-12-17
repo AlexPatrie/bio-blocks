@@ -17,6 +17,7 @@ import {BigraphNode, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
+// TODO: create button which dynamically adds new nodes to the initialNodes array
 
 export default function App() {
   // hooks
