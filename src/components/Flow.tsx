@@ -110,23 +110,25 @@ export default function App() {
         <MiniMap />
         <Controls />
       </ReactFlow>
-      <button
-        onClick={exportGraph}
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
-          padding: "8px 16px",
-          backgroundColor: "#4CAF50",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-      >
-        Export to JSON
-      </button>
-      <UploadSpec onLoadGraph={handleLoadGraph} />
-  </div>
+      <div className="buttons-container">
+        <button
+          onClick={exportGraph}
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            padding: "8px 16px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Export to JSON
+        </button>
+        <UploadSpec onLoadGraph={handleLoadGraph}/>
+      </div>
+    </div>
   );
 }
