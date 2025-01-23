@@ -29,116 +29,116 @@ export function ConstructNode({
 
   return (
     <div className="react-flow__node-default flow">
-      <div className="node-grid">
+      
       
       {/* Node Id/Name */}
-      <h3 className="grid-item node-name">
+      <h3 className="node-name">
         <NodeField
           data={data}
           field="nodeId"
           handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>
-      
-      <div className="grid-item">
-        <table className="process-table-display type">
-          <thead>
-          <tr>
-            <th className="node-attribute-name">Type</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td data-label="Type">
-              <NodeField
-                data={data}
-                field="_type"
-                handleInputChange={(e, field) => handleInputChange(e, field)}
-              />
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <div className="grid-item">
-        <table className="process-table-display address">
-          <thead>
-          <tr>
-            <th className="node-attribute-name">Address</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td data-label="Address">
-               <NodeField
-                data={data}
-                field="address"
-                handleInputChange={(e, field) => handleInputChange(e, field)}
-              />
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <div className="grid-item">
-        <table className="process-table-display inputs">
-          <thead>
-          <tr>
-            <th className="node-attribute-name">Inputs</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td data-label="Inputs">
-              {inputPorts.map((portName, index) => (
-                <input
-                  key={index} // Use the index as the key (or a unique value if available)
-                  type="text"
-                  value={portName}
-                  onChange={(e) => handleInputChange(e, "inputs")} // Pass the index to identify which input changed
-                  placeholder={`Input ${index + 1}`}
-                  style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
+      <div className="node-grid">
+        <div className="grid-item">
+          <table className="process-table-display type">
+            <thead>
+            <tr>
+              <th className="node-attribute-name">Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td data-label="Type">
+                <NodeField
+                  data={data}
+                  field="_type"
+                  handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
-              ))}
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <div className="grid-item">
-        <table className="process-table-display outputs">
-          <thead>
-          <tr>
-            <th className="node-attribute-name">Outputs</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td data-label="Outputs">
-              {outputPorts.map((portName, index) => (
-                <input
-                  key={index} // Use the index as the key (or a unique value if available)
-                  type="text"
-                  value={portName}
-                  onChange={(e) => handleInputChange(e, "outputs")} // Pass the index to identify which input changed
-                  placeholder={`output ${index + 1}`}
-                  style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="grid-item">
+          <table className="process-table-display address">
+            <thead>
+            <tr>
+              <th className="node-attribute-name">Address</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td data-label="Address">
+                <NodeField
+                  data={data}
+                  field="address"
+                  handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
-              ))}
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Input Handle */}
-      <Handle type="target" position={Position.Left}/>
-      
-      {/* Output Handle */}
-      <Handle type="source" position={Position.Right}/>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="grid-item">
+          <table className="process-table-display inputs">
+            <thead>
+            <tr>
+              <th className="node-attribute-name">Inputs</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td data-label="Inputs">
+                {inputPorts.map((portName, index) => (
+                  <input
+                    key={index} // Use the index as the key (or a unique value if available)
+                    type="text"
+                    value={portName}
+                    onChange={(e) => handleInputChange(e, "inputs")} // Pass the index to identify which input changed
+                    placeholder={`Input ${index + 1}`}
+                    style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
+                  />
+                ))}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="grid-item">
+          <table className="process-table-display outputs">
+            <thead>
+            <tr>
+              <th className="node-attribute-name">Outputs</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td data-label="Outputs">
+                {outputPorts.map((portName, index) => (
+                  <input
+                    key={index} // Use the index as the key (or a unique value if available)
+                    type="text"
+                    value={portName}
+                    onChange={(e) => handleInputChange(e, "outputs")} // Pass the index to identify which input changed
+                    placeholder={`output ${index + 1}`}
+                    style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
+                  />
+                ))}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Input Handle */}
+        <Handle type="target" position={Position.Left}/>
+        
+        {/* Output Handle */}
+        <Handle type="source" position={Position.Right}/>
       </div>
     </div>
   );
