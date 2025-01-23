@@ -25,6 +25,15 @@ export type BigraphSpec = {
 
 export type BigraphFlowNode = Node<BigraphNode> | Node<BigraphNodeSpec>;
 
+// export interface DataStore {
+//   [key: string]: string;
+// }
+
+export type DataStore = {
+  [key: string]: string[];
+}
+
+export type DataStoreFlowNode = Node<DataStore>;
 
 /*** bigraph edges (mostly cosmetic) ***/
 type ButtonEdgeData = {};

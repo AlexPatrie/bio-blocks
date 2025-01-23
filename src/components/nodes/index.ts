@@ -5,7 +5,7 @@ import PositionLoggerNode, {
 import {
   type BigraphFlowNode as BigraphNodeType, BigraphNode
 } from "../../data_model";
-import { ConstructBigraphNode } from "./BigraphNode";
+import { ConstructBigraphNode } from "./__BigraphNode";
 import { ConstructNode } from "./ConstructNode";
 
 // define example nodes
