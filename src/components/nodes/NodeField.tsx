@@ -1,3 +1,5 @@
+/* This component serves to handle and render the logic for a single atomic, editable attribute of a given node, ie: inputs, outputs */
+
 import React, {useCallback, useState} from "react";
 import {BigraphNode, BigraphNodeKey} from "../../data_model";
 
@@ -9,22 +11,23 @@ interface NodeFieldProps {
 }
 
 export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
+  const specifiedField = field as BigraphNodeKey;
   const [editMode, setEditMode] = useState(false);
-  const [tempValue, setTempValue] = useState(data.nodeId || ""); // Local state for editing
-
+  const [tempValue, setTempValue] = useState(data[specifiedField] || ""); // Local state for editing
+  
   const handleBlur = useCallback(() => {
-    setEditMode(false); // Exit edit mode when losing focus
-    handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, field as BigraphNodeKey); // Update parent state
-  }, [tempValue, handleInputChange, field]);
+    setEditMode(false); // exit edit mode when losing focus
+    handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
+  }, [tempValue, handleInputChange, specifiedField]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === "Enter") {
         setEditMode(false); // Exit edit mode on Enter
-        handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, field as BigraphNodeKey); // Update parent state
+        handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
       }
     },
-    [tempValue, handleInputChange, field]
+    [tempValue, handleInputChange, specifiedField]
   );
 
   return (
@@ -34,14 +37,14 @@ export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
           type="text"
           value={tempValue}
           onChange={(e) => setTempValue(e.target.value)} // Update local state as the user types
-          onBlur={handleBlur} // Save changes on blur
-          onKeyDown={handleKeyDown} // Save changes on Enter
-          autoFocus // Automatically focus the input when entering edit mode
-          placeholder="Enter node name"
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          placeholder="Enter field"
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>
-          {data.nodeId || "Untitled Node"}
+          {data[specifiedField] || `Empty field for ${specifiedField}`}
         </h3>
       )}
     </div>

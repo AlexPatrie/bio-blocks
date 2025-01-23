@@ -28,7 +28,14 @@ a {
 
 .process-table-display {
   border: 2px solid rebeccapurple !important;
-  display: block;
+  /*display: block;*/
+  width: 100% !important;
+  height: fit-content !important;
+}
+
+.node-attribute-name {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
 }
 
 
