@@ -26,6 +26,33 @@ a {
   width: fit-content !important;
 }
 
+.node-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 4 columns */
+  grid-template-rows: repeat(2, auto);  /* 4 rows */
+  gap: 16px; /* Spacing between grid items */
+  padding: 16px;
+}
+
+.grid-item {
+  border: 1px solid #ccc; /* Optional: Add a border for debugging */
+  padding: 8px;
+  text-align: center; /* Center content within grid items */
+}
+
+.node-name {
+  grid-column: span 4; /* Stretch the node name across all 4 columns */
+  text-align: center;
+  font-weight: bold;
+}
+
+.handles {
+  grid-column: span 4; /* Stretch the handles across all 4 columns */
+  display: flex;
+  justify-content: space-between;
+}
+
+
 .process-table-display {
   border: 2px solid rebeccapurple !important;
   /*display: block;*/
