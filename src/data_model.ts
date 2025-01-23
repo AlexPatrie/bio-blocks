@@ -10,10 +10,12 @@ export type BigraphNode = {
   nodeId?: string;
 };
 
+export type BigraphNodeSpec = Omit<BigraphNode, "nodeId">;
+
 export type BigraphNodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
 
 export type BigraphState = {
-  [key: string]: BigraphNode | string | number;
+  [key: string]: BigraphNode | BigraphNodeSpec | string | number;
 }
 
 export type BigraphSpec = {
@@ -21,7 +23,7 @@ export type BigraphSpec = {
   composition: string;
 }
 
-export type BigraphFlowNode = Node<BigraphNode>;
+export type BigraphFlowNode = Node<BigraphNode> | Node<BigraphNodeSpec>;
 
 
 /*** bigraph edges (mostly cosmetic) ***/

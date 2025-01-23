@@ -13,7 +13,7 @@ import "@xyflow/react/dist/style.css";
 import { initialNodes, nodeTypes, type CustomNodeType } from "./nodes";
 import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
-import {BigraphNode, BigraphSpec, BigraphState} from "../data_model";
+import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
@@ -33,7 +33,7 @@ export default function App() {
   );
   
   // graph exporter
-  const exportGraph = () => {
+  const exportComposition = () => {
     const flowRepresentation = {  // translation of process bigraph spec to bio blocks upload
       nodes: nodes.map((node) => ({
         id: node.id,
@@ -50,8 +50,16 @@ export default function App() {
     };
     
     const bigraphState: BigraphState = {};
-    nodes.forEach((node: CustomNodeType) => {  // process-bigraph representation of "state"
-      bigraphState[node.id] = node.data as BigraphNode;
+    nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
+      const nodeData = node.data as BigraphNode;
+      const nodeId = nodeData.nodeId as string;
+      bigraphState[nodeId] = {
+        _type: nodeData._type,
+        address: nodeData.address,
+        config: nodeData.config,
+        inputs: nodeData.inputs,
+        outputs: nodeData.outputs
+      };
     });
     
     // get project name
@@ -130,13 +138,14 @@ export default function App() {
         <Controls />
       </ReactFlow>
       <div className="buttons-container">
+        <UploadSpec onLoadGraph={handleLoadGraph}/>
         <button
-          onClick={exportGraph}
+          onClick={exportComposition}
           style={{
             position: "absolute",
-            top: 10,
-            right: 10,
-            padding: "8px 16px",
+            top: 0,
+            right: 0,
+            padding: "10px 16px",
             backgroundColor: "#4CAF50",
             color: "#fff",
             border: "none",
@@ -146,14 +155,14 @@ export default function App() {
         >
           Export to JSON
         </button>
-        <UploadSpec onLoadGraph={handleLoadGraph}/>
         <button
           onClick={addNewBigraphNode}
           style={{
             position: "absolute",
-            top: 50,
-            right: 10,
-            padding: "8px 16px",
+            top: 0,
+            //right: 10,
+            left: 190,
+            padding: "10.5px 16px",
             backgroundColor: "#4CAF50",
             color: "#fff",
             border: "none",
@@ -161,7 +170,7 @@ export default function App() {
             cursor: "pointer",
           }}
         >
-          Add New Node
+          +
         </button>
       </div>
     </div>

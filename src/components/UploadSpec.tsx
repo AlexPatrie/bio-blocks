@@ -69,13 +69,13 @@ const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps)
   // );
 
   return (
-    <div style={{ position: "absolute", top: 50, right: 10 }}>
+    <div style={{ position: "absolute", top: 0, right: 200 }}>
       <input
         type="file"
         accept=".json"
         onChange={handleFileUpload}
         style={{
-          padding: "8px 16px",
+          padding: "7px 16px",
           backgroundColor: "#2196F3",
           color: "#fff",
           border: "none",
