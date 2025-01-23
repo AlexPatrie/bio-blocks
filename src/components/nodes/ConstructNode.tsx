@@ -39,6 +39,7 @@ export function ConstructNode({
           handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>
+      
       <div className="node-grid">
         <div className="grid-item">
           <table className="process-table-display type">

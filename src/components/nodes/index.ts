@@ -24,7 +24,7 @@ const nodeA: BigraphNode = {
   config: {
     'model_file': '/some/path/to/a/file'
   },
-  nodeId: 'particle'
+  nodeId: 'ODE'
 }
 
 const nodeB: BigraphNode = {
@@ -56,7 +56,7 @@ const nodeC: BigraphNode = {
   config: {
     'model_file': '/some/path/to/a/file'
   },
-  nodeId: 'ODE'
+  nodeId: 'particles'
 }
 
 export const initialNodes = [
