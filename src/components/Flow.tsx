@@ -79,6 +79,25 @@ export default function App() {
 
   };
   
+  // new node constructor
+  const addNewBigraphNode = () => {
+    const newNode = {
+      id: `node-${nodes.length + 1}`, // Unique ID
+      type: "customNode", // Match the type used in `nodeTypes`
+      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+      data: {
+        _type: "",
+        address: "",
+        inputs: {},
+        outputs: {},
+        config: {},
+      }, // add new node with empty fields
+    };
+  
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  
   // project name setter
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value); // Update state with input value
@@ -128,6 +147,22 @@ export default function App() {
           Export to JSON
         </button>
         <UploadSpec onLoadGraph={handleLoadGraph}/>
+        <button
+          onClick={addNewBigraphNode}
+          style={{
+            position: "absolute",
+            top: 50,
+            right: 10,
+            padding: "8px 16px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Add New Node
+        </button>
       </div>
     </div>
   );

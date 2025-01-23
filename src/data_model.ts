@@ -7,6 +7,7 @@ export type BigraphNode = {
   inputs: Record<string, string[]> | any;
   outputs: Record<string, string[]> | any;
   config: Record<string, string> | any;
+  id?: string;
 };
 
 export type BigraphState = {

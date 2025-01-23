@@ -6,6 +6,7 @@ import {
   type BigraphFlowNode as BigraphNodeType, BigraphNode
 } from "../../data_model";
 import { ConstructBigraphNode } from "./BigraphNode";
+import { ConstructNode } from "./ConstructNode";
 
 // define example nodes
 const nodeA: BigraphNode = {
@@ -22,7 +23,8 @@ const nodeA: BigraphNode = {
   },
   config: {
     'model_file': '/some/path/to/a/file'
-  }
+  },
+  id: 'particle'
 }
 
 const nodeB: BigraphNode = {
@@ -38,7 +40,8 @@ const nodeB: BigraphNode = {
   },
   config: {
     'model_file': '/some/path/to/a/file'
-  }
+  },
+  id: 'FBA'
 }
 
 const nodeC: BigraphNode = {
@@ -52,7 +55,8 @@ const nodeC: BigraphNode = {
   },
   config: {
     'model_file': '/some/path/to/a/file'
-  }
+  },
+  id: 'ODE'
 }
 
 export const initialNodes = [
@@ -66,7 +70,7 @@ export const initialNodes = [
 
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
-  "bigraph-node": ConstructBigraphNode
+  "bigraph-node": ConstructNode  // ConstructBigraphNode
   // add any of your custom nodes here!
 } satisfies NodeTypes;
 
