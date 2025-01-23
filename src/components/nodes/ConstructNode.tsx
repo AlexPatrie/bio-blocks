@@ -1,9 +1,8 @@
 import React, { useCallback } from "react";
-import {BigraphFlowNode} from "../../data_model";
+import {BigraphFlowNode, BigraphNodeKey} from "../../data_model";
 import {Handle, NodeProps, Position} from "@xyflow/react";
+import {NodeField} from "./NodeField";
 
-
-type BigraphNodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "id";
 
 export function ConstructNode({
   positionAbsoluteX,
@@ -25,11 +24,10 @@ export function ConstructNode({
   return (
     <div className="react-flow__node-default flow">
       <h3>
-        <input
-          type="text"
-          value={data.id || ""}
-          onChange={(e) => handleInputChange(e, "id")}
-          placeholder="Enter node name"
+        <NodeField
+          data={data}
+          field="nodeId"
+          handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>
       <table className="process-table-display type">
