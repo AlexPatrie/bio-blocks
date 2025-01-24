@@ -25,7 +25,7 @@ export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
       }
     }
     
-    handleInputChange(inputChange as React.ChangeEvent<HTMLInputElement>, specifiedField); // update parent state
+    handleInputChange(undefined, inputChange as React.ChangeEvent<HTMLInputElement>, specifiedField); // update parent state
   }, [tempValue, handleInputChange, specifiedField]);
 
   const handleKeyDown = useCallback(

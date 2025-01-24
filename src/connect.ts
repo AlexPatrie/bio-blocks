@@ -25,7 +25,7 @@ export function addPort(node: NodeType, name: string, direction: string, portTyp
 
 export function addInputPort(node: NodeType, name: string): void {
   const port: PortType = newPort(node, name, 'in');
-  node.inputs[name] = port;
+  return addPort(node, name, 'out', 'output')
 }
 
 export function addOutputPort(node: NodeType, name: string): void {
