@@ -10,12 +10,13 @@ import {
   type OnConnect,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { initialNodes, nodeTypes, type CustomNodeType } from "./nodes";
+import { nodeTypes, type CustomNodeType } from "./nodes";
 import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
 // import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
+import {initialNodes} from "../examples";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array

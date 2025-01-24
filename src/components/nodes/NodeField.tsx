@@ -7,7 +7,8 @@ import {NodeKeyType, NodeType} from "../../datamodel";
 
 interface NodeFieldProps {
   data: NodeType;
-  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>, field: string) => void;
+  // @ts-ignore
+  handleInputChange: (keyEvent?: React.KeyboardEvent<HTMLInputElement>, changeEvent: React.ChangeEvent<HTMLInputElement>, field: string | NodeKeyType) => void;
   field: string | NodeKeyType;
 }
 
@@ -23,22 +24,23 @@ export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
         value: tempValue
       }
     }
+    
     handleInputChange(inputChange as React.ChangeEvent<HTMLInputElement>, specifiedField); // update parent state
   }, [tempValue, handleInputChange, specifiedField]);
 
   const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
+    (keyEvent: React.KeyboardEvent<HTMLInputElement>) => {
       // here is what should trigger step 4 (entirely)
-      if (event.key === "Enter") {
+      if (keyEvent.key === "Enter") {
         setEditMode(false); // exit edit mode on Enter
-        handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
+        handleInputChange(keyEvent, { target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
       }
     },
     [tempValue, handleInputChange, specifiedField]
   );
   
   const specifiedUpdate = data[specifiedField];
-  const updatedData = typeof specifiedUpdate === "string" ? specifiedUpdate : JSON.stringify(specifiedUpdate);
+  const updatedData = typeof specifiedUpdate === "string" ? specifiedUpdate : JSON.stringify(Object.keys(specifiedUpdate));
   
   return (
     <div>

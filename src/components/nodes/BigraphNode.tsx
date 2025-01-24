@@ -34,12 +34,13 @@ export function BigraphNode({
 
   const handleInputChange = useCallback(
     // this is the method that should add and verify the ports on user "Enter" event
-    (event: React.ChangeEvent<HTMLInputElement>, field: NodeKeyType) => {
-      const valueChange = event.target.value;
-      switch (field) {
-        case "inputs":
-          addInputPort(nodeData, valueChange);
-          break;
+    (keyboardEvent: React.KeyboardEvent<HTMLInputElement>, changeEvent: React.ChangeEvent<HTMLInputElement>, field: NodeKeyType) => {
+      const valueChange = changeEvent.target.value;
+      if (keyboardEvent.key === "Enter") {
+        switch (field) {
+          case "inputs":
+            addInputPort(nodeData, valueChange);
+            break;
           // const inputDataStore: StoreType = {
           //   value: [valueChange]
           // }
@@ -49,17 +50,18 @@ export function BigraphNode({
           // }
           // nodeData.inputs[valueChange] = inputPort;
           // break
-        
-        case "outputs":
-          addOutputPort(nodeData, valueChange);
-          break
-        
-        case "config":
-          nodeData.config[valueChange] = valueChange;
-          break;
-        
-        default:
-          nodeData[field] = valueChange;
+          
+          case "outputs":
+            addOutputPort(nodeData, valueChange);
+            break
+          
+          case "config":
+            nodeData.config[valueChange] = valueChange;
+            break;
+          
+          default:
+            nodeData[field] = valueChange;
+        }
       }
       
       console.log(`Node ${id} updated:`, nodeData);
@@ -68,6 +70,7 @@ export function BigraphNode({
   );
   
   const currentData = data as NodeType;
+  const node = currentData;
   return (
     <div className="react-flow__node-default flow">
       
@@ -76,7 +79,7 @@ export function BigraphNode({
         <NodeField
           data={currentData}
           field="nodeId"
-          handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
+          handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
         />
       </h3>
       
@@ -94,7 +97,7 @@ export function BigraphNode({
                 <NodeField
                   data={currentData}
                   field="_type"
-                  handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
+                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
                 />
               </td>
             </tr>
@@ -115,7 +118,7 @@ export function BigraphNode({
                 <NodeField
                   data={currentData}
                   field="address"
-                  handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
+                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
                 />
               </td>
             </tr>
@@ -133,17 +136,24 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Inputs">
+                <NodeField
+                  data={currentData}
+                  field="inputs"
+                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
+                />
+              </td>
+              {/*<td data-label="Inputs">
                 {inputPorts.map((portName, index) => (
                   <input
                     key={index} // Use the index as the key (or a unique value if available)
                     type="text"
                     value={portName}
-                    onChange={(e) => handleInputChange(e, "inputs")} // Pass the index to identify which input changed
+                    onChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
                     placeholder={`Input ${index + 1}`}
                     style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
                   />
                 ))}
-              </td>
+              </td>*/}
             </tr>
             </tbody>
           </table>
@@ -159,27 +169,44 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Outputs">
-                {outputPorts.map((portName, index) => (
-                  <input
-                    key={index} // Use the index as the key (or a unique value if available)
-                    type="text"
-                    value={portName}
-                    onChange={(e) => handleInputChange(e, "outputs")} // Pass the index to identify which input changed
-                    placeholder={`output ${index + 1}`}
-                    style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
-                  />
-                ))}
+                <NodeField
+                  data={currentData}
+                  field="outputs"
+                  handleInputChange={(keyEvent, changeEvent, field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
+                />
               </td>
             </tr>
             </tbody>
           </table>
         </div>
         
+        {/* dynamically add input handles based on the number of inputs */}
+        {Object.keys(node.inputs).map((inputName: string, index: number) => (
+          <Handle
+            key={index}
+            type="target"
+            position={Position.Left}
+            id={inputName}  // {`input-${index}`}
+            style={{ top: `${(index + 1) * (100 / (node.inputs.length + 1))}%` }}
+          />
+        ))}
+        
+        {/* dynamically add output handles based on the number of inputs */}
+        {Object.keys(node.outputs).map((outputName: string, index: number) => (
+          <Handle
+            key={index}
+            type="source"
+            position={Position.Right}
+            id={outputName}  // {`input-${index}`}
+            style={{ top: `${(index + 1) * (100 / (node.outputs.length + 1))}%` }}
+          />
+        ))}
+        
         {/* Input Handle */}
-        <Handle type="target" position={Position.Left}/>
+        {/*<Handle type="target" position={Position.Left}/>*/}
         
         {/* Output Handle */}
-        <Handle type="source" position={Position.Right}/>
+        {/*<Handle type="source" position={Position.Right}/>*/}
       </div>
     </div>
   );

@@ -18,14 +18,20 @@ export function newPort(node: NodeType, name: string, direction: DirectionType):
   }
 }
 
+export function addPort(node: NodeType, name: string, direction: string, portType: string): void {
+  const port = newPort(node, name, 'out');
+  node[portType][name] = port;
+}
+
 export function addInputPort(node: NodeType, name: string): void {
-  const port = newPort(node, name, 'in');
-  node.inputs.push(port);
+  const port: PortType = newPort(node, name, 'in');
+  node.inputs[name] = port;
 }
 
 export function addOutputPort(node: NodeType, name: string): void {
-  const port = newPort(node, name, 'out');
-  node.outputs.push(port);
+  // const port = newPort(node, name, 'out');
+  // node.inputs[name] = port;
+  return addPort(node, name, 'out', 'output')
 }
 
 export function representPort(ports: PortType[]): PortSpecType {
