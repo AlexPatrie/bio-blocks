@@ -1,4 +1,4 @@
-import {ConnectionType, DirectionType, NodeType, PortSpec, PortType, StoreType} from "./datamodel";
+import {ConnectionType, DirectionType, NodeType, PortSpecType, PortType, StoreType} from "./datamodel";
 
 
 export function newPort(node: NodeType, name: string, direction: DirectionType): PortType {
@@ -28,8 +28,8 @@ export function addOutputPort(node: NodeType, name: string): void {
   node.outputs.push(port);
 }
 
-export function representPort(ports: PortType[]): PortSpec {
-  const rep: PortSpec = {}
+export function representPort(ports: PortType[]): PortSpecType {
+  const rep: PortSpecType = {}
   ports.forEach(port => {
     rep[port.name] = port.store.value;
   })

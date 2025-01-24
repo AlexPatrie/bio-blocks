@@ -72,11 +72,11 @@ export function BigraphNode({
     <div className="react-flow__node-default flow">
       
       {/* Node Id/Name */}
-      <h3 className="node-name">
+      <h3 className="node-header">
         <NodeField
           data={currentData}
           field="nodeId"
-          handleInputChange={(e, field) => handleInputChange(e, field)}
+          handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
         />
       </h3>
       
@@ -92,9 +92,9 @@ export function BigraphNode({
             <tr>
               <td data-label="Type">
                 <NodeField
-                  data={data}
-                  key="_type"
-                  handleInputChange={(e, field) => handleInputChange(e, field)}
+                  data={currentData}
+                  field="_type"
+                  handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
                 />
               </td>
             </tr>
@@ -113,9 +113,9 @@ export function BigraphNode({
             <tr>
               <td data-label="Address">
                 <NodeField
-                  data={data}
-                  key="address"
-                  handleInputChange={(e, field) => handleInputChange(e, field)}
+                  data={currentData}
+                  field="address"
+                  handleInputChange={(e, field) => handleInputChange(e, field as NodeKeyType)}
                 />
               </td>
             </tr>
