@@ -142,18 +142,6 @@ export function BigraphNode({
                   handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
                 />
               </td>
-              {/*<td data-label="Inputs">
-                {inputPorts.map((portName, index) => (
-                  <input
-                    key={index} // Use the index as the key (or a unique value if available)
-                    type="text"
-                    value={portName}
-                    onChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
-                    placeholder={`Input ${index + 1}`}
-                    style={{marginBottom: "8px", display: "block"}} // Add spacing between inputs
-                  />
-                ))}
-              </td>*/}
             </tr>
             </tbody>
           </table>
