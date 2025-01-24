@@ -1,68 +1,147 @@
 import type {
   Edge,
-  Node as FlowNode,
+  Node as XyzFlowNode,
   NodeProps
 } from "@xyflow/react";
 
 
-export type CompositionNode = {
-  nodeId?: string;
+// composition(process/step) node
+export type NodeType = {
+  nodeId: string;
   _type: string;
   address: string;
-  config: Config[];
-  inputs: Port[];
-  outputs: Port[];
-};
-
-export interface ICompositionNode {
-  nodeId?: string;
-  _type: string;
-  address: string;
-  config: Config[];
-  inputs: Port[];
-  outputs: Port[];
-  verifyPorts(ports: Port[]): boolean;  // either input or output ports as args
+  config: Record<string, any>;
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
 }
 
-export type Config = {
+// config attribute
+export type ConfigType = {
   [key: string]: any;
 }
 
-export type Port = {
+// ports (to be verified)
+export type PortType = {
   name: string;
-  store: Store;
-}
+  store: StoreType;
+} & {
+  [key: string]: any; // allows indexing with a string
+};
 
-export interface Store {
+export type StoreType = {
   value: any;
-  connections: Connection[];
+  connections: ConnectionType[];
+} & {
+  [key: string]: any;  // allows indexing with a string
 }
 
-export type Connection = {
-  node: CompositionNode;
-  direction: Direction | string;
+export type ConnectionType = {
+  nodeId: string;
+  direction: DirectionType | string;
 }
 
-export type Direction = "in" | "out";
+export type DirectionType = "in" | "out";
 
-// consumed by the client
-export type CompositionNodeSpec = Omit<CompositionNode, "nodeId">;
 
-export type CompositionNodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
+// used for indexing node dynamically in event listeners
+export type NodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
 
-export type CompositionState = {
-  [key: string]: CompositionNode | CompositionNodeSpec | string | number;
-}
 
-export type CompositionSpec = {
-  state: CompositionState;
-  composition: string;
-}
-
-export type CompositionFlowNode = FlowNode<CompositionNode> | FlowNode<CompositionNodeSpec>;
+// primary flow node interface fulfillment type
+export type FlowNode = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
 
 
 /*** bigraph edges (mostly cosmetic) ***/
 type ButtonEdgeData = {};
 
 export type ButtonEdge = Edge<ButtonEdgeData>;
+
+
+// consumed by the client
+export type Spec = Record<string, any>;
+
+export type PortSpec = Record<string, string[]>;
+
+export type NodeSpecType = Omit<Node, "nodeId">;
+
+export type StateSpec = {
+  [key: string]: Node | NodeSpecType | string | number;
+}
+
+export type CompositionSpec = {
+  state: StateSpec;
+  composition: string;
+}
+
+
+// composition(process/step) node
+// export type NodeType = {
+//   nodeId: string;
+//   _type: string;
+//   address: string;
+//   config: ConfigType;
+//   inputs: PortType[] | Record<string, any>;
+//   outputs: PortType[] | Record<string, any>;
+// }
+//
+// // config attribute
+// export type ConfigType = {
+//   [key: string]: any;
+// }
+//
+// // ports (to be verified)
+// export type PortType = {
+//   name: string;
+//   store: StoreType;
+// }
+//
+// export type StoreType = {
+//   value: any;
+//   connections: ConnectionType[];
+// }
+//
+// export type ConnectionType = {
+//   nodeId: string;
+//   direction: DirectionType | string;
+// }
+//
+// export type DirectionType = "in" | "out";
+//
+//
+// // used for indexing node dynamically in event listeners
+// export type NodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
+//
+//
+// // primary flow node interface fulfillment type
+// export type FlowNode = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
+//
+//
+// /*** bigraph edges (mostly cosmetic) ***/
+// type ButtonEdgeData = {};
+//
+// export type ButtonEdge = Edge<ButtonEdgeData>;
+//
+//
+// // consumed by the client
+// export type Spec = Record<string, any>;
+//
+// export type PortSpec = Record<string, string[]>;
+//
+// export type NodeSpecType = Omit<Node, "nodeId">;
+//
+// export type StateSpec = {
+//   [key: string]: Node | NodeSpecType | string | number;
+// }
+//
+// export type CompositionSpec = {
+//   state: StateSpec;
+//   composition: string;
+// }
+
+
+
+
+
+
+
+

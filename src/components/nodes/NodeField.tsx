@@ -35,7 +35,7 @@ export function NodeField({ data, handleInputChange, key }: NodeFieldProps) {
       {editMode ? (
         <input
           type="text"
-          value={tempValue}
+          value={tempValue as Record<string, any[]>}
           onChange={(e) => setTempValue(e.target.value)} // Update local state as the user types
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
