@@ -1,12 +1,20 @@
 import React, { useCallback } from "react";
+// import {
+//   BigraphFlowNode,
+//   BigraphNode as BigraphNodeType,
+//   BigraphNodeKey,
+//   Port, Store
+// } from "../../data_model";
 import {
-  BigraphFlowNode,
-  BigraphNode as BigraphNodeType,
-  BigraphNodeKey,
-  Port, Store
-} from "../../data_model";
+  FlowNodeType,
+  NodeType,
+  NodeKeyType,
+  StoreType,
+  PortType
+} from "../../datamodel";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NodeField } from "./NodeField";
+import {addInputPort, addOutputPort} from "../../connect";
 
 
 export function BigraphNode({
@@ -14,40 +22,36 @@ export function BigraphNode({
   positionAbsoluteY,
   data,
   id,
-}: NodeProps<BigraphFlowNode>) {
+}: NodeProps<FlowNodeType>) {
   // set position TODO: fix this
   const x = `${Math.round(positionAbsoluteX)}px`;
   const y = `${Math.round(positionAbsoluteY)}px`;
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as BigraphNodeType;
+  const nodeData = data as NodeType;
   const inputPorts = Object.keys(nodeData.inputs);
   const outputPorts = Object.keys(nodeData.outputs);
 
   const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, field: BigraphNodeKey) => {
+    // this is the method that should add and verify the ports on user "Enter" event
+    (event: React.ChangeEvent<HTMLInputElement>, field: NodeKeyType) => {
       const valueChange = event.target.value;
       switch (field) {
         case "inputs":
-          const inputDataStore: Store = {
-            value: [valueChange]
-          }
-          const inputPort: Port = {
-            name: valueChange,
-            store: inputDataStore,
-          }
-          nodeData.inputs[valueChange] = inputPort;
-          break
+          addInputPort(nodeData, valueChange);
+          break;
+          // const inputDataStore: StoreType = {
+          //   value: [valueChange]
+          // }
+          // const inputPort: PortType = {
+          //   name: valueChange,
+          //   store: inputDataStore,
+          // }
+          // nodeData.inputs[valueChange] = inputPort;
+          // break
         
         case "outputs":
-          const outputDataStore: Store = {
-            value: [valueChange]
-          }
-          const outputPort: Port = {
-            name: valueChange,
-            store: outputDataStore,
-          }
-          nodeData.outputs[valueChange] = outputPort;
+          addOutputPort(nodeData, valueChange);
           break
         
         case "config":
@@ -62,15 +66,16 @@ export function BigraphNode({
     },
     [data, id]
   );
-
+  
+  const currentData = data as NodeType;
   return (
     <div className="react-flow__node-default flow">
       
       {/* Node Id/Name */}
       <h3 className="node-name">
         <NodeField
-          data={data}
-          key="nodeId"
+          data={currentData}
+          field="nodeId"
           handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>

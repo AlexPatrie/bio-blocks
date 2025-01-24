@@ -1,41 +1,51 @@
 /* This component serves to handle and render the logic for a single atomic, editable attribute of a given node, ie: inputs, outputs */
 
 import React, {useCallback, useState} from "react";
-import {BigraphNode, BigraphNodeKey} from "../../data_model";
+import {NodeKeyType, NodeType} from "../../datamodel";
+
 
 
 interface NodeFieldProps {
-  data: BigraphNode;
-  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>, field: keyof BigraphNode) => void;
-  key: string | BigraphNodeKey;
+  data: NodeType;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>, field: string) => void;
+  field: string | NodeKeyType;
 }
 
-export function NodeField({ data, handleInputChange, key }: NodeFieldProps) {
-  const specifiedField = key as BigraphNodeKey;
+export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
+  const specifiedField = field as NodeKeyType;
   const [editMode, setEditMode] = useState(false);
-  const [tempValue, setTempValue] = useState(data[specifiedField] || ""); // Local state for editing
+  const [tempValue, setTempValue] = useState(data[specifiedField] || specifiedField); // local state for editing
   
   const handleBlur = useCallback(() => {
     setEditMode(false); // exit edit mode when losing focus
-    handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
+    const inputChange = {
+      target: {
+        value: tempValue
+      }
+    }
+    handleInputChange(inputChange as React.ChangeEvent<HTMLInputElement>, specifiedField); // update parent state
   }, [tempValue, handleInputChange, specifiedField]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
+      // here is what should trigger step 4 (entirely)
       if (event.key === "Enter") {
-        setEditMode(false); // Exit edit mode on Enter
+        setEditMode(false); // exit edit mode on Enter
         handleInputChange({ target: { value: tempValue } } as React.ChangeEvent<HTMLInputElement>, specifiedField); // Update parent state
       }
     },
     [tempValue, handleInputChange, specifiedField]
   );
-
+  
+  const specifiedUpdate = data[specifiedField];
+  const updatedData = typeof specifiedUpdate === "string" ? specifiedUpdate : JSON.stringify(specifiedUpdate);
+  
   return (
     <div>
       {editMode ? (
         <input
           type="text"
-          value={tempValue as Record<string, any[]>}
+          value={typeof tempValue === "string" ? tempValue : JSON.stringify(tempValue)}
           onChange={(e) => setTempValue(e.target.value)} // Update local state as the user types
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
@@ -44,7 +54,7 @@ export function NodeField({ data, handleInputChange, key }: NodeFieldProps) {
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>
-          {data[specifiedField] || `Empty field for ${specifiedField}`}
+          {updatedData || `Empty field for ${specifiedField}`}
         </h3>
       )}
     </div>

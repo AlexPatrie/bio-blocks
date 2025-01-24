@@ -2,14 +2,11 @@ import type { BuiltInNode, Node, NodeTypes } from "@xyflow/react";
 import PositionLoggerNode, {
   type PositionLoggerNode as PositionLoggerNodeType,
 } from "./PositionLoggerNode";
-import {
-  type BigraphFlowNode, BigraphNode as BigraphNodeType
-} from "../../data_model";
-import { ConstructBigraphNode } from "./__BigraphNode";
+import { FlowNode, NodeType } from "../../datamodel";
 import { BigraphNode } from "./BigraphNode";
 
 // define example nodes
-const nodeA: BigraphNodeType = {
+const nodeA: NodeType = {
   _type: 'process',
   address: 'local:copasi-process',
   inputs: {
@@ -27,7 +24,7 @@ const nodeA: BigraphNodeType = {
   nodeId: 'ODE'
 }
 
-const nodeB: BigraphNodeType = {
+const nodeB: NodeType = {
   _type: 'process',
   address: 'local:cobra-process',
   inputs: {
@@ -44,7 +41,7 @@ const nodeB: BigraphNodeType = {
   nodeId: 'FBA'
 }
 
-const nodeC: BigraphNodeType = {
+const nodeC: NodeType = {
   _type: 'process',
   address: 'local:smoldyn-process',
   inputs: {
@@ -65,9 +62,6 @@ export const initialNodes = [
   { id: "particle", type: "bigraph-node", position: { x: -200, y: 0 }, data: nodeC },
 ] satisfies Node[];
 
-
-
-
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
   "bigraph-node": BigraphNode  // ConstructBigraphNode
@@ -75,4 +69,4 @@ export const nodeTypes = {
 } satisfies NodeTypes;
 
 // append the types of you custom edges to the BuiltInNode type
-export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | BigraphFlowNode;
+export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | FlowNode;

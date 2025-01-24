@@ -13,7 +13,9 @@ export type NodeType = {
   config: Record<string, any>;
   inputs: Record<string, any>;
   outputs: Record<string, any>;
-}
+} & {
+  [key: string]: any; // allows indexing with a string
+};
 
 // config attribute
 export type ConfigType = {
@@ -44,11 +46,11 @@ export type DirectionType = "in" | "out";
 
 
 // used for indexing node dynamically in event listeners
-export type NodeKey = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
+export type NodeKeyType = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
 
 
 // primary flow node interface fulfillment type
-export type FlowNode = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
+export type FlowNodeType = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
 
 
 /*** bigraph edges (mostly cosmetic) ***/
@@ -58,18 +60,18 @@ export type ButtonEdge = Edge<ButtonEdgeData>;
 
 
 // consumed by the client
-export type Spec = Record<string, any>;
+export type SpecType = Record<string, any>;
 
-export type PortSpec = Record<string, string[]>;
+export type PortSpecType = Record<string, string[]>;
 
-export type NodeSpecType = Omit<Node, "nodeId">;
+export type NodeSpecType = Omit<NodeType, "nodeId">;
 
-export type StateSpec = {
-  [key: string]: Node | NodeSpecType | string | number;
+export type StateSpecType = {
+  [key: string]: NodeType | NodeSpecType | string | number;
 }
 
-export type CompositionSpec = {
-  state: StateSpec;
+export type CompositeSpecType = {
+  state: StateSpecType;
   composition: string;
 }
 

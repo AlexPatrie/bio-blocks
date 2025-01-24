@@ -1,7 +1,7 @@
 import {ConnectionType, DirectionType, NodeType, PortSpec, PortType, StoreType} from "./datamodel";
 
 
-function newPort(node: NodeType, name: string, direction: DirectionType): PortType {
+export function newPort(node: NodeType, name: string, direction: DirectionType): PortType {
   const newConnection: ConnectionType = {
     nodeId: node.nodeId,
     direction: direction
@@ -18,17 +18,17 @@ function newPort(node: NodeType, name: string, direction: DirectionType): PortTy
   }
 }
 
-function addInputPort(node: NodeType, name: string): void {
+export function addInputPort(node: NodeType, name: string): void {
   const port = newPort(node, name, 'in');
   node.inputs.push(port);
 }
 
-function addOutputPort(node: NodeType, name: string): void {
+export function addOutputPort(node: NodeType, name: string): void {
   const port = newPort(node, name, 'out');
   node.outputs.push(port);
 }
 
-function representPort(ports: PortType[]): PortSpec {
+export function representPort(ports: PortType[]): PortSpec {
   const rep: PortSpec = {}
   ports.forEach(port => {
     rep[port.name] = port.store.value;
@@ -36,7 +36,7 @@ function representPort(ports: PortType[]): PortSpec {
   return rep;
 }
 
-function verifyPorts(node: NodeType): boolean {
+export function verifyPorts(node: NodeType): boolean {
   const inputsLength = node.inputs.length;
   const outputsLength = node.outputs.length;
   if (inputsLength === 0) {
@@ -44,6 +44,6 @@ function verifyPorts(node: NodeType): boolean {
   } else return outputsLength !== 1;
 }
 
-function verifyConnections(store: StoreType): boolean {
+export function verifyConnections(store: StoreType): boolean {
   return true // TODO: update this
 }

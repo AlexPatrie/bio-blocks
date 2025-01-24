@@ -13,8 +13,9 @@ import "@xyflow/react/dist/style.css";
 import { initialNodes, nodeTypes, type CustomNodeType } from "./nodes";
 import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
-import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
+// import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
+import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -49,9 +50,9 @@ export default function App() {
       })),
     };
     
-    const bigraphState: BigraphState = {};
+    const bigraphState: StateSpecType = {};
     nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-      const nodeData = node.data as BigraphNode;
+      const nodeData = node.data as NodeType;
       const nodeId = nodeData.nodeId as string;
       bigraphState[nodeId] = {
         _type: nodeData._type,
@@ -80,7 +81,7 @@ export default function App() {
   };
   
   // graph loader (reader)
-  const handleLoadGraph: (data: BigraphSpec) => void = (data: BigraphSpec): void => {
+  const handleLoadGraph: (data: CompositeSpecType) => void = (data: CompositeSpecType): void => {
     console.log(`Data: ${JSON.stringify(data)}`);
     // setNodes(data.nodes);
     // setEdges(data.edges);
