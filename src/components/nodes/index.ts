@@ -3,13 +3,13 @@ import PositionLoggerNode, {
   type PositionLoggerNode as PositionLoggerNodeType,
 } from "./PositionLoggerNode";
 import {
-  type BigraphFlowNode as BigraphNodeType, BigraphNode
+  type BigraphFlowNode, BigraphNode as BigraphNodeType
 } from "../../data_model";
 import { ConstructBigraphNode } from "./__BigraphNode";
-import { ConstructNode } from "./ConstructNode";
+import { BigraphNode } from "./BigraphNode";
 
 // define example nodes
-const nodeA: BigraphNode = {
+const nodeA: BigraphNodeType = {
   _type: 'process',
   address: 'local:copasi-process',
   inputs: {
@@ -27,7 +27,7 @@ const nodeA: BigraphNode = {
   nodeId: 'ODE'
 }
 
-const nodeB: BigraphNode = {
+const nodeB: BigraphNodeType = {
   _type: 'process',
   address: 'local:cobra-process',
   inputs: {
@@ -44,7 +44,7 @@ const nodeB: BigraphNode = {
   nodeId: 'FBA'
 }
 
-const nodeC: BigraphNode = {
+const nodeC: BigraphNodeType = {
   _type: 'process',
   address: 'local:smoldyn-process',
   inputs: {
@@ -70,9 +70,9 @@ export const initialNodes = [
 
 export const nodeTypes = {
   "position-logger": PositionLoggerNode,
-  "bigraph-node": ConstructNode  // ConstructBigraphNode
+  "bigraph-node": BigraphNode  // ConstructBigraphNode
   // add any of your custom nodes here!
 } satisfies NodeTypes;
 
 // append the types of you custom edges to the BuiltInNode type
-export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | BigraphNodeType;
+export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | BigraphFlowNode;

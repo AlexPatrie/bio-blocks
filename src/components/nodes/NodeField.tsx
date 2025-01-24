@@ -7,11 +7,11 @@ import {BigraphNode, BigraphNodeKey} from "../../data_model";
 interface NodeFieldProps {
   data: BigraphNode;
   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>, field: keyof BigraphNode) => void;
-  field: string | BigraphNodeKey;
+  key: string | BigraphNodeKey;
 }
 
-export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
-  const specifiedField = field as BigraphNodeKey;
+export function NodeField({ data, handleInputChange, key }: NodeFieldProps) {
+  const specifiedField = key as BigraphNodeKey;
   const [editMode, setEditMode] = useState(false);
   const [tempValue, setTempValue] = useState(data[specifiedField] || ""); // Local state for editing
   

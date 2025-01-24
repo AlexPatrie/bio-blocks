@@ -1,27 +1,64 @@
 import React, { useCallback } from "react";
-import {DataStore, DataStoreFlowNode} from "../../data_model";
-import {Handle, NodeProps, Position} from "@xyflow/react";
-import {DataStoreField} from "./DataStoreField";
+import {
+  BigraphFlowNode,
+  BigraphNode as BigraphNodeType,
+  BigraphNodeKey,
+  Port, Store
+} from "../../data_model";
+import { Handle, NodeProps, Position } from "@xyflow/react";
+import { NodeField } from "./NodeField";
 
 
-export function ConstructStore({
+export function BigraphNode({
   positionAbsoluteX,
   positionAbsoluteY,
   data,
   id,
-}: NodeProps<DataStoreFlowNode>) {
+}: NodeProps<BigraphFlowNode>) {
   // set position TODO: fix this
   const x = `${Math.round(positionAbsoluteX)}px`;
   const y = `${Math.round(positionAbsoluteY)}px`;
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const storeData = data as DataStore;
-  const inputPorts = Object.keys(storeData);
+  const nodeData = data as BigraphNodeType;
+  const inputPorts = Object.keys(nodeData.inputs);
+  const outputPorts = Object.keys(nodeData.outputs);
 
   const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-      storeData[field] = event.target.value;
-      console.log(`Node ${id} updated:`, storeData);
+    (event: React.ChangeEvent<HTMLInputElement>, field: BigraphNodeKey) => {
+      const valueChange = event.target.value;
+      switch (field) {
+        case "inputs":
+          const inputDataStore: Store = {
+            value: [valueChange]
+          }
+          const inputPort: Port = {
+            name: valueChange,
+            store: inputDataStore,
+          }
+          nodeData.inputs[valueChange] = inputPort;
+          break
+        
+        case "outputs":
+          const outputDataStore: Store = {
+            value: [valueChange]
+          }
+          const outputPort: Port = {
+            name: valueChange,
+            store: outputDataStore,
+          }
+          nodeData.outputs[valueChange] = outputPort;
+          break
+        
+        case "config":
+          nodeData.config[valueChange] = valueChange;
+          break;
+        
+        default:
+          nodeData[field] = valueChange;
+      }
+      
+      console.log(`Node ${id} updated:`, nodeData);
     },
     [data, id]
   );
@@ -31,9 +68,9 @@ export function ConstructStore({
       
       {/* Node Id/Name */}
       <h3 className="node-name">
-        <DataStoreField
+        <NodeField
           data={data}
-          specifiedField="nodeId"
+          key="nodeId"
           handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>
@@ -49,9 +86,9 @@ export function ConstructStore({
             <tbody>
             <tr>
               <td data-label="Type">
-                <DataStoreField
+                <NodeField
                   data={data}
-                  specifiedField="_type"
+                  key="_type"
                   handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
               </td>
@@ -70,9 +107,9 @@ export function ConstructStore({
             <tbody>
             <tr>
               <td data-label="Address">
-                <DataStoreField
+                <NodeField
                   data={data}
-                  specifiedField="address"
+                  key="address"
                   handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
               </td>

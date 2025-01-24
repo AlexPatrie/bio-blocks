@@ -1,28 +1,26 @@
 import React, { useCallback } from "react";
-import {BigraphFlowNode, BigraphNode, BigraphNodeKey} from "../../data_model";
+import {DataStore as DataStoreType, DataStoreFlowNode} from "../../data_model";
 import {Handle, NodeProps, Position} from "@xyflow/react";
-import {NodeField} from "./NodeField";
+import {DataStoreField} from "./DataStoreField";
 
 
-export function ConstructNode({
+export function DataStore({
   positionAbsoluteX,
   positionAbsoluteY,
   data,
   id,
-}: NodeProps<BigraphFlowNode>) {
+}: NodeProps<DataStoreFlowNode>) {
   // set position TODO: fix this
   const x = `${Math.round(positionAbsoluteX)}px`;
   const y = `${Math.round(positionAbsoluteY)}px`;
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as BigraphNode;
-  const inputPorts = Object.keys(nodeData.inputs);
-  const outputPorts = Object.keys(nodeData.outputs);
+  const storeData = data as DataStoreType;
 
   const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, field: BigraphNodeKey) => {
-      nodeData[field] = event.target.value;
-      console.log(`Node ${id} updated:`, nodeData);
+    (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+      storeData[field] = event.target.value;
+      console.log(`Node ${id} updated:`, storeData);
     },
     [data, id]
   );
@@ -30,12 +28,11 @@ export function ConstructNode({
   return (
     <div className="react-flow__node-default flow">
       
-      
       {/* Node Id/Name */}
-      <h3 className="node-name">
-        <NodeField
+      <h3 className="store-name">
+        <DataStoreField
           data={data}
-          field="nodeId"
+          field=""
           handleInputChange={(e, field) => handleInputChange(e, field)}
         />
       </h3>
@@ -51,9 +48,9 @@ export function ConstructNode({
             <tbody>
             <tr>
               <td data-label="Type">
-                <NodeField
+                <DataStoreField
                   data={data}
-                  field="_type"
+                  specifiedField="_type"
                   handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
               </td>
@@ -72,9 +69,9 @@ export function ConstructNode({
             <tbody>
             <tr>
               <td data-label="Address">
-                <NodeField
+                <DataStoreField
                   data={data}
-                  field="address"
+                  specifiedField="address"
                   handleInputChange={(e, field) => handleInputChange(e, field)}
                 />
               </td>

@@ -1,13 +1,28 @@
 import type { Edge, Node, NodeProps } from "@xyflow/react";
 
-/*** bigraph nodes ***/
+export type DataStore = {
+  [key: string]: string;
+}
+
+export type DataStoreFlowNode = Node<DataStore>;
+
+export type Store = {
+  value: any[];
+  connections?: BigraphNode[];
+}
+
+export type Port = {
+  name: string;
+  store: Store;
+}
+
 export type BigraphNode = {
-  _type: string | any;
-  address: string | any;
-  inputs: Record<string, string[]>;
-  outputs: Record<string, string[]>;
-  config: Record<string, string | number | string[] | number[]>;
   nodeId?: string;
+  _type: string;
+  address: string;
+  config: Record<string, string | number | string[] | number[]>;
+  inputs: Record<string, Port> | Record<string, any[]>;
+  outputs: Record<string, Port> | Record<string, any[]>;
 };
 
 export type BigraphNodeSpec = Omit<BigraphNode, "nodeId">;
@@ -25,15 +40,6 @@ export type BigraphSpec = {
 
 export type BigraphFlowNode = Node<BigraphNode> | Node<BigraphNodeSpec>;
 
-// export interface DataStore {
-//   [key: string]: string;
-// }
-
-export type DataStore = {
-  [key: string]: string[];
-}
-
-export type DataStoreFlowNode = Node<DataStore>;
 
 /*** bigraph edges (mostly cosmetic) ***/
 type ButtonEdgeData = {};
