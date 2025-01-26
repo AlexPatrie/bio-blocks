@@ -68,9 +68,17 @@ export function StoreNode({
       
       {/* dynamically add input handles based on the number of inputs */}
       {/* Input Handle */}
-      <Handle type="target" position={currentData['inputPosition'] ? currentData['inputPosition'] : Position.Left}/>
+      <Handle
+        type="target"
+        position={currentData['inputPosition'] ? currentData['inputPosition'] : Position.Left}
+        className="port-handle input-handle"
+      />
       {/* Output Handle */}
-      <Handle type="source" position={currentData['outputPosition'] ? currentData['outputPosition'] : Position.Right}/>
+      <Handle
+        type="source"
+        position={currentData['outputPosition'] ? currentData['outputPosition'] : Position.Right}
+        className="port-handle output-handle"
+      />
     </div>
   );
 }

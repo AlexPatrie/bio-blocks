@@ -187,10 +187,11 @@ export function ProcessNode({
             <Handle
               key={index}
               type="target"
+              className="port-handle input-handle"
               title={inputName}
               position={currentData['inputPosition'] ? currentData['inputPosition'] : Position.Left}
               id={inputName}  // {`input-${index}`}
-              style={{ top: `${(index + 1) * (100 / (node.inputs.length + 1))}%` }}
+              
             />
           </div>
         ))}
@@ -200,10 +201,11 @@ export function ProcessNode({
             <Handle
               key={index}
               type="source"
+              className="port-handle output-handle"
               title={outputName}
               position={currentData['outputPosition'] ? currentData['outputPosition'] : Position.Right}
               id={outputName}  // {`input-${index}`}
-              style={{ top: `${(index + 1) * (100 / (node.outputs.length + 1))}%` }}
+              
             />
           </div>
           

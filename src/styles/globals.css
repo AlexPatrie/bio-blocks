@@ -67,3 +67,16 @@ a {
   border-radius: 50% !important;
 }
 
+.port-handle {
+  scale: 2;
+}
+
+.input-handle {
+  background-color: blue !important;
+  border: 1px solid blue !important;
+}
+
+.output-handle {
+  background-color: green !important;
+  border: 1px solid green !important;
+}
