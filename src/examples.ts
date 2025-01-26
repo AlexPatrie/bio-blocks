@@ -165,18 +165,17 @@ const exampleNodes: ProcessNodeType[] = [nodeA];
 // export const initialOutputStores: StoreNodeConfig[] = [];
 
 export const initialNodes = [
-  { id: "dFBA", type: "process-node", position: { x: 0, y: 100}, data: nodeA },
-  { id: "time-store", type: "store-node", position: { x: -100, y: 100 }, data: timeStore },
-  { id: "parameters-store", type: "store-node", position: { x: 100, y: 0 }, data: parametersStore },
-  { id: "species-concentrations-store", type: "store-node", position: { x: 250, y: 350 }, data: speciesConcentrationsStore },
-  { id: "fluxes-store", type: "store-node", position: { x: 200, y: 100 }, data: fluxesStore },
+  { id: "dFBA", type: "process-node", position: { x: -600, y: -600}, data: nodeA },
+  { id: "time-store", type: "store-node", position: { x: -1000, y: -600 }, data: timeStore },
+  { id: "parameters-store", type: "store-node", position: { x: -1000, y: -400 }, data: parametersStore },
+  { id: "species-concentrations-store", type: "store-node", position: { x: -100, y: -600 }, data: speciesConcentrationsStore },
+  { id: "fluxes-store", type: "store-node", position: { x: -100, y: -400 }, data: fluxesStore },
+  { id: "membrane", type: "process-node", position: { x: -650, y: -200 }, data: nodeB },
   { id: "geometry-store", type: "store-node", position: { x: 200, y: 100 }, data: geometryStore },
   { id: "velocities-store", type: "store-node", position: { x: 200, y: 100 }, data: velocitiesStore },
   { id: "forces-store", type: "store-node", position: { x: 200, y: 100 }, data: forcesStore },
+  { id: "particle", type: "process-node", position: { x: -650, y: 200 }, data: nodeC },
   { id: "particles-store", type: "store-node", position: { x: 200, y: 100 }, data: particlesStore },
-  //{ id: "membrane", type: "process-node", position: { x: 300, y: -100 }, data: nodeB },
-  //{ id: "particle", type: "process-node", position: { x: -300, y: 200 }, data: nodeC },
-  // { id: "species-store", type: "store-node", position: { x: -300, y: -22 }, data: speciesStore },
 ] satisfies Node[];
 
 // export const initialEdges = [
@@ -187,15 +186,6 @@ export const initialNodes = [
 // ] satisfies Edge[];
 
 export const initialEdges = [
-  // {
-  //   id: 'dFBA->species-concentrations',
-  //   type: 'button-edge',
-  //   source: 'dFBA',
-  //   target: 'species-concentrations-store',
-  //   animated: true
-  //   // data: { key: 'species_concentrations_store' },
-  //   // targetHandle: 'species_concentrations_store',
-  // },
   {
     id: 'parameters->dFBA',
     type: 'button-edge',
