@@ -1,6 +1,7 @@
 import type {Edge, Node} from "@xyflow/react";
 import {NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType, StoreNodeConfig} from "./datamodel";
 import {getStores} from "./connect";
+import {Position} from "@xyflow/react";
 
 
 // define example nodes
@@ -24,7 +25,7 @@ const nodeA: ProcessNodeType = {
       'model_file': 'sbml_model.xml'
     }
   },
-  nodeId: 'dFBA'
+  nodeId: 'dFBA',
 }
 
 const nodeB: ProcessNodeType = {
@@ -37,7 +38,7 @@ const nodeB: ProcessNodeType = {
   },
   outputs: {
     'geometry': ['geometry_store'],
-    'velocities': ['velocities_store'],
+    // 'velocities': ['velocities_store'],
     'forces': ['forces_store'],
   },
   config: {
@@ -49,7 +50,9 @@ const nodeB: ProcessNodeType = {
       }
     }
   },
-  nodeId: 'membrane'
+  nodeId: 'membrane',
+  inputPosition: Position.Top,
+  outputPosition: Position.Right
 }
 
 const nodeC: ProcessNodeType = {
@@ -60,14 +63,17 @@ const nodeC: ProcessNodeType = {
     'forces': ['forces_store'],
   },
   outputs: {
-    'particles': ['particles_store'],
+    'molecules': ['molecules_store'],
   },
   config: {
     'model': {
       'model_file': 'smoldyn_model.txt'
     }
   },
-  nodeId: 'particle'
+  nodeId: 'particle',
+  inputPosition: Position.Top,
+  outputPosition: Position.Right
+  
 }
 
 const timeStore: StoreNodeType = {
@@ -77,7 +83,7 @@ const timeStore: StoreNodeType = {
       nodeId: 'dFBA',
       direction: 'in'
     }
-  ]
+  ],
 }
 
 const parametersStore: StoreNodeType = {
@@ -111,7 +117,8 @@ const fluxesStore: StoreNodeType = {
       nodeId: 'membrane',
       direction: 'in'
     }
-  ]
+  ],
+  outputPosition: Position.Bottom
 }
 
 const geometryStore: StoreNodeType = {
@@ -145,11 +152,12 @@ const forcesStore: StoreNodeType = {
       nodeId: 'particle',
       direction: 'in'
     }
-  ]
+  ],
+  outputPosition: Position.Bottom
 }
 
-const particlesStore: StoreNodeType = {
-  value: 'particles_store',
+const moleculesStore: StoreNodeType = {
+  value: 'molecules_store',
   connections: [
     {
       nodeId: 'particle',
@@ -164,18 +172,19 @@ const exampleNodes: ProcessNodeType[] = [nodeA];
 //export const initialOutputStores: StoreNodeConfig[] = getStores(exampleNodes, 'outputs') satisfies Node[];
 // export const initialOutputStores: StoreNodeConfig[] = [];
 
+// TODO: add a dynamic setter that positions all processes in the same x axis and stores in the same x axis (change y)
 export const initialNodes = [
   { id: "dFBA", type: "process-node", position: { x: -600, y: -600}, data: nodeA },
   { id: "time-store", type: "store-node", position: { x: -1000, y: -600 }, data: timeStore },
   { id: "parameters-store", type: "store-node", position: { x: -1000, y: -400 }, data: parametersStore },
-  { id: "species-concentrations-store", type: "store-node", position: { x: -100, y: -600 }, data: speciesConcentrationsStore },
-  { id: "fluxes-store", type: "store-node", position: { x: -100, y: -400 }, data: fluxesStore },
-  { id: "membrane", type: "process-node", position: { x: -650, y: -200 }, data: nodeB },
-  { id: "geometry-store", type: "store-node", position: { x: 200, y: 100 }, data: geometryStore },
-  { id: "velocities-store", type: "store-node", position: { x: 200, y: 100 }, data: velocitiesStore },
-  { id: "forces-store", type: "store-node", position: { x: 200, y: 100 }, data: forcesStore },
-  { id: "particle", type: "process-node", position: { x: -650, y: 200 }, data: nodeC },
-  { id: "particles-store", type: "store-node", position: { x: 200, y: 100 }, data: particlesStore },
+  { id: "species-concentrations-store", type: "store-node", position: { x: 200, y: -600 }, data: speciesConcentrationsStore },
+  { id: "fluxes-store", type: "store-node", position: { x: 200, y: -400 }, data: fluxesStore },
+  { id: "membrane", type: "process-node", position: { x: -600, y: -200 }, data: nodeB },
+  { id: "geometry-store", type: "store-node", position: { x: 200, y: -200 }, data: geometryStore },
+  // { id: "velocities-store", type: "store-node", position: { x: 200, y: -200}, data: velocitiesStore },
+  { id: "forces-store", type: "store-node", position: { x: 200, y: 0 }, data: forcesStore },
+  { id: "particle", type: "process-node", position: { x: -600, y: 200 }, data: nodeC },
+  { id: "molecules-store", type: "store-node", position: { x: 200, y: 200 }, data: moleculesStore },
 ] satisfies Node[];
 
 // export const initialEdges = [
@@ -213,5 +222,40 @@ export const initialEdges = [
     source: 'dFBA',
     target: 'species-concentrations-store',
     animated: true
-  }
+  },
+  {
+    id: 'fluxes->membrane',
+    type: 'button-edge',
+    source: 'fluxes-store',
+    target: 'membrane',
+    animated: true
+  },
+  {
+    id: 'membrane->geometry',
+    type: 'button-edge',
+    source: 'membrane',
+    target: 'geometry-store',
+    animated: true
+  },
+  {
+    id: 'membrane->forces',
+    type: 'button-edge',
+    source: 'membrane',
+    target: 'forces-store',
+    animated: true
+  },
+  {
+    id: 'forces->particle',
+    type: 'button-edge',
+    source: 'forces-store',
+    target: 'particle',
+    animated: true
+  },
+  {
+    id: 'particle->molecules',
+    type: 'button-edge',
+    source: 'particle',
+    target: 'molecules-store',
+    animated: true
+  },
 ]

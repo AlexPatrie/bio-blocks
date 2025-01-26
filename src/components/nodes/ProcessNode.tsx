@@ -139,7 +139,7 @@ export function ProcessNode({
           </table>
         </div>
         
-        {/*<div className="grid-item">
+        <div className="grid-item">
           <table className="process-table-display inputs">
             <thead>
             <tr>
@@ -179,42 +179,36 @@ export function ProcessNode({
             </tr>
             </tbody>
           </table>
-        </div>*/}
+        </div>
         
-        {/* dynamically add input handles based on the number of inputs */}
+        
         {Object.keys(node.inputs).map((inputName: string, index: number) => (
           <div>
             <Handle
               key={index}
               type="target"
               title={inputName}
-              position={Position.Left}
+              position={currentData['inputPosition'] ? currentData['inputPosition'] : Position.Left}
               id={inputName}  // {`input-${index}`}
               style={{ top: `${(index + 1) * (100 / (node.inputs.length + 1))}%` }}
             />
-            <label className="handle-label">
-              {inputName}
-            </label>
           </div>
         ))}
         
-        {/* dynamically add output handles based on the number of inputs */}
         {Object.keys(node.outputs).map((outputName: string, index: number) => (
           <div>
             <Handle
               key={index}
               type="source"
               title={outputName}
-              position={Position.Right}
+              position={currentData['outputPosition'] ? currentData['outputPosition'] : Position.Right}
               id={outputName}  // {`input-${index}`}
               style={{ top: `${(index + 1) * (100 / (node.outputs.length + 1))}%` }}
             />
-            <label className="handle-label">
-              {outputName}
-            </label>
           </div>
           
         ))}
+     
         
         {/* Input Handle */}
         {/*<Handle type="target" position={Position.Left}/>*/}
