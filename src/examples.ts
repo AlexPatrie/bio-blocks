@@ -166,11 +166,6 @@ const moleculesStore: StoreNodeType = {
   ]
 }
 
-const exampleNodes: ProcessNodeType[] = [nodeA];
-
-// export const initialInputStores: StoreNodeConfig[] = getStores(exampleNodes, 'inputs') satisfies Node[];
-//export const initialOutputStores: StoreNodeConfig[] = getStores(exampleNodes, 'outputs') satisfies Node[];
-// export const initialOutputStores: StoreNodeConfig[] = [];
 
 // TODO: add a dynamic setter that positions all processes in the same x axis and stores in the same x axis (change y)
 export const initialNodes = [
@@ -186,13 +181,6 @@ export const initialNodes = [
   { id: "particle", type: "process-node", position: { x: -600, y: 200 }, data: nodeC },
   { id: "molecules-store", type: "store-node", position: { x: 200, y: 200 }, data: moleculesStore },
 ] satisfies Node[];
-
-// export const initialEdges = [
-//   { id: "dFBA->speciesConcentrations", source: "dFBA", target: "species_concentrations_store", animated: true, type: 'data-edge' },
-//   // { id: "dFBA->membrane", source: "dFBA", target: "membrane", animated: true, type: 'button-edge' },
-//   //{ id: "membrane->particle", source: "membrane", target: "particle", animated: true, type: 'button-edge' },
-//   //{ id: "particle->dFBA", source: "particle", target: "dFBA", animated: true, type: "button-edge" },
-// ] satisfies Edge[];
 
 export const initialEdges = [
   {

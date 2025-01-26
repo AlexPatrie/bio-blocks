@@ -10,6 +10,7 @@ import {
   StoreNodeType,
   StoreType
 } from "./datamodel";
+import { AppNode, AppEdge } from "./datamodel";
 
 
 export function newPort(node: NodeType, name: string, direction: DirectionType): PortType {
@@ -121,4 +122,27 @@ export function getStores(nodes: ProcessNodeType[] | StepNodeType[], portType: s
   });
   const uniqueStores = Array.from(new Set(stores));
   return  getAllStores(stores);
+}
+
+
+export function newAppNode(id: string, type: string, x: number, y: number, data: any): AppNode {
+  return {
+    id: id,
+    type: type,
+    position: {
+      x: x,
+      y: y
+    },
+    data: data
+  }
+}
+
+export function newAppEdge(id: string, type: string, source: string, target: string, animated: boolean = true): AppEdge {
+  return {
+    id: id,
+    type: type,
+    source: source,
+    target: target,
+    animated: animated,
+  }
 }
