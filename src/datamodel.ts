@@ -5,6 +5,19 @@ import type {
 } from "@xyflow/react";
 
 
+export type FlowNodePosition = {
+  x: number;
+  y: number;
+  z?: number;
+}
+
+export type StoreNodeConfig = {
+  id: string,
+  type: string,
+  position: FlowNodePosition,
+  data: StoreNodeType
+}
+
 export type BigraphNodeType = NodeType;
 
 export type ProcessNodeType = BigraphNodeType;

@@ -8,11 +8,9 @@ import React, { useCallback } from "react";
 import {
   BigraphFlowNodeType,
   NodeKeyType,
-  ProcessNodeType, StoreNodeType
+  StoreNodeType
 } from "../../datamodel";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { NodeField } from "./NodeField";
-import {addInputPort, addOutputPort} from "../../connect";
 import {StoreField} from "./StoreField";
 
 
@@ -32,7 +30,8 @@ export function StoreNode({
   // this is the method that should add and verify the ports on user "Enter" event
   const handleInputChange = useCallback((
     keyboardEvent: React.KeyboardEvent<HTMLInputElement> | null,
-    field: NodeKeyType
+    changeEvent: React.ChangeEvent<HTMLInputElement> | null,
+    field: string
     ) => {
       if (keyboardEvent?.key === "Enter") {
         console.log('Enter clicked!')
@@ -54,10 +53,16 @@ export function StoreNode({
       
       {/* Node Id/Name */}
       <h3 className="node-header">
-        <StoreField
+        {/*<StoreField
           storeNode={currentData}
           field="value"
-          handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as NodeKeyType)}
+          handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as string)}
+        />*/}
+        <input
+          type="text"
+          value={currentData.value}
+          autoFocus
+          placeholder="Enter field"
         />
       </h3>
       

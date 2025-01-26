@@ -16,7 +16,7 @@ import UploadSpec from "./UploadSpec";
 // import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
-import {initialNodes, initialEdges} from "../examples";
+import {initialNodes, initialEdges, initialInputStores, initialOutputStores} from "../examples";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -27,6 +27,12 @@ export default function App() {
   const [inputValue, setInputValue] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>(initialEdges);
+  const [inputStores, setInputStores, onInputStoresChange] = useNodesState<CustomNodeType>(initialInputStores);
+  const [outputStores, setOutputStores, onOutputStoresChange] = useNodesState<CustomNodeType>(initialOutputStores);
+  
+  inputStores.forEach((storeNode: CustomNodeType) => {
+    nodes.push(storeNode);
+  });
   
   // graph connector
   const onConnect: OnConnect = useCallback(
@@ -93,7 +99,7 @@ export default function App() {
   const addNewProcessNode = (local: boolean = true) => {
     const newNode = {
       id: `node-${nodes.length + 1}`, // Unique ID
-      type: "bigraph-node", // Match the type used in `nodeTypes`
+      type: "process-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
         _type: "process",
@@ -110,7 +116,7 @@ export default function App() {
   const addNewStepNode = () => {
     const newNode = {
       id: `node-${nodes.length + 1}`, // Unique ID
-      type: "customStepNode", // Match the type used in `nodeTypes`
+      type: "step-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
         _type: "step",
@@ -118,6 +124,19 @@ export default function App() {
         inputs: {},
         outputs: {},
         config: {},
+      }, // add new node with empty fields
+    };
+  
+    setNodes((nds) => [...nds, newNode]);
+  };
+  
+  const addNewStoreNode = () => {
+    const newNode = {
+      id: `node-${nodes.length + 1}`, // Unique ID
+      type: "store-node", // Match the type used in `nodeTypes`
+      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+      data: {
+        value: "",
       }, // add new node with empty fields
     };
   
@@ -207,6 +226,23 @@ export default function App() {
           }}
         >
           Add new step
+        </button>
+        <button
+          onClick={addNewStoreNode}
+          style={{
+            position: "absolute",
+            top: 0,
+            //right: 10,
+            left: 500,
+            padding: "10.5px 16px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Add new store
         </button>
       </div>
     </div>

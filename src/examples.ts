@@ -1,5 +1,6 @@
 import type {Edge, Node} from "@xyflow/react";
-import { NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType } from "./datamodel";
+import {NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType, StoreNodeConfig} from "./datamodel";
+import {getStores} from "./connect";
 
 
 // define example nodes
@@ -8,15 +9,15 @@ const nodeA: ProcessNodeType = {
   address: 'local:dfba',
   inputs: {
     'species_concentrations': ['species_concentrations_store'],
-    'time': ['time_store'],
-    'fluxes': ['fluxes_store'],
-    'parameters': ['parameters_store']
+    // 'time': ['time_store'],
+    // 'fluxes': ['fluxes_store'],
+    // 'parameters': ['parameters_store']
   },
   outputs: {
     'species_concentrations': ['species_concentrations_store'],
-    'time': ['time_store'],
-    'fluxes': ['fluxes_store'],
-    'parameters': ['parameters_store']
+    // 'time': ['time_store'],
+    // 'fluxes': ['fluxes_store'],
+    // 'parameters': ['parameters_store']
   },
   config: {
     'model': {
@@ -24,14 +25,6 @@ const nodeA: ProcessNodeType = {
     }
   },
   nodeId: 'dFBA'
-}
-
-const speciesStore: StoreNodeType = {
-  value: 'species_concentrations_store',
-  connections: [{
-    nodeId: nodeA.nodeId,
-    direction: 'in'
-  }]
 }
 
 const nodeB: ProcessNodeType = {
@@ -77,16 +70,27 @@ const nodeC: ProcessNodeType = {
   nodeId: 'particle'
 }
 
+const exampleNodes: ProcessNodeType[] = [nodeA];
+
+export const initialInputStores: StoreNodeConfig[] = getStores(exampleNodes, 'inputs') satisfies Node[];
+
+//export const initialOutputStores: StoreNodeConfig[] = getStores(exampleNodes, 'outputs') satisfies Node[];
+export const initialOutputStores: StoreNodeConfig[] = [];
 export const initialNodes = [
   { id: "dFBA", type: "process-node", position: { x: 0, y: 100}, data: nodeA },
-  { id: "membrane", type: "process-node", position: { x: 300, y: -100 }, data: nodeB },
-  { id: "particle", type: "process-node", position: { x: -300, y: 200 }, data: nodeC },
-  { id: "species-store", type: "store-node", position: { x: -300, y: -22 }, data: speciesStore },
+  //{ id: "membrane", type: "process-node", position: { x: 300, y: -100 }, data: nodeB },
+  //{ id: "particle", type: "process-node", position: { x: -300, y: 200 }, data: nodeC },
+  // { id: "species-store", type: "store-node", position: { x: -300, y: -22 }, data: speciesStore },
 ] satisfies Node[];
 
 export const initialEdges = [
-  { id: "dFBA->membrane", source: "dFBA", target: "membrane", animated: true, type: 'button-edge' },
-  { id: "FBA->particle", source: "FBA", target: "particle", animated: true, type: 'button-edge' },
-  { id: "particle->ODE", source: "particle", target: "ODE", animated: true, type: "button-edge" },
-  { id: "species-store-dFBA>", source: "species-store", target: "dFBA", animated: true, type: 'button-edge' },
+  { id: "dFBA->speciesConcentrations", source: "dFBA", target: "species_concentrations_store", animated: true, type: 'button-edge' },
+  // { id: "dFBA->membrane", source: "dFBA", target: "membrane", animated: true, type: 'button-edge' },
+  //{ id: "membrane->particle", source: "membrane", target: "particle", animated: true, type: 'button-edge' },
+  //{ id: "particle->dFBA", source: "particle", target: "dFBA", animated: true, type: "button-edge" },
 ] satisfies Edge[];
+
+
+initialInputStores.forEach((store) => {
+  console.log(`Input: ${JSON.stringify(store.id)}`);
+})
