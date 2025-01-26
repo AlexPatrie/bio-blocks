@@ -62,10 +62,15 @@ export type PortType = {
 
 export type StoreType = {
   value: any;
-  connections: ConnectionType[];
+  connections: Connection[];
 } & {
   [key: string]: any;  // allows indexing with a string
 }
+
+export type Connection = {
+  nodeId: string;
+  direction: DirectionType | string;
+};
 
 export type ConnectionType = {
   nodeId: string;
@@ -86,7 +91,9 @@ export type FlowNodeType = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
 /*** bigraph edges (mostly cosmetic) ***/
 type ButtonEdgeData = {};
 
-export type ButtonEdge = Edge<ButtonEdgeData>;
+type DataEdgeData = {};
+
+export type ButtonEdge = Edge<ButtonEdgeData> | Edge<DataEdgeData>;
 
 
 // consumed by the client

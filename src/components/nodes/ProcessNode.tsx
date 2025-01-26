@@ -13,6 +13,7 @@ import {
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NodeField } from "./NodeField";
 import {addInputPort, addOutputPort} from "../../connect";
+import {LabeledHandle} from "../LabeledHandle";
 
 
 export function ProcessNode({
@@ -138,7 +139,7 @@ export function ProcessNode({
           </table>
         </div>
         
-        <div className="grid-item">
+        {/*<div className="grid-item">
           <table className="process-table-display inputs">
             <thead>
             <tr>
@@ -178,28 +179,41 @@ export function ProcessNode({
             </tr>
             </tbody>
           </table>
-        </div>
+        </div>*/}
         
         {/* dynamically add input handles based on the number of inputs */}
         {Object.keys(node.inputs).map((inputName: string, index: number) => (
-          <Handle
-            key={index}
-            type="target"
-            position={Position.Left}
-            id={inputName}  // {`input-${index}`}
-            style={{ top: `${(index + 1) * (100 / (node.inputs.length + 1))}%` }}
-          />
+          <div>
+            <Handle
+              key={index}
+              type="target"
+              title={inputName}
+              position={Position.Left}
+              id={inputName}  // {`input-${index}`}
+              style={{ top: `${(index + 1) * (100 / (node.inputs.length + 1))}%` }}
+            />
+            <label className="handle-label">
+              {inputName}
+            </label>
+          </div>
         ))}
         
         {/* dynamically add output handles based on the number of inputs */}
         {Object.keys(node.outputs).map((outputName: string, index: number) => (
-          <Handle
-            key={index}
-            type="source"
-            position={Position.Right}
-            id={outputName}  // {`input-${index}`}
-            style={{ top: `${(index + 1) * (100 / (node.outputs.length + 1))}%` }}
-          />
+          <div>
+            <Handle
+              key={index}
+              type="source"
+              title={outputName}
+              position={Position.Right}
+              id={outputName}  // {`input-${index}`}
+              style={{ top: `${(index + 1) * (100 / (node.outputs.length + 1))}%` }}
+            />
+            <label className="handle-label">
+              {outputName}
+            </label>
+          </div>
+          
         ))}
         
         {/* Input Handle */}

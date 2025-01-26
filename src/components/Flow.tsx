@@ -16,7 +16,12 @@ import UploadSpec from "./UploadSpec";
 // import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
-import {initialNodes, initialEdges, initialInputStores, initialOutputStores} from "../examples";
+import {
+  initialNodes,
+  initialEdges,
+  // initialInputStores,
+  // initialOutputStores
+} from "../examples";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -27,12 +32,11 @@ export default function App() {
   const [inputValue, setInputValue] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>(initialEdges);
-  const [inputStores, setInputStores, onInputStoresChange] = useNodesState<CustomNodeType>(initialInputStores);
-  const [outputStores, setOutputStores, onOutputStoresChange] = useNodesState<CustomNodeType>(initialOutputStores);
-  
-  inputStores.forEach((storeNode: CustomNodeType) => {
-    nodes.push(storeNode);
-  });
+  // const [inputStores, setInputStores, onInputStoresChange] = useNodesState<CustomNodeType>(initialInputStores);
+  // const [outputStores, setOutputStores, onOutputStoresChange] = useNodesState<CustomNodeType>(initialOutputStores);
+  // inputStores.forEach((storeNode: CustomNodeType) => {
+  //   nodes.push(storeNode);
+  // });
   
   // graph connector
   const onConnect: OnConnect = useCallback(
