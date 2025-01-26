@@ -1,11 +1,28 @@
 import type {
-  Edge,
+  Edge, Node,
   Node as XyzFlowNode,
-  NodeProps
+  NodeProps, NodeTypes
 } from "@xyflow/react";
 
 
-// composition(process/step) node
+export type BigraphNodeType = NodeType;
+
+export type ProcessNodeType = BigraphNodeType;
+
+export type StepNodeType = BigraphNodeType;
+
+export type BigraphFlowNodeType = XyzFlowNode<ProcessNodeType> | XyzFlowNode<StepNodeType> | XyzFlowNode<BigraphNodeSpecType>;
+
+export type BigraphNodeSpecType = Omit<BigraphNodeType, "nodeId">;
+
+export type StoreNodeType = {
+  value: any;
+  connections: ConnectionType[];
+} & {
+  [key: string]: any;
+}
+
+// base node type
 export type NodeType = {
   nodeId: string;
   _type: string;
@@ -49,7 +66,7 @@ export type DirectionType = "in" | "out";
 export type NodeKeyType = "_type" | "address" | "inputs" | "outputs" | "config" | "nodeId";
 
 
-// primary flow node interface fulfillment type
+// primary base flow node interface fulfillment type
 export type FlowNodeType = XyzFlowNode<NodeType> | XyzFlowNode<NodeSpecType>;
 
 

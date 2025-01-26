@@ -1,9 +1,9 @@
-import type { Node } from "@xyflow/react";
-import { NodeType } from "./datamodel";
+import type {Edge, Node} from "@xyflow/react";
+import { NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType } from "./datamodel";
 
 
 // define example nodes
-const nodeA: NodeType = {
+const nodeA: ProcessNodeType = {
   _type: 'process',
   address: 'local:dfba',
   inputs: {
@@ -26,7 +26,15 @@ const nodeA: NodeType = {
   nodeId: 'dFBA'
 }
 
-const nodeB: NodeType = {
+const speciesStore: StoreNodeType = {
+  value: 'species_concentrations_store',
+  connections: [{
+    nodeId: nodeA.nodeId,
+    direction: 'in'
+  }]
+}
+
+const nodeB: ProcessNodeType = {
   _type: 'process',
   address: 'local:membrane-process',
   inputs: {
@@ -51,7 +59,7 @@ const nodeB: NodeType = {
   nodeId: 'membrane'
 }
 
-const nodeC: NodeType = {
+const nodeC: ProcessNodeType = {
   _type: 'process',
   address: 'local:smoldyn-process',
   inputs: {
@@ -70,7 +78,15 @@ const nodeC: NodeType = {
 }
 
 export const initialNodes = [
-  { id: "ODE", type: "bigraph-node", position: { x: 0, y: 0}, data: nodeA },
-  { id: "FBA", type: "bigraph-node", position: { x: 300, y: 0 }, data: nodeB },
-  { id: "particle", type: "bigraph-node", position: { x: -300, y: 0 }, data: nodeC },
+  { id: "dFBA", type: "process-node", position: { x: 0, y: 100}, data: nodeA },
+  { id: "membrane", type: "process-node", position: { x: 300, y: -100 }, data: nodeB },
+  { id: "particle", type: "process-node", position: { x: -300, y: 200 }, data: nodeC },
+  { id: "species-store", type: "store-node", position: { x: -300, y: -22 }, data: speciesStore },
 ] satisfies Node[];
+
+export const initialEdges = [
+  { id: "dFBA->membrane", source: "dFBA", target: "membrane", animated: true, type: 'button-edge' },
+  { id: "FBA->particle", source: "FBA", target: "particle", animated: true, type: 'button-edge' },
+  { id: "particle->ODE", source: "particle", target: "ODE", animated: true, type: "button-edge" },
+  { id: "species-store-dFBA>", source: "species-store", target: "dFBA", animated: true, type: 'button-edge' },
+] satisfies Edge[];

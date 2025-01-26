@@ -11,12 +11,12 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { nodeTypes, type CustomNodeType } from "./nodes";
-import { initialEdges, edgeTypes, type CustomEdgeType } from "./edges";
+import { edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
 // import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
 import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
-import {initialNodes} from "../examples";
+import {initialNodes, initialEdges} from "../examples";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -90,13 +90,30 @@ export default function App() {
   };
   
   // new node constructor
-  const addNewBigraphNode = () => {
+  const addNewProcessNode = (local: boolean = true) => {
     const newNode = {
       id: `node-${nodes.length + 1}`, // Unique ID
-      type: "customNode", // Match the type used in `nodeTypes`
+      type: "bigraph-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
-        _type: "",
+        _type: "process",
+        address: "",
+        inputs: {},
+        outputs: {},
+        config: {},
+      }, // add new node with empty fields
+    };
+  
+    setNodes((nds) => [...nds, newNode]);
+  };
+  
+  const addNewStepNode = () => {
+    const newNode = {
+      id: `node-${nodes.length + 1}`, // Unique ID
+      type: "customStepNode", // Match the type used in `nodeTypes`
+      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+      data: {
+        _type: "step",
         address: "",
         inputs: {},
         outputs: {},
@@ -158,7 +175,7 @@ export default function App() {
           Export to JSON
         </button>
         <button
-          onClick={addNewBigraphNode}
+          onClick={l => addNewProcessNode}
           style={{
             position: "absolute",
             top: 0,
@@ -172,7 +189,24 @@ export default function App() {
             cursor: "pointer",
           }}
         >
-          +
+          Add new process
+        </button>
+        <button
+          onClick={addNewStepNode}
+          style={{
+            position: "absolute",
+            top: 0,
+            //right: 10,
+            left: 350,
+            padding: "10.5px 16px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Add new step
         </button>
       </div>
     </div>

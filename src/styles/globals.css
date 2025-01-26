@@ -63,4 +63,7 @@ a {
   padding: 8px;
 }
 
+.store-node {
+  border-radius: 50% !important;
+}
 

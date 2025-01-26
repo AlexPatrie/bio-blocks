@@ -18,20 +18,17 @@ export function newPort(node: NodeType, name: string, direction: DirectionType):
   }
 }
 
-export function addPort(node: NodeType, name: string, direction: string, portType: string): void {
-  const port = newPort(node, name, 'out');
-  node[portType][name] = port;
+export function addPort(node: NodeType, field: string, portType: string): void {
+  const direction: DirectionType = portType === "inputs" ? "in" : "out";
+  node[portType][field] = newPort(node, field, direction);
 }
 
-export function addInputPort(node: NodeType, name: string): void {
-  const port: PortType = newPort(node, name, 'in');
-  return addPort(node, name, 'out', 'output')
+export function addInputPort(node: NodeType, field: string): void {
+  return addPort(node, field, 'inputs')
 }
 
-export function addOutputPort(node: NodeType, name: string): void {
-  // const port = newPort(node, name, 'out');
-  // node.inputs[name] = port;
-  return addPort(node, name, 'out', 'output')
+export function addOutputPort(node: NodeType, field: string): void {
+  return addPort(node, field, 'outputs');
 }
 
 export function representPort(ports: PortType[]): PortSpecType {

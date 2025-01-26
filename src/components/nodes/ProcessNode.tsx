@@ -6,29 +6,27 @@ import React, { useCallback } from "react";
 //   Port, Store
 // } from "../../data_model";
 import {
-  FlowNodeType,
-  NodeType,
+  BigraphFlowNodeType,
   NodeKeyType,
-  StoreType,
-  PortType
+  ProcessNodeType
 } from "../../datamodel";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NodeField } from "./NodeField";
 import {addInputPort, addOutputPort} from "../../connect";
 
 
-export function BigraphNode({
+export function ProcessNode({
   positionAbsoluteX,
   positionAbsoluteY,
   data,
   id,
-}: NodeProps<FlowNodeType>) {
+}: NodeProps<BigraphFlowNodeType>) {
   // set position TODO: fix this
   const x = `${Math.round(positionAbsoluteX)}px`;
   const y = `${Math.round(positionAbsoluteY)}px`;
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as NodeType;
+  const nodeData = data as ProcessNodeType;
   const inputPorts = Object.keys(nodeData.inputs);
   const outputPorts = Object.keys(nodeData.outputs);
   
@@ -80,7 +78,10 @@ export function BigraphNode({
     [data, id]
   );
   
-  const currentData = data as NodeType;
+  const currentData = data as ProcessNodeType;
+  
+  // ensure correct type
+  currentData._type = 'process';
   const node = currentData;
   return (
     <div className="react-flow__node-default flow">

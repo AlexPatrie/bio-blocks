@@ -5,21 +5,21 @@ import {NodeKeyType, NodeType, ProcessNodeType, StepNodeType, StoreNodeType} fro
 
 
 
-interface NodeFieldProps {
-  data: ProcessNodeType | StepNodeType | NodeType;
+interface StoreFieldProps {
+  storeNode: StoreNodeType;
   // @ts-ignore
   handleInputChange: (
     keyEvent: React.KeyboardEvent<HTMLInputElement> | null,
     changeEvent: React.ChangeEvent<HTMLInputElement> | null,
-    field: string | NodeKeyType
+    field: string
   ) => void;
-  field: string | NodeKeyType;
+  field: string;
 }
 
-export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
-  const specifiedField = field as NodeKeyType;
+export function StoreField({ storeNode, handleInputChange, field }: StoreFieldProps) {
+  const specifiedField = field;
   const [editMode, setEditMode] = useState(false);
-  const [tempValue, setTempValue] = useState(data[specifiedField] || specifiedField); // local state for editing
+  const [tempValue, setTempValue] = useState(storeNode[specifiedField]); // local state for editing
   
   const handleBlur = useCallback(() => {
     setEditMode(false); // exit edit mode when losing focus
@@ -52,7 +52,7 @@ export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
     handleInputChange(null, inputChange as React.ChangeEvent<HTMLInputElement>, specifiedField);
   }, [tempValue, handleInputChange, specifiedField]);
   
-  const specifiedUpdate = data[specifiedField];
+  const specifiedUpdate = storeNode[specifiedField];
   const updatedData = typeof specifiedUpdate === "string" ? specifiedUpdate : JSON.stringify(Object.keys(specifiedUpdate));
   
   return (
@@ -60,7 +60,7 @@ export function NodeField({ data, handleInputChange, field }: NodeFieldProps) {
       {editMode ? (
         <input
           type="text"
-          value={typeof tempValue === "string" ? tempValue : JSON.stringify(tempValue)}
+          value={tempValue}
           onChange={(e) => setTempValue(e.target.value)} // Update local state as the user types
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
