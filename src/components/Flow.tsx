@@ -116,20 +116,25 @@ export default function App() {
     if (!file) return;
 
     const reader = new FileReader();
-
+    let isValidSpec = true;
     reader.onload = (e) => {
       try {
         // Parse the JSON
         const jsonData = JSON.parse(e.target?.result as string);
-        console.log('Uploaded spec:', jsonData);
-
+        
+        // iterate over the keys (node names) then iterate over the node.
+        Object.keys(jsonData).forEach((key: string) => {
+          const uploadedNode = jsonData[key];
+          isValidSpec = validateUpload(uploadedNode);
+        });
+        
         // Validate and set the data
-        // if (validateUpload(jsonData)) {
-        //   setData(jsonData);
-        //   console.log("Uploaded and parsed data:", jsonData);
-        // } else {
-        //   alert("Invalid JSON structure!");
-        // }
+        if (isValidSpec) {
+          // setData(jsonData);  HERE setData should create new node elements (html)
+          console.log("Uploaded and parsed data:", jsonData);
+        } else {
+          alert("Invalid JSON structure!");
+        }
       } catch (err) {
         console.error("Error reading or parsing file:", err);
         alert("Invalid JSON file!");
