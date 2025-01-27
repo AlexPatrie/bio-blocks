@@ -118,7 +118,7 @@ export default function App() {
     const reader = new FileReader();
     let isValidSpec = true;
     reader.onload = (e) => {
-      try {
+      try {8
         // Parse the JSON
         const jsonData = JSON.parse(e.target?.result as string);
         
