@@ -7,21 +7,25 @@ import {
   addEdge,
   useNodesState,
   useEdgesState,
-  type OnConnect,
+  type OnConnect, Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import JSZip from "jszip";
+
+import UploadSpec from "./UploadSpec";
 import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
-import UploadSpec from "./UploadSpec";
-import JSZip from "jszip";
-import {validateUpload} from "../io";
-import {CompositeSpecType, BigraphNodeType, StateSpecType, CompositionType} from "../datamodel";
+import { verifyConnection } from "../connect";
+import {
+  importComposition,
+  exportComposition,
+  validateUpload
+} from "../io";
 import {
   initialNodes,
   initialEdges,
-  // initialInputStores,
-  // initialOutputStores
 } from "../examples";
+import {BigraphNode, Composition, FormattedBigraphNode, FormattedComposition} from "../datamodel";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -32,24 +36,13 @@ export default function App() {
   const [inputValue, setInputValue] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>(initialEdges);
-  // const [inputStores, setInputStores, onInputStoresChange] = useNodesState<CustomNodeType>(initialInputStores);
-  // const [outputStores, setOutputStores, onOutputStoresChange] = useNodesState<CustomNodeType>(initialOutputStores);
-  // inputStores.forEach((storeNode: CustomNodeType) => {
-  //   nodes.push(storeNode);
-  // });
-  
-  // TODO: create a method which takes in a connection and some validation constraints/parameters
-  const validateConnection = (connection: any): boolean => {
-    console.log('This is the connections: ', JSON.stringify(connection, null, 2));
-    return true;
-  
-  }
+
   
   // graph connector
   const onConnect: OnConnect = useCallback(
-    (connection) => {
+    (connection: Connection) => {
       // Call your validation function
-      const isValid = validateConnection(connection);
+      const isValid = verifyConnection(connection);
   
       if (isValid) {
         // Proceed to add the edge if valid
@@ -80,11 +73,12 @@ export default function App() {
       })),
     };
     
-    const bigraphState: StateSpecType = {};
+    const compositionSpec: FormattedComposition = {};
     nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-      const nodeData = node.data as BigraphNodeType;
+      // base type
+      const nodeData = node.data as BigraphNode;
       const nodeId = nodeData.nodeId as string;
-      bigraphState[nodeId] = {
+      compositionSpec[nodeId] = {
         _type: nodeData._type,
         address: nodeData.address,
         config: nodeData.config,
@@ -98,7 +92,7 @@ export default function App() {
     
     const zip = new JSZip();
     zip.file("blocks.json", JSON.stringify(flowRepresentation, null, 2));
-    zip.file("bigraph.json", JSON.stringify(bigraphState, null, 2));
+    zip.file("bigraph.json", JSON.stringify(compositionSpec, null, 2));
     zip.generateAsync({ type: "blob" }).then((content) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);

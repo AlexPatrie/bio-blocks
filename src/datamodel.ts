@@ -8,6 +8,8 @@ import type {
 
 /* base models for nodes and stores */
 
+export type Port = Record<string, string[]>;
+
 // base node type
 export type BaseNode = {
   nodeId: string
@@ -18,8 +20,8 @@ export type BigraphNode =  BaseNode & {
   _type: string;
   address: string;
   config: Record<string, any>;
-  inputs: Record<string, any>;
-  outputs: Record<string, any>;
+  inputs: Port | Record<string, string[]>;
+  outputs: Port | Record<string, string[]>;
 } & {
   [key: string]: any; // allows indexing with a string
 };
@@ -30,7 +32,7 @@ export type StepNode = BigraphNode;
 
 // data stores (input and output ports)
 export type StoreNode = BaseNode & {
-  value: string,
+  value: string[],
   connections?: string[]  // this field is used to keep track of node-store connection-state
 } & {
   [key: string]: any;
@@ -44,7 +46,9 @@ export type Composition = {
 // used for indexing node dynamically in event listeners
 export type BigraphNodeKey = keyof BigraphNode | keyof ProcessNode | keyof StepNode;
 
-export type StoreNodeKey = keyof StoreNode;
+export type BigraphNodePortKey = "inputs" | "outputs";
+
+export type StoreNodePortKey = keyof StoreNode;
 
 
 /* react-flow-specific interface fulfillment */
@@ -70,22 +74,33 @@ export type ProcessFlowNodeConfig = BaseFlowNodeConfig & {
   data: ProcessNode
 }
 
-export type StepFlowNodeConfigType = BaseFlowNodeConfig & {
+export type StepFlowNodeConfig = BaseFlowNodeConfig & {
   data: StepNode
 }
 
-export type StoreFlowNodeConfigType = BaseFlowNodeConfig & {
+export type StoreFlowNodeConfig = BaseFlowNodeConfig & {
   data: StoreNode
 }
+
+export type NodePosition = {
+  x: number,
+  y: number
+}
+
 
 /* spec models consumed by the client */
 
 // process/step/store spec types with nodeId omitted (in the proper format for export)
-export type ExportedNode = Omit<BigraphNode | StepNode | ProcessNode | StoreNode, "nodeId">;
+export type FormattedNode = Omit<BigraphNode | StepNode | ProcessNode | StoreNode, "nodeId">;
 
-export type ExportedBigraphNode = ExportedNode;
+export type FormattedBigraphNode = FormattedNode;
 
-export type ExportedStoreNode = ExportedNode;
+export type FormattedStoreNode = FormattedNode;
+
+// this is the actual type that is used to import/export documents to the client
+export type FormattedComposition = {
+  [key: string]: FormattedBigraphNode | FormattedStoreNode;
+}
 
 
 /*** bigraph edges (mostly cosmetic) ***/
@@ -111,6 +126,15 @@ export type DataEdge<T extends Node = Node> = Edge<{
    */
   path?: "bezier" | "smoothstep" | "step" | "straight";
 }>;
+
+// type used to add a new FlowEdge (data edge)
+export type FlowEdgeConfig = {
+  id: string;
+  type: string;
+  source: string;
+  target: string;
+  animated: boolean;
+}
 
 
 
