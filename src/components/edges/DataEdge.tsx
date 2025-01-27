@@ -13,25 +13,9 @@ import {
   useStore,
 } from "@xyflow/react";
 import { useMemo } from "react";
+import {DataEdgeType} from "../../datamodel";
 
-export type DataEdge<T extends Node = Node> = Edge<{
-  /**
-   * The key to lookup in the source node's `data` object. For additional safety,
-   * you can parameterize the `DataEdge` over the type of one of your nodes to
-   * constrain the possible values of this key.
-   *
-   * If no key is provided this edge behaves identically to React Flow's default
-   * edge component.
-   */
-  key?: keyof T["data"];
-  /**
-   * Which of React Flow's path algorithms to use. Each value corresponds to one
-   * of React Flow's built-in edge types.
-   *
-   * If not provided, this defaults to `"bezier"`.
-   */
-  path?: "bezier" | "smoothstep" | "step" | "straight";
-}>;
+
 
 export function DataEdge({
   data = { path: "bezier" },
@@ -45,7 +29,7 @@ export function DataEdge({
   targetPosition,
   targetX,
   targetY,
-}: EdgeProps<DataEdge>) {
+}: EdgeProps<DataEdgeType>) {
   const nodeData = useStore((state) => state.nodeLookup.get(source)?.data);
   const [edgePath, labelX, labelY] = getPath({
     type: data.path ?? "bezier",

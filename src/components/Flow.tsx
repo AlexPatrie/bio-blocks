@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {
   Background,
   Controls,
@@ -13,9 +13,9 @@ import "@xyflow/react/dist/style.css";
 import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
 import UploadSpec from "./UploadSpec";
-// import {BigraphFlowNode, BigraphNode, BigraphNodeSpec, BigraphSpec, BigraphState} from "../data_model";
 import JSZip from "jszip";
-import {CompositeSpecType, NodeType, StateSpecType} from "../datamodel";
+import {validateUpload} from "../io";
+import {CompositeSpecType, BigraphNodeType, StateSpecType, CompositionType} from "../datamodel";
 import {
   initialNodes,
   initialEdges,
@@ -38,11 +38,30 @@ export default function App() {
   //   nodes.push(storeNode);
   // });
   
+  // TODO: create a method which takes in a connection and some validation constraints/parameters
+  const validateConnection = (connection: any): boolean => {
+    console.log('This is the connections: ', JSON.stringify(connection, null, 2));
+    return true;
+  
+  }
+  
   // graph connector
   const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges]
+    (connection) => {
+      // Call your validation function
+      const isValid = validateConnection(connection);
+  
+      if (isValid) {
+        // Proceed to add the edge if valid
+        setEdges((edges) => addEdge(connection, edges));
+      } else {
+        // Optionally, handle invalid connections (e.g., log or show a message)
+        console.log("Invalid connection:", connection);
+      }
+    },
+    [setEdges] // Dependencies
   );
+
   
   // graph exporter
   const exportComposition = () => {
@@ -63,7 +82,7 @@ export default function App() {
     
     const bigraphState: StateSpecType = {};
     nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-      const nodeData = node.data as NodeType;
+      const nodeData = node.data as BigraphNodeType;
       const nodeId = nodeData.nodeId as string;
       bigraphState[nodeId] = {
         _type: nodeData._type,
@@ -92,11 +111,32 @@ export default function App() {
   };
   
   // graph loader (reader)
-  const handleLoadGraph: (data: CompositeSpecType) => void = (data: CompositeSpecType): void => {
-    console.log(`Data: ${JSON.stringify(data)}`);
-    // setNodes(data.nodes);
-    // setEdges(data.edges);
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        // Parse the JSON
+        const jsonData = JSON.parse(e.target?.result as string);
+        console.log('Uploaded spec:', jsonData);
+
+        // Validate and set the data
+        // if (validateUpload(jsonData)) {
+        //   setData(jsonData);
+        //   console.log("Uploaded and parsed data:", jsonData);
+        // } else {
+        //   alert("Invalid JSON structure!");
+        // }
+      } catch (err) {
+        console.error("Error reading or parsing file:", err);
+        alert("Invalid JSON file!");
+      }
+    };
+
+    reader.readAsText(file);
   };
   
   // new node constructor
@@ -180,7 +220,7 @@ export default function App() {
         <Controls />
       </ReactFlow>
       <div className="buttons-container">
-        <UploadSpec onLoadGraph={handleLoadGraph}/>
+        <UploadSpec onLoadGraph={handleFileUpload}/>
         <button
           onClick={exportComposition}
           style={{

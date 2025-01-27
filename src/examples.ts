@@ -2,6 +2,64 @@ import type {Edge, Node} from "@xyflow/react";
 import {NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType, StoreNodeConfig} from "./datamodel";
 import {getStores} from "./connect";
 import {Position} from "@xyflow/react";
+import * as fs from "fs";
+
+
+export const compositionSpec = {
+    dFBA: {
+        _type: 'process',
+        address: 'local:dfba',
+        config: {
+            model: {
+                model_file: 'sbml_model.xml'
+            }
+        },
+        inputs: {
+            time: ['time_store'],
+            parameters: ['parameters_store']
+        },
+        outputs: {
+            species_concentrations: ['species_concentrations_store'],
+            fluxes: ['fluxes_store'],
+        },
+    },
+    membrane: {
+        _type: 'process',
+        address: 'local:membrane-process',
+        config: {
+            geometry: {
+                _type: 'icosphere',
+                parameters: {
+                    'radius': 0.1,
+                    'subdivision': 3
+                }
+            }
+        },
+        inputs: {
+            fluxes: ['fluxes_store'],
+        },
+        outputs: {
+            geometry: ['geometry_store'],
+            forces: ['forces_store'],
+        },
+    },
+    particle: {
+        _type: 'process',
+        address: 'local:smoldyn-process',
+        config: {
+            model: {
+                model_file: 'smoldyn_model.txt'
+            }
+        },
+        inputs: {
+            forces: ['forces_store'],
+        },
+        outputs: {
+            molecules: ['molecules_store'],
+        },
+    }
+}
+
 
 
 // define example nodes
@@ -75,6 +133,7 @@ const nodeC: ProcessNodeType = {
   outputPosition: Position.Right
   
 }
+
 
 const timeStore: StoreNodeType = {
   value: "time_store",
@@ -185,7 +244,7 @@ export const initialNodes = [
 export const initialEdges = [
   {
     id: 'parameters->dFBA',
-    type: 'button-edge',
+    type: 'data-edge',
     source: 'parameters-store',
     target: 'dFBA',
     animated: true

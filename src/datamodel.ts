@@ -24,6 +24,10 @@ export type ProcessNodeType = BigraphNodeType;
 
 export type StepNodeType = BigraphNodeType;
 
+export type CompositionType = {
+  [key: string]: BigraphNodeType | ProcessNodeType | StepNodeType;
+}
+
 export type BigraphFlowNodeType = XyzFlowNode<ProcessNodeType> | XyzFlowNode<StepNodeType> | XyzFlowNode<BigraphNodeSpecType>;
 
 export type BigraphNodeSpecType = Omit<BigraphNodeType, "nodeId">;
@@ -93,8 +97,26 @@ type ButtonEdgeData = {};
 
 type DataEdgeData = {};
 
-export type ButtonEdge = Edge<ButtonEdgeData> | Edge<DataEdgeData>;
+export type ButtonEdge = Edge<ButtonEdgeData> | Edge<DataEdgeData> | Edge<DataEdgeType>;
 
+export type DataEdgeType<T extends Node = Node> = Edge<{
+  /**
+   * The key to lookup in the source node's `data` object. For additional safety,
+   * you can parameterize the `DataEdge` over the type of one of your nodes to
+   * constrain the possible values of this key.
+   *
+   * If no key is provided this edge behaves identically to React Flow's default
+   * edge component.
+   */
+  key?: keyof T["data"];
+  /**
+   * Which of React Flow's path algorithms to use. Each value corresponds to one
+   * of React Flow's built-in edge types.
+   *
+   * If not provided, this defaults to `"bezier"`.
+   */
+  path?: "bezier" | "smoothstep" | "step" | "straight";
+}>;
 
 // consumed by the client
 export type SpecType = Record<string, any>;

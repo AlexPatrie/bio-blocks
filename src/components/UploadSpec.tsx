@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { BigraphSpec } from "../data_model";
+import { BigraphNodeType as BigraphSpec} from "../datamodel";
 
 interface  UploadSpecProps {
-  onLoadGraph: (data: BigraphSpec) => void;
+  onLoadGraph: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps) => {
@@ -73,7 +73,7 @@ const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps)
       <input
         type="file"
         accept=".json"
-        onChange={handleFileUpload}
+        onChange={onLoadGraph}
         style={{
           padding: "7px 16px",
           backgroundColor: "#2196F3",

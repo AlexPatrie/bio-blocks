@@ -1,7 +1,10 @@
 import type { BuiltInEdge, Edge, EdgeTypes } from "@xyflow/react";
 import ConstructButtonEdge from "./ButtonEdge";
 import {DataEdge} from "./DataEdge";
-import { type ButtonEdge as ButtonEdgeType } from "../../datamodel";
+import {
+  type ButtonEdge as ButtonEdgeType,
+  type DataEdgeType
+} from "../../datamodel";
 
 export const edgeTypes = {
   // add your custom edge types here!
@@ -10,4 +13,4 @@ export const edgeTypes = {
 } satisfies EdgeTypes;
 
 // append the types of you custom edges to the BuiltInEdge type
-export type CustomEdgeType = BuiltInEdge | ButtonEdgeType | DataEdge;
+export type CustomEdgeType = BuiltInEdge | ButtonEdgeType | DataEdgeType;
