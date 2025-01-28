@@ -1,32 +1,25 @@
 import { Connection } from "@xyflow/react";
 import {
-  ProcessNode,
-  StepNode,
-  BigraphNodePortKey,
-  StoreNodePortKey,
   StoreNode,
-  ProcessFlowNodeConfig,
-  StepFlowNodeConfig,
-  StoreFlowNodeConfig,
-  FlowEdgeConfig, NodePosition
+  FlowEdgeConfig, NodePosition, FlowNodeConfig, BigraphNode, NodeKey
 } from "./datamodel";
 
 
 /* setters for stores and nodes */
 
-export function addBigraphNodePort(node: ProcessNode | StepNode, portKey: BigraphNodePortKey, portName: string): void {
+export function addBigraphNodePort(node: BigraphNode, portKey: NodeKey | string, portName: string): void {
   // this function adds a new port to either node.inputs or node.outputs (specified by portKey) with the name=portName and the required [..._store] definition
   node[portKey][portName] = [`${portName}_store`];
 }
 
-export function addStoreNodePort(node: StoreNode, portKey: StoreNodePortKey, portName: string): void {
+export function addStoreNodePort(node: StoreNode, portKey: NodeKey | string, portName: string): void {
   node[portKey] = portName;
 }
 
 // getter for auto-finding the stores to create for each nodes input/output ports
-export function getNodeStoreConfigs(node: ProcessNode | StepNode): StoreFlowNodeConfig[] {
+export function getNodeStoreConfigs(node: BigraphNode): FlowNodeConfig[] {
   // iterate over inputs
-  const inputConfigs: StoreFlowNodeConfig[] = []
+  const inputConfigs: FlowNodeConfig[] = []
   Object.keys(node.inputs).forEach((inputKey) => {
     const storeId = `input-${inputKey}`
     const inputStore: StoreNode = {
@@ -39,7 +32,7 @@ export function getNodeStoreConfigs(node: ProcessNode | StepNode): StoreFlowNode
   });
   
   // iterate over outputs
-  const outputConfigs: StoreFlowNodeConfig[] = []
+  const outputConfigs: FlowNodeConfig[] = []
   Object.keys(node.outputs).forEach((outputKey) => {
     const storeId = `output-${outputKey}`
     const outputStore: StoreNode = {
@@ -63,26 +56,41 @@ export const verifyConnection = (connection: Connection): boolean => {
   return true;
 }
 
-export function newBigraphNodeConfig(nodeId: string, flowTypeId: string, x: number, y: number, data: ProcessNode | StepNode): ProcessFlowNodeConfig | StepFlowNodeConfig {
+export function newFlowNodeConfig(flowTypeId: string, data: BigraphNode | StoreNode, nodeId: string): FlowNodeConfig {
+  const nodePosition = newNodePosition();
   return {
     id: nodeId,
     type: flowTypeId,
-    position: {
-      x: x,
-      y: y
-    },
+    position: nodePosition,
     data: data
   }
 }
 
-export function newStoreNodeConfig(nodeId: string, data: StoreNode): StoreFlowNodeConfig {
-  const storePosition = newNodePosition();
-  return {
-    id: nodeId,
-    type: "store-node",
-    position: storePosition,
-    data: data
+export function newBigraphNodeConfig(nodeId?: string, data?: BigraphNode): FlowNodeConfig {
+  const id = nodeId ? nodeId: `bigraph-node-${Math.random()}`
+  const emptyNode: BigraphNode = {
+    nodeId: id,
+    _type: "None",
+    address: "None",
+    config: {},
+    inputs: {},
+    outputs: {},
   }
+  return newFlowNodeConfig(
+    "bigraph-node",
+    data ? data: emptyNode,
+    id
+  );
+}
+
+export function newStoreNodeConfig(nodeId?: string, data?: StoreNode): FlowNodeConfig {
+  const id = nodeId ? nodeId: `store-node-${Math.random()}`
+  
+  return newFlowNodeConfig(
+    'store-node',
+    data ? data : { nodeId: id, value: ["empty_store"], connections: [] },
+    id
+  );
 }
 
 function newNodePosition(): NodePosition {

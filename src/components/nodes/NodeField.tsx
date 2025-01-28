@@ -1,24 +1,24 @@
-/* This component serves to handle and render the logic for a single atomic, editable attribute of a given node, ie: inputs, outputs */
+/* generic field component that can be used by either node type */
 
 import React, {useCallback, useState} from "react";
 import {BigraphNode, StoreNode, NodeKey} from "../../datamodel";
 
 
-interface BigraphNodeInputFieldProps {
-  data: BigraphNode;
+interface NodeFieldProps {
+  data: BigraphNode | StoreNode;
   portName: string;
-  handleInputChange: (
-    keyEvent: React.KeyboardEvent<HTMLInputElement>,
-    changeEvent: React.ChangeEvent<HTMLInputElement> | null,
-  ) => void;
+  // handleInputChange: (
+  //   keyEvent: React.KeyboardEvent<HTMLInputElement>,
+  //   // changeEvent: React.ChangeEvent<HTMLInputElement> | null,
+  // ) => void;
 }
 
-export function BigraphNodeInputField({ data, portName }: BigraphNodeInputFieldProps) {
+export function NodeField({ data, portName }: NodeFieldProps) {
   const [editMode, setEditMode] = useState(false);
-  const [tempValue, setTempValue] = useState(data.inputs[portName]); // local state for editing
+  const [tempValue, setTempValue] = useState(data[portName]); // local state for editing
   
   // get original value
-  const originalValue = data.inputs[portName];
+  const originalValue = data[portName];
   
   const handleBlur = useCallback(() => {
     // exit edit mode when losing focus and DO NOT accept input change
@@ -33,17 +33,16 @@ export function BigraphNodeInputField({ data, portName }: BigraphNodeInputFieldP
       
       // check if new value is different from original and set if so
       if (originalValue !== tempValue) {
-        data.inputs[portName] = tempValue;
+        data[portName] = tempValue;
       }
     }
   }, []);
-  
+  {/*onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempValue(tempValue)} // Update local state as the user types*/}
   return (
     <div>
       {editMode ? (
         <input
           type="text"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempValue(tempValue)} // Update local state as the user types
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           autoFocus
@@ -51,7 +50,7 @@ export function BigraphNodeInputField({ data, portName }: BigraphNodeInputFieldP
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>
-          {data.inputs[portName]}
+          {data[portName]}
         </h3>
       )}
     </div>

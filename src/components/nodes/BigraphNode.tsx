@@ -6,7 +6,9 @@ import {
   BigraphNodeKey,
   BigraphNode as BigraphNodeType,
 } from "../../datamodel";
-import { BigraphNodeField } from "./BigraphNodeField";
+import {BigraphNodeInputField} from "./BigraphNodeInputField";
+import {BigraphOutputNodeField} from "./BigraphNodeOutputField";
+import {NodeField} from "./NodeField";
 
 
 export function BigraphNode({
@@ -62,10 +64,9 @@ export function BigraphNode({
       
       {/* Node Id/Name */}
       <h3 className="node-header">
-        <BigraphNodeField
+        <NodeField
           data={currentNodeState}
-          field="nodeId"
-          handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
+          portName={"nodeId"}
         />
       </h3>
       
@@ -80,10 +81,9 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Type">
-                <BigraphNodeField
+                <NodeField
                   data={currentNodeState}
-                  field="_type"
-                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
+                  portName="_type"
                 />
               </td>
             </tr>
@@ -101,17 +101,16 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Address">
-                <BigraphNodeField
+                <NodeField
                   data={currentNodeState}
-                  field="address"
-                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
+                  portName={"address"}
                 />
               </td>
             </tr>
             </tbody>
           </table>
         </div>
-        
+        {/*
         <div className="grid-item">
           <table className="process-table-display inputs">
             <thead>
@@ -122,9 +121,9 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Inputs">
-                <BigraphNodeField
+                <BigraphNodeInputField
                   data={currentNodeState}
-                  field="inputs"
+                  portName="inputs"
                   handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
                 />
               </td>
@@ -132,7 +131,6 @@ export function BigraphNode({
             </tbody>
           </table>
         </div>
-        
         <div className="grid-item">
           <table className="process-table-display outputs">
             <thead>
@@ -153,7 +151,7 @@ export function BigraphNode({
             </tbody>
           </table>
         </div>
-        
+        */}
         {/* input handles */}
         {Object.keys(currentNodeState.inputs).map((inputName: string, index: number) => (
           <div>

@@ -15,7 +15,7 @@ import JSZip from "jszip";
 import UploadSpec from "./UploadSpec";
 import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
-import { verifyConnection } from "../connect";
+import { verifyConnection, newBigraphNodeConfig, newStoreNodeConfig } from "../connect";
 import {
   importComposition,
   exportComposition,
@@ -103,56 +103,11 @@ export default function App() {
         alert("Graph and metadata exported as composition.zip!");
     });
   };
-  
-  // graph loader (reader)
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    let isValidSpec = true;
-    reader.onload = (e) => {
-      try {8
-        // Parse the JSON
-        const jsonData = JSON.parse(e.target?.result as string);
-        
-        // iterate over the keys (node names) then iterate over the node.
-        Object.keys(jsonData).forEach((key: string) => {
-          const uploadedNode = jsonData[key];
-          isValidSpec = validateUpload(uploadedNode);
-        });
-        
-        // Validate and set the data
-        if (isValidSpec) {
-          // setData(jsonData);  HERE setData should create new node elements (html)
-          console.log("Uploaded and parsed data:", jsonData);
-        } else {
-          alert("Invalid JSON structure!");
-        }
-      } catch (err) {
-        console.error("Error reading or parsing file:", err);
-        alert("Invalid JSON file!");
-      }
-    };
-
-    reader.readAsText(file);
-  };
   
   // new node constructor
-  const addNewProcessNode = (local: boolean = true) => {
-    const newNode = {
-      id: `node-${nodes.length + 1}`, // Unique ID
-      type: "process-node", // Match the type used in `nodeTypes`
-      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-      data: {
-        _type: "process",
-        address: "",
-        inputs: {},
-        outputs: {},
-        config: {},
-      }, // add new node with empty fields
-    };
-  
+  const addNewBigraphNode = () => {
+    const newNode = newBigraphNodeConfig()
     setNodes((nds) => [...nds, newNode]);
   };
   
@@ -219,7 +174,7 @@ export default function App() {
         <Controls />
       </ReactFlow>
       <div className="buttons-container">
-        <UploadSpec onLoadGraph={handleFileUpload}/>
+        <UploadSpec onLoadGraph={importComposition}/>
         <button
           onClick={exportComposition}
           style={{

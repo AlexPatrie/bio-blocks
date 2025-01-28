@@ -1,8 +1,7 @@
 import React, { useCallback } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 
-import { BigraphNodeField } from "./BigraphNodeField";
-import {StoreFlowNode} from "../../datamodel";
+import {StoreFlowNode, StoreNode as StoreNodeType} from "../../datamodel";
 
 
 export function StoreNode({
@@ -22,7 +21,7 @@ export function StoreNode({
     field: string
     ) => {
       if (keyboardEvent?.key === "Enter") {
-        console.log('Enter clicked!')
+        console.log('Enter clicked in store!')
       }
       
       console.log(`Store ${id} updated:`, nodeData);

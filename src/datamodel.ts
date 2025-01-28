@@ -50,32 +50,20 @@ export type NodeKey = BigraphNodeKey | StoreNodeKey | string;
 /* react-flow-specific interface fulfillment */
 
 // react flow-specific interface fulfillment for process and step nodes
-export type BigraphFlowNode = XyzFlowNode<ProcessNode> | XyzFlowNode<StepNode>;
+export type BigraphFlowNode = XyzFlowNode<BigraphNode>;
 
 // react flow-specific interface fulfillment for data stores
-export type StoreFlowNode = XyzFlowNode<StepNode>;
+export type StoreFlowNode = XyzFlowNode<StoreNode>;
 
 // high-level type for easily/iteratively getting react flow-specific data
-export type BaseFlowNodeConfig = {
+export type FlowNodeConfig = {
   id: string,
   type: string,
   position: {
     x: number,
     y: number
   },
-  data: StoreNode | ProcessNode | StepNode | BigraphNode
-}
-
-export type ProcessFlowNodeConfig = BaseFlowNodeConfig & {
-  data: ProcessNode
-}
-
-export type StepFlowNodeConfig = BaseFlowNodeConfig & {
-  data: StepNode
-}
-
-export type StoreFlowNodeConfig = BaseFlowNodeConfig & {
-  data: StoreNode
+  data: StoreNode | BigraphNode
 }
 
 export type NodePosition = {
@@ -87,7 +75,7 @@ export type NodePosition = {
 /* spec models consumed by the client */
 
 // process/step/store spec types with nodeId omitted (in the proper format for export)
-export type FormattedNode = Omit<BigraphNode | StepNode | ProcessNode | StoreNode, "nodeId">;
+export type FormattedNode = Omit<BigraphNode | StoreNode, "nodeId">;
 
 export type FormattedBigraphNode = FormattedNode;
 
