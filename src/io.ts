@@ -32,7 +32,7 @@ export const uploadComposition = (event: React.ChangeEvent<HTMLInputElement>): F
       }
     };
   
-  // reader.readAsText(file);
+  reader.readAsText(file);
 };
 
 export const exportComposition = (data: any, filename: string) => {

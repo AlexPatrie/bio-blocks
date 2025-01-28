@@ -40,8 +40,8 @@ import {
 export default function App() {
   // hooks
   const [inputValue, setInputValue] = useState<string>('My Composition');
-  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
 
   
   // graph connector
@@ -129,6 +129,7 @@ export default function App() {
           },
         }
         setNodes((existingNodes) => [...existingNodes, newNode]);
+        nodes.push(newNode);
       })
     }
   }, []);
