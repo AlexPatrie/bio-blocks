@@ -1,17 +1,8 @@
 import React, { useCallback } from "react";
-// import {
-//   BigraphFlowNode,
-//   BigraphNode as BigraphNodeType,
-//   BigraphNodeKey,
-//   Port, Store
-// } from "../../data_model";
-import {
-  BigraphFlowNodeType,
-  NodeKeyType,
-  StoreNodeType
-} from "../../datamodel";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import {StoreField} from "./StoreField";
+
+import { BigraphNodeField } from "./BigraphNodeField";
+import {StoreFlowNode} from "../../datamodel";
 
 
 export function StoreNode({
@@ -19,10 +10,7 @@ export function StoreNode({
   positionAbsoluteY,
   data,
   id,
-}: NodeProps<BigraphFlowNodeType>) {
-  // set position TODO: fix this
-  const x = `${Math.round(positionAbsoluteX)}px`;
-  const y = `${Math.round(positionAbsoluteY)}px`;
+}: NodeProps<StoreFlowNode>) {
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
   const nodeData = data as StoreNodeType;
@@ -87,7 +75,7 @@ export function StoreNode({
 //     <div className="react-flow__node-default flow">
 //       {/* Node Id/Name */}
 //       <h3>
-//         <NodeField
+//         <BigraphNodeField
 //           data={data}
 //           field="nodeId"
 //           handleInputChange={(e, field) => handleInputChange(e, field)}

@@ -6,7 +6,7 @@ import {
   BigraphNodeKey,
   BigraphNode as BigraphNodeType,
 } from "../../datamodel";
-import { NodeField } from "./NodeField";
+import { BigraphNodeField } from "./BigraphNodeField";
 
 
 export function BigraphNode({
@@ -62,7 +62,7 @@ export function BigraphNode({
       
       {/* Node Id/Name */}
       <h3 className="node-header">
-        <NodeField
+        <BigraphNodeField
           data={currentNodeState}
           field="nodeId"
           handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
@@ -80,7 +80,7 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Type">
-                <NodeField
+                <BigraphNodeField
                   data={currentNodeState}
                   field="_type"
                   handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
@@ -101,7 +101,7 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Address">
-                <NodeField
+                <BigraphNodeField
                   data={currentNodeState}
                   field="address"
                   handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
@@ -122,7 +122,7 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Inputs">
-                <NodeField
+                <BigraphNodeField
                   data={currentNodeState}
                   field="inputs"
                   handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
@@ -143,7 +143,7 @@ export function BigraphNode({
             <tbody>
             <tr>
               <td data-label="Outputs">
-                <NodeField
+                <BigraphNodeField
                   data={currentNodeState}
                   field="outputs"
                   handleInputChange={(keyEvent, changeEvent, field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
@@ -192,7 +192,7 @@ export function BigraphNode({
 //     <div className="react-flow__node-default flow">
 //       {/* Node Id/Name */}
 //       <h3>
-//         <NodeField
+//         <BigraphNodeField
 //           data={data}
 //           field="nodeId"
 //           handleInputChange={(e, field) => handleInputChange(e, field)}

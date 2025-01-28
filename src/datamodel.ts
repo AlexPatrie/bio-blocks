@@ -26,10 +26,6 @@ export type BigraphNode =  BaseNode & {
   [key: string]: any; // allows indexing with a string
 };
 
-export type ProcessNode = BigraphNode;
-
-export type StepNode = BigraphNode;
-
 // data stores (input and output ports)
 export type StoreNode = BaseNode & {
   value: string[],
@@ -40,15 +36,15 @@ export type StoreNode = BaseNode & {
 
 // overall composition type representing the "document" that is given to Composite(config={'state': ...})
 export type Composition = {
-  [key: string]: BigraphNode | ProcessNode | StepNode;
+  [key: string]: BigraphNode;
 }
 
 // used for indexing node dynamically in event listeners
-export type BigraphNodeKey = keyof BigraphNode | keyof ProcessNode | keyof StepNode;
+export type BigraphNodeKey = keyof BigraphNode;
 
-export type BigraphNodePortKey = "inputs" | "outputs";
+export type StoreNodeKey = keyof StoreNode;
 
-export type StoreNodePortKey = keyof StoreNode;
+export type NodeKey = BigraphNodeKey | StoreNodeKey | string;
 
 
 /* react-flow-specific interface fulfillment */
