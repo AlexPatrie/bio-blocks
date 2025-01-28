@@ -1,11 +1,9 @@
 import type {Edge, Node} from "@xyflow/react";
-import {NodeType, ProcessNodeType, StepNodeType, StoreNodeType, ConnectionType, StoreNodeConfig} from "./datamodel";
-import {getStores} from "./connect";
-import {Position} from "@xyflow/react";
-import * as fs from "fs";
+import {BigraphNode, FormattedBigraphNode, FormattedComposition} from "./datamodel";
+import {CustomNodeType} from "./components/nodes";
+import {randomPosition} from "./connect";
 
-
-export const compositionSpec = {
+export const exampleHybrid: FormattedComposition = {
     dFBA: {
         _type: 'process',
         address: 'local:dfba',
@@ -60,169 +58,20 @@ export const compositionSpec = {
     }
 }
 
-
-
-// define example nodes
-const nodeA: ProcessNodeType = {
-  _type: 'process',
-  address: 'local:dfba',
-  inputs: {
-    // 'species_concentrations': ['species_concentrations_store'],
-    'time': ['time_store'],
-    // 'fluxes': ['fluxes_store'],
-    'parameters': ['parameters_store']
-  },
-  outputs: {
-    'species_concentrations': ['species_concentrations_store'],
-    // 'time': ['time_store'],
-    'fluxes': ['fluxes_store'],
-    // 'parameters': ['parameters_store']
-  },
-  config: {
-    'model': {
-      'model_file': 'sbml_model.xml'
-    }
-  },
-  nodeId: 'dFBA',
-}
-
-const nodeB: ProcessNodeType = {
-  _type: 'process',
-  address: 'local:membrane-process',
-  inputs: {
-    // 'geometry': ['geometry_store'],
-    'fluxes': ['fluxes_store'],
-    // 'protein_density': ['protein_density_store']
-  },
-  outputs: {
-    'geometry': ['geometry_store'],
-    // 'velocities': ['velocities_store'],
-    'forces': ['forces_store'],
-  },
-  config: {
-    'geometry': {
-      'type': 'icosphere',
-      'parameters': {
-        'radius': 0.1,
-        'subdivision': 3
+function getCompositionNodes(composition: FormattedComposition) {
+  const nodes: Node[] = [];
+  Object.keys(composition).forEach((nodeId: string) => {
+    const uploadedNode: FormattedBigraphNode = composition[nodeId];
+    const node: CustomNodeType = {
+      id: nodeId,
+      type: "bigraph-node",
+      position: randomPosition(),
+      data: {
+      
       }
     }
-  },
-  nodeId: 'membrane',
-  inputPosition: Position.Top,
-  outputPosition: Position.Right
-}
-
-const nodeC: ProcessNodeType = {
-  _type: 'process',
-  address: 'local:smoldyn-process',
-  inputs: {
-    // 'molecule_coordinates': ['molecule_coordinates_store'],
-    'forces': ['forces_store'],
-  },
-  outputs: {
-    'molecules': ['molecules_store'],
-  },
-  config: {
-    'model': {
-      'model_file': 'smoldyn_model.txt'
-    }
-  },
-  nodeId: 'particle',
-  inputPosition: Position.Top,
-  outputPosition: Position.Right
-  
-}
-
-
-const timeStore: StoreNodeType = {
-  value: "time_store",
-  connections: [
-    {
-      nodeId: 'dFBA',
-      direction: 'in'
-    }
-  ],
-}
-
-const parametersStore: StoreNodeType = {
-  value: "parameters_store",
-  connections: [
-    {
-      nodeId: 'dFBA',
-      direction: 'in'
-    }
-  ]
-}
-
-const speciesConcentrationsStore: StoreNodeType = {
-  value: 'species_concentrations_store',
-  connections: [
-    {
-      nodeId: 'dFBA',
-      direction: 'out'
-    }
-  ]
-}
-
-const fluxesStore: StoreNodeType = {
-  value: 'fluxes_store',
-  connections: [
-     {
-      nodeId: 'dFBA',
-      direction: 'out'
-    },
-    {
-      nodeId: 'membrane',
-      direction: 'in'
-    }
-  ],
-  outputPosition: Position.Bottom
-}
-
-const geometryStore: StoreNodeType = {
-  value: 'geometry_store',
-  connections: [
-    {
-      nodeId: 'membrane',
-      direction: 'out'
-    }
-  ]
-}
-
-const velocitiesStore: StoreNodeType = {
-  value: 'velocities_store',
-  connections: [
-    {
-      nodeId: 'membrane',
-      direction: 'out'
-    }
-  ]
-}
-
-const forcesStore: StoreNodeType = {
-  value: 'forces_store',
-  connections: [
-    {
-      nodeId: 'membrane',
-      direction: 'out'
-    },
-    {
-      nodeId: 'particle',
-      direction: 'in'
-    }
-  ],
-  outputPosition: Position.Bottom
-}
-
-const moleculesStore: StoreNodeType = {
-  value: 'molecules_store',
-  connections: [
-    {
-      nodeId: 'particle',
-      direction: 'out'
-    }
-  ]
+    
+  })
 }
 
 

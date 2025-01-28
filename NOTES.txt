@@ -1,0 +1,47 @@
+syntax for useCallback is as follows:
+
+const func = useCallback((args) => {
+
+}, [dependencies])
+
+
+where:
+args = that which is provided at runtime within the element implementation itself
+dependencies = args that will be provided via the propogation to the parent, if any
+
+
+so say the App looks like:
+
+AppProps = {
+    handleChange(event)
+}
+const handleChange = useCallBack(() => {
+    data[port] = value;
+
+}, [event]
+
+<div>
+    <A handleChange={handleChange}
+
+.... then A must look like:
+
+AProps = {
+    handleChange(event)
+}
+const handleChange = useCallBack(() => {
+    data[port] = value;
+
+}, [event]
+
+<div>
+    <B handleChange={handleChange}
+
+... and B must look like
+
+const handleChange = useCallBack(() => {
+    data[port] = value;
+
+}, []
+
+<div>
+    <input onChange={handleChange}

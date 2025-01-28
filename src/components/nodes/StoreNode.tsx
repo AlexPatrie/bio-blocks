@@ -1,18 +1,16 @@
 import React, { useCallback } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 
-import {StoreFlowNode, StoreNode as StoreNodeType} from "../../datamodel";
+import {StoreNode as _StoreNode, StoreNodeData} from "../../datamodel";
 
 
 export function StoreNode({
-  positionAbsoluteX,
-  positionAbsoluteY,
   data,
   id,
-}: NodeProps<StoreFlowNode>) {
+}: NodeProps<_StoreNode>) {
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as StoreNodeType;
+  const nodeData = data as StoreNodeData;
   
   // this is the method that should add and verify the ports on user "Enter" event
   const handleInputChange = useCallback((
@@ -33,8 +31,6 @@ export function StoreNode({
     // TODO: add new connections on edge change
   }
   
-  const currentData = data as StoreNodeType;
-  const node = currentData;
   return (
     <div className="react-flow__node-default flow store-node">
       
@@ -47,7 +43,7 @@ export function StoreNode({
         />*/}
         <input
           type="text"
-          value={currentData.value}
+          value={nodeData.value}
           autoFocus
           placeholder="Enter field"
         />
@@ -57,13 +53,13 @@ export function StoreNode({
       {/* Input Handle */}
       <Handle
         type="target"
-        position={currentData['inputPosition'] ? currentData['inputPosition'] : Position.Left}
+        position={nodeData['inputPosition'] ? nodeData['inputPosition'] as Position : Position.Left}
         className="port-handle input-handle"
       />
       {/* Output Handle */}
       <Handle
         type="source"
-        position={currentData['outputPosition'] ? currentData['outputPosition'] : Position.Right}
+        position={nodeData['outputPosition'] ? nodeData['outputPosition'] as Position : Position.Right}
         className="port-handle output-handle"
       />
     </div>

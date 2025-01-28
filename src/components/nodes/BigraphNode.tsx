@@ -1,71 +1,49 @@
-import React, { useCallback } from "react";
-import { Handle, NodeProps, Position } from "@xyflow/react";
+import React, {useCallback, useState} from "react";
+import {Handle, NodeProps, Position, useNodesState} from "@xyflow/react";
 
-import {
-  BigraphFlowNode,
-  BigraphNodeKey,
-  BigraphNode as BigraphNodeType,
-} from "../../datamodel";
-import {BigraphNodeInputField} from "./BigraphNodeInputField";
-import {BigraphOutputNodeField} from "./BigraphNodeOutputField";
+import {BigraphNode as _BigraphNode, BigraphNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
+import type {CustomNodeType} from "./index";
 
 
-export function BigraphNode({
-  positionAbsoluteX,
-  positionAbsoluteY,
-  data,
-  id,
-}: NodeProps<BigraphFlowNode>) {
-  // set position TODO: fix this
-  const x = `${Math.round(positionAbsoluteX)}px`;
-  const y = `${Math.round(positionAbsoluteY)}px`;
+export type BigraphNodeProps = {
+  data: BigraphNodeData;
+  addProcessNode: () => void;
+}
+
+export function BigraphNode({ data, addProcessNode }: BigraphNodeProps) {
+  const [editMode, setEditMode] = useState(false);
+  const [currentData, setData] = useState(data); // local state for editing
   
-  // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as BigraphNodeType;
+  const addInputPort = useCallback(() => {
+    // Update the state directly with new data
+    const portName = `new_input_${crypto.randomUUID()}`
+    data.inputs[portName] = [`${portName}_store`];
+    //setData({ ...currentInputs, 'newInput': ["newInputStore"] });
+    return setData(data);
+  }, [currentData]);
   
+  const addOutputPort = useCallback(() => {
+    // Update the state directly with new data
+    const portName = `new_output_${crypto.randomUUID()}`
+    data.outputs[portName] = [`${portName}_store`];
+    return setData(data);
+  }, [currentData]);
+
   // this is the method that should add and verify the ports on user "Enter" event
-  const handleInputChange = useCallback((
-    keyboardEvent: React.KeyboardEvent<HTMLInputElement> | null,
-    changeEvent: React.ChangeEvent<HTMLInputElement> | null,
-    field: BigraphNodeKey,
-    ) => {
-      if (keyboardEvent?.key === "Enter") {
-        const newValue: string | undefined = changeEvent?.target.value;
-        
-        if (newValue) {
-          console.log('Input change triggered!', keyboardEvent, changeEvent);
-          switch (field) {
-            case "inputs":
-              // TODO: make a new StoreNode here if the value is different.
-              console.log(`Inputs clicked: value: ${nodeData.inputs[field]}`);
-              break;
-            case "outputs":
-              // TODO: make a new StoreNode here if the value is different.
-              console.log(`Outputs clicked: value: ${nodeData.outputs[field]}`);
-              break
-            case "config":
-              nodeData.config[field] = newValue;
-              break;
-            default:
-              nodeData[field] = newValue;
-              break;
-          }
-        }
-        console.log(`Node ${id} updated:`, nodeData);
-      }
-    },
-    [data, id]
-  );
+  // const handleInputChange = useCallback(() => {
+  //   },
+  //   [data, id]
+  // );
   
-  const currentNodeState = data as BigraphNodeType;
+
   return (
     <div className="react-flow__node-default flow">
       
       {/* Node Id/Name */}
       <h3 className="node-header">
         <NodeField
-          data={currentNodeState}
+          data={data}
           portName={"nodeId"}
         />
       </h3>
@@ -82,7 +60,7 @@ export function BigraphNode({
             <tr>
               <td data-label="Type">
                 <NodeField
-                  data={currentNodeState}
+                  data={data}
                   portName="_type"
                 />
               </td>
@@ -102,7 +80,7 @@ export function BigraphNode({
             <tr>
               <td data-label="Address">
                 <NodeField
-                  data={currentNodeState}
+                  data={data}
                   portName={"address"}
                 />
               </td>
@@ -110,57 +88,66 @@ export function BigraphNode({
             </tbody>
           </table>
         </div>
-        {/*
+       
         <div className="grid-item">
           <table className="process-table-display inputs">
             <thead>
             <tr>
               <th className="node-attribute-name">Inputs</th>
+              <button onClick={addInputPort}>Add input port</button>
             </tr>
             </thead>
             <tbody>
             <tr>
-              <td data-label="Inputs">
-                <BigraphNodeInputField
-                  data={currentNodeState}
-                  portName="inputs"
-                  handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
-                />
+              <td>
+                {Object.keys(data.inputs).map((inputName: string, index: number) => (
+                  <div>
+                    <NodeField
+                      data={data.inputs}
+                      portName={inputName}
+                    />
+                  </div>
+                ))}
               </td>
             </tr>
             </tbody>
           </table>
         </div>
+        
         <div className="grid-item">
           <table className="process-table-display outputs">
             <thead>
             <tr>
               <th className="node-attribute-name">Outputs</th>
+              <button onClick={addOutputPort}>Add output port</button>
             </tr>
             </thead>
             <tbody>
             <tr>
-              <td data-label="Outputs">
-                <BigraphNodeField
-                  data={currentNodeState}
-                  field="outputs"
-                  handleInputChange={(keyEvent, changeEvent, field) => handleInputChange(keyEvent, changeEvent, field as BigraphNodeKey)}
-                />
+              <td>
+                {Object.keys(data.outputs).map((outputName: string, index: number) => (
+                  <div>
+                    <NodeField
+                      data={data.outputs}
+                      portName={outputName}
+                    />
+                  </div>
+                ))}
               </td>
             </tr>
             </tbody>
           </table>
         </div>
-        */}
+     
         {/* input handles */}
-        {Object.keys(currentNodeState.inputs).map((inputName: string, index: number) => (
+        {Object.keys(data.inputs).map((inputName: string, index: number) => (
           <div>
             <Handle
               key={index}
               type="target"
               className="port-handle input-handle"
               title={inputName}
-              position={currentNodeState['inputPosition'] ? currentNodeState['inputPosition'] : Position.Left}
+              position={data['inputPosition'] ?data['inputPosition'] : Position.Left}
               id={inputName}  // {`input-${index}`}
               
             />
@@ -168,14 +155,14 @@ export function BigraphNode({
         ))}
         
         {/* output handles */}
-        {Object.keys(currentNodeState.outputs).map((outputName: string, index: number) => (
+        {Object.keys(data.outputs).map((outputName: string, index: number) => (
           <div>
             <Handle
               key={index}
               type="source"
               className="port-handle output-handle"
               title={outputName}
-              position={currentNodeState['outputPosition'] ? currentNodeState['outputPosition'] : Position.Right}
+              position={data['outputPosition'] ? data['outputPosition'] : Position.Right}
               id={outputName}  // {`input-${index}`}
             />
           </div>

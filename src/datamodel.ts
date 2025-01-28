@@ -8,65 +8,60 @@ import type {
 
 /* base models for nodes and stores */
 
-export type Port = Record<string, string[]>;
-
-// base node type
-export type BaseNode = {
-  nodeId: string
-}
-
-// base type for process and step nodes
-export type BigraphNode =  BaseNode & {
-  _type: string;
-  address: string;
-  config: Record<string, any>;
-  inputs: Port | Record<string, string[]>;
-  outputs: Port | Record<string, string[]>;
-} & {
-  [key: string]: any; // allows indexing with a string
+// base data type allowing for string indexing
+export type Data = {
+  [key: string]: any;
 };
 
+// base node type
+export type NodeData = Data & {
+  nodeId: string
+};
+
+// base type for process and step nodes
+export type BigraphNodeData =  NodeData & {
+  _type: "process" | "step";
+  address: string;
+  config: Record<string, any>;
+  inputs: Record<string, string[]>;
+  outputs: Record<string, string[]>;
+}
+
 // data stores (input and output ports)
-export type StoreNode = BaseNode & {
+export type StoreNodeData = NodeData & {
   value: string[],
-  connections?: string[]  // this field is used to keep track of node-store connection-state
-} & {
-  [key: string]: any;
+  connections?: string[] | any[]  // this field is used to keep track of node-store connection-state
 }
 
 // overall composition type representing the "document" that is given to Composite(config={'state': ...})
 export type Composition = {
-  [key: string]: BigraphNode;
+  [key: string]: BigraphNodeData;
 }
 
 // used for indexing node dynamically in event listeners
-export type BigraphNodeKey = keyof BigraphNode;
+type BigraphNodeKey = keyof BigraphNodeData;
 
-export type StoreNodeKey = keyof StoreNode;
+type StoreNodeKey = keyof StoreNodeData;
 
 export type NodeKey = BigraphNodeKey | StoreNodeKey | string;
 
 
 /* react-flow-specific interface fulfillment */
 
-// react flow-specific interface fulfillment for process and step nodes
-export type BigraphFlowNode = XyzFlowNode<BigraphNode> | XyzFlowNode<FlowNodeConfig>;
+// react flow-specific interface fulfillment for process and step nodes as well as stores
+export type BigraphNode = XyzFlowNode<BigraphNodeData>;
 
-// react flow-specific interface fulfillment for data stores
-export type StoreFlowNode = XyzFlowNode<StoreNode> | XyzFlowNode<FlowNodeConfig>;
+export type StoreNode = XyzFlowNode<StoreNodeData>;
 
 // high-level type for easily/iteratively getting react flow-specific data
 export type FlowNodeConfig = {
   id: string,
   type: string,
-  position: {
-    x: number,
-    y: number
-  },
-  data: StoreNode | BigraphNode
+  position: FlowNodePosition,
+  data: StoreNodeData | BigraphNodeData
 }
 
-export type NodePosition = {
+export type FlowNodePosition = {
   x: number,
   y: number
 }
@@ -75,7 +70,7 @@ export type NodePosition = {
 /* spec models consumed by the client */
 
 // process/step/store spec types with nodeId omitted (in the proper format for export)
-export type FormattedNode = Omit<BigraphNode | StoreNode, "nodeId">;
+export type FormattedNode = Omit<BigraphNodeData | StoreNodeData, "nodeId">;
 
 export type FormattedBigraphNode = FormattedNode;
 

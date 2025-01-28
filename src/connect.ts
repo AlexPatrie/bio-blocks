@@ -1,7 +1,7 @@
 import { Connection } from "@xyflow/react";
 import {
-  StoreNode,
-  FlowEdgeConfig, NodePosition, FlowNodeConfig, BigraphNode, NodeKey
+  StoreNodeData as StoreNode,
+  FlowEdgeConfig, FlowNodeConfig, BigraphNodeData as BigraphNode, NodeKey, FlowNodePosition
 } from "./datamodel";
 
 
@@ -57,7 +57,7 @@ export const verifyConnection = (connection: Connection): boolean => {
 }
 
 export function newFlowNodeConfig(flowTypeId: string, data: BigraphNode | StoreNode, nodeId: string): FlowNodeConfig {
-  const nodePosition = newNodePosition();
+  const nodePosition = randomPosition();
   return {
     id: nodeId,
     type: flowTypeId,
@@ -70,7 +70,7 @@ export function newBigraphNodeConfig(nodeId?: string, data?: BigraphNode): FlowN
   const id = nodeId ? nodeId: `bigraph-node-${Math.random()}`
   const emptyNode: BigraphNode = {
     nodeId: id,
-    _type: "None",
+    _type: "process",
     address: "None",
     config: {},
     inputs: {},
@@ -93,22 +93,16 @@ export function newStoreNodeConfig(nodeId?: string, data?: StoreNode): FlowNodeC
   );
 }
 
-function newNodePosition(): NodePosition {
-  // TODO: dynamically set min/max values according to DOM state
-  const minX = -(Math.random());
-  const maxX = Math.random();
-  const minY = -(Math.random());
-  const maxY = Math.random();
-  
-  return generateRandomPosition(minX, maxX, minY, maxY);
-}
+export const randomCoordinate = (min?: number, max?: number): number => {
+  min = min ? min : Math.floor(Math.random());
+  max = max ? max : Math.floor(Math.random());
+  return Math.random() * (max - min) + min;
+};
 
-function generateRandomPosition(minX: number, maxX: number, minY: number, maxY: number): NodePosition {
-  const x = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
-  const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+export function randomPosition(minX?: number, maxX?: number, minY?: number, maxY?: number): FlowNodePosition {
   return {
-    x: x,
-    y: y,
+    x: randomCoordinate(minX, maxX),
+    y: randomCoordinate(minY, maxY),
   }
 }
 

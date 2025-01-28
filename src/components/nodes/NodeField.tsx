@@ -1,24 +1,29 @@
 /* generic field component that can be used by either node type */
 
 import React, {useCallback, useState} from "react";
-import {BigraphNode, StoreNode, NodeKey} from "../../datamodel";
+import {BigraphNodeData, StoreNodeData, NodeKey} from "../../datamodel";
 
 
 interface NodeFieldProps {
-  data: BigraphNode | StoreNode;
+  data: BigraphNodeData | StoreNodeData | Record<string, string[]>;
   portName: string;
-  // handleInputChange: (
-  //   keyEvent: React.KeyboardEvent<HTMLInputElement>,
-  //   // changeEvent: React.ChangeEvent<HTMLInputElement> | null,
+  // onChange: (changeEvent: React.ChangeEvent<HTMLInputElement>) => void;
+  // changeInput: (
+  //   keyEvent: React.KeyboardEvent<HTMLInputElement> | null,
+  //   changeEvent: React.ChangeEvent<HTMLInputElement> | null,
   // ) => void;
 }
 
 export function NodeField({ data, portName }: NodeFieldProps) {
   const [editMode, setEditMode] = useState(false);
-  const [tempValue, setTempValue] = useState(data[portName]); // local state for editing
+  const [currentValue, setValue] = useState(data[portName]); // local state for editing
   
   // get original value
   const originalValue = data[portName];
+  
+  const handleInputChange = useCallback((changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+    data[portName] = changeEvent.target.value;
+  }, []);
   
   const handleBlur = useCallback(() => {
     // exit edit mode when losing focus and DO NOT accept input change
@@ -32,8 +37,8 @@ export function NodeField({ data, portName }: NodeFieldProps) {
       setEditMode(false);
       
       // check if new value is different from original and set if so
-      if (originalValue !== tempValue) {
-        data[portName] = tempValue;
+      if (originalValue !== currentValue) {
+        data[portName] = currentValue;
       }
     }
   }, []);
@@ -47,6 +52,7 @@ export function NodeField({ data, portName }: NodeFieldProps) {
           onKeyDown={handleKeyDown}
           autoFocus
           placeholder="Enter field"
+          onChange={(changeEvent: React.ChangeEvent<HTMLInputElement>) => handleInputChange(changeEvent)}
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>

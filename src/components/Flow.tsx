@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
   Background,
   Controls,
@@ -18,19 +18,21 @@ import { edgeTypes, type CustomEdgeType } from "./edges";
 import { verifyConnection, newBigraphNodeConfig, newStoreNodeConfig } from "../connect";
 import {
   exportComposition,
-  validateUpload, uploadComposition
+  validateUpload,
+  uploadComposition
 } from "../io";
 import {
   initialNodes,
   initialEdges,
 } from "../examples";
 import {
-  BigraphFlowNode,
-  BigraphNode,
-  Composition,
+  BigraphNodeData,
+  StoreNodeData,
   FlowNodeConfig,
+  BigraphNode,
+  StoreNode,
   FormattedBigraphNode,
-  FormattedComposition, StoreNode
+  FormattedComposition,
 } from "../datamodel";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
@@ -42,6 +44,8 @@ export default function App() {
   const [inputValue, setInputValue] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
+  let numNodes = nodes.length;
+  console.log(`Starting with ${numNodes} nodes`);
 
   
   // graph connector
@@ -82,7 +86,7 @@ export default function App() {
     const compositionSpec: FormattedComposition = {};
     nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
       // base type
-      const nodeData = node.data as BigraphNode;
+      const nodeData = node.data as BigraphNodeData;
       const nodeId = nodeData.nodeId as string;
       compositionSpec[nodeId] = {
         _type: nodeData._type,
@@ -111,14 +115,18 @@ export default function App() {
   };
   
   const importComposition = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    // Parse the uploaded composition file
     const uploadedComposition: FormattedComposition = uploadComposition(event) as FormattedComposition;
+  
     if (uploadedComposition) {
-      Object.keys(uploadedComposition).forEach((nodeName: string) => {
+      // Create nodes from the uploaded composition
+      const newNodes = Object.keys(uploadedComposition).map((nodeName: string) => {
         const uploadedNode: FormattedBigraphNode = uploadedComposition[nodeName];
-        const newNode: FlowNodeConfig = {
-          id: nodeName, // Unique ID
-          type: "bigraph-node", // Match the type used in `nodeTypes`
-          position: {x: Math.random() * 400, y: Math.random() * 400}, // Random position
+  
+        return {
+          id: nodeName, // Unique ID from the composition
+          type: "bigraph-node", // Node type
+          position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
           data: {
             nodeId: nodeName,
             _type: uploadedNode._type,
@@ -127,46 +135,61 @@ export default function App() {
             inputs: uploadedNode.inputs,
             outputs: uploadedNode.outputs,
           },
-        }
-        setNodes((existingNodes) => [...existingNodes, newNode]);
-        nodes.push(newNode);
-      })
-    }
-  }, []);
+        } as BigraphNode;
+      });
   
-
+      // Update the nodes state
+      setNodes((existingNodes) => [...existingNodes, ...newNodes]);
+    }
+  }, [setNodes]);
   
   // new node constructor
   const addNewProcessNode = () => {
-    const newNodeId = crypto.randomUUID();
-    const newNode: FlowNodeConfig = {
+    console.log(`Before, nodes are: ${JSON.stringify(nodes)}`);
+    
+    // TODO: dynamically get this: increment number of nodes
+    numNodes += 1;
+    
+    const newNodeId = `process_${numNodes}`; // crypto.randomUUID();
+    const newNode: BigraphNode = {
       id: newNodeId, // Unique ID
       type: "bigraph-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
         nodeId: newNodeId,
         _type: "process",
-        address: "",
+        address: `local:${newNodeId}`, // placeholder
         config: {},
-        inputs: {},
+        inputs: {
+          // 'input_port1': ['input_port1_store'],
+        },
         outputs: {},
       }, // add new node with empty fields
     };
     
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    setNodes((existingNodes) => [...existingNodes, newNode]);
+    setNodes((existingNodes) => {
+      const updatedNodes = [...existingNodes, newNode]; // represents the latest state
+      console.log("Updated Nodes:", updatedNodes);
+      return updatedNodes;
+    });
+    
+    console.log(`Now num nodes are: ${numNodes}`);
   };
   
   const addNewStepNode = () => {
-    const newNodeId = crypto.randomUUID();
-    const newNode: FlowNodeConfig = {
+    // TODO: dynamically get this: increment number of nodes
+    numNodes += 1;
+    
+    const newNodeId = `step_${numNodes}`; // crypto.randomUUID();
+    const newNode: BigraphNode = {
       id: newNodeId, // Unique ID
       type: "bigraph-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
         nodeId: newNodeId,
         _type: "step",
-        address: "",
+        address: `local:${newNodeId}`, // placeholder
         config: {},
         inputs: {},
         outputs: {},
@@ -174,17 +197,22 @@ export default function App() {
     };
     
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    setNodes((existingNodes) => [...existingNodes, newNode]);
+    setNodes((existingNodes) => {
+      const updatedNodes = [...existingNodes, newNode]; // New state
+      console.log("Updated Nodes:", updatedNodes); // Logs the latest nodes with the new node
+      return updatedNodes;
+    });
+    console.log(`Now num nodes are: ${numNodes}`);
   };
   
   const addNewStoreNode = () => {
     const newNodeId = `store-${crypto.randomUUID()}`;
-    const store: StoreNode = {
+    const store: StoreNodeData = {
       nodeId: newNodeId,
       value: ["empty_store"],
-      connections: [] as string[]
+      connections: ["None"] as string[]
     }
-    const newNode: FlowNodeConfig = {
+    const newNode: StoreNode = {
       id: newNodeId, // Unique ID
       type: "store-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
@@ -245,7 +273,7 @@ export default function App() {
           Export to JSON
         </button>
         <button
-          onClick={l => addNewProcessNode}
+          onClick={addNewProcessNode}
           style={{
             position: "absolute",
             top: 0,
