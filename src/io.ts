@@ -1,7 +1,8 @@
 import React from "react";
+import {FormattedComposition} from "./datamodel";
 
 
-export const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
+export const uploadComposition = (event: React.ChangeEvent<HTMLInputElement>): FormattedComposition | undefined => {
   const file = event.target.files?.[0];
   if (!file) return;
 
@@ -10,7 +11,7 @@ export const importComposition = (event: React.ChangeEvent<HTMLInputElement>) =>
   reader.onload = (e) => {
     try {
       // parse the input json
-      const jsonData = JSON.parse(e.target?.result as string);
+      const jsonData: FormattedComposition = JSON.parse(e.target?.result as string);
       // iterate over the keys (node names) then iterate over the node.
       Object.keys(jsonData).forEach((key: string) => {
         const uploadedNode = jsonData[key];
@@ -19,7 +20,9 @@ export const importComposition = (event: React.ChangeEvent<HTMLInputElement>) =>
       // validate and set the data
       if (isValidSpec) {
         // setData(jsonData);  HERE setData should create new node elements (html)
-        console.log("Uploaded and parsed data:", jsonData);
+        console.log("Uploaded valid data via importComposition:");
+        console.log( jsonData);
+        return jsonData;
       } else {
         alert("Invalid JSON structure!");
       }
@@ -29,7 +32,7 @@ export const importComposition = (event: React.ChangeEvent<HTMLInputElement>) =>
       }
     };
   
-  reader.readAsText(file);
+  // reader.readAsText(file);
 };
 
 export const exportComposition = (data: any, filename: string) => {

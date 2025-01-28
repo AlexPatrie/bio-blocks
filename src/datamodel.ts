@@ -50,10 +50,10 @@ export type NodeKey = BigraphNodeKey | StoreNodeKey | string;
 /* react-flow-specific interface fulfillment */
 
 // react flow-specific interface fulfillment for process and step nodes
-export type BigraphFlowNode = XyzFlowNode<BigraphNode>;
+export type BigraphFlowNode = XyzFlowNode<BigraphNode> | XyzFlowNode<FlowNodeConfig>;
 
 // react flow-specific interface fulfillment for data stores
-export type StoreFlowNode = XyzFlowNode<StoreNode>;
+export type StoreFlowNode = XyzFlowNode<StoreNode> | XyzFlowNode<FlowNodeConfig>;
 
 // high-level type for easily/iteratively getting react flow-specific data
 export type FlowNodeConfig = {

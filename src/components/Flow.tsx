@@ -17,15 +17,21 @@ import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
 import { verifyConnection, newBigraphNodeConfig, newStoreNodeConfig } from "../connect";
 import {
-  importComposition,
   exportComposition,
-  validateUpload
+  validateUpload, uploadComposition
 } from "../io";
 import {
   initialNodes,
   initialEdges,
 } from "../examples";
-import {BigraphNode, Composition, FormattedBigraphNode, FormattedComposition} from "../datamodel";
+import {
+  BigraphFlowNode,
+  BigraphNode,
+  Composition,
+  FlowNodeConfig,
+  FormattedBigraphNode,
+  FormattedComposition, StoreNode
+} from "../datamodel";
 
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
@@ -103,44 +109,90 @@ export default function App() {
         alert("Graph and metadata exported as composition.zip!");
     });
   };
+  
+  const importComposition = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedComposition: FormattedComposition = uploadComposition(event) as FormattedComposition;
+    if (uploadedComposition) {
+      Object.keys(uploadedComposition).forEach((nodeName: string) => {
+        const uploadedNode: FormattedBigraphNode = uploadedComposition[nodeName];
+        const newNode: FlowNodeConfig = {
+          id: nodeName, // Unique ID
+          type: "bigraph-node", // Match the type used in `nodeTypes`
+          position: {x: Math.random() * 400, y: Math.random() * 400}, // Random position
+          data: {
+            nodeId: nodeName,
+            _type: uploadedNode._type,
+            address: uploadedNode.address,
+            config: uploadedNode.config,
+            inputs: uploadedNode.inputs,
+            outputs: uploadedNode.outputs,
+          },
+        }
+        setNodes((existingNodes) => [...existingNodes, newNode]);
+      })
+    }
+  }, []);
+  
 
   
   // new node constructor
-  const addNewBigraphNode = () => {
-    const newNode = newBigraphNodeConfig()
-    setNodes((nds) => [...nds, newNode]);
+  const addNewProcessNode = () => {
+    const newNodeId = crypto.randomUUID();
+    const newNode: FlowNodeConfig = {
+      id: newNodeId, // Unique ID
+      type: "bigraph-node", // Match the type used in `nodeTypes`
+      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+      data: {
+        nodeId: newNodeId,
+        _type: "process",
+        address: "",
+        config: {},
+        inputs: {},
+        outputs: {},
+      }, // add new node with empty fields
+    };
+    
+    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+    setNodes((existingNodes) => [...existingNodes, newNode]);
   };
   
   const addNewStepNode = () => {
-    const newNode = {
-      id: `node-${nodes.length + 1}`, // Unique ID
-      type: "step-node", // Match the type used in `nodeTypes`
+    const newNodeId = crypto.randomUUID();
+    const newNode: FlowNodeConfig = {
+      id: newNodeId, // Unique ID
+      type: "bigraph-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
       data: {
+        nodeId: newNodeId,
         _type: "step",
         address: "",
+        config: {},
         inputs: {},
         outputs: {},
-        config: {},
       }, // add new node with empty fields
     };
-  
-    setNodes((nds) => [...nds, newNode]);
+    
+    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+    setNodes((existingNodes) => [...existingNodes, newNode]);
   };
   
   const addNewStoreNode = () => {
-    const newNode = {
-      id: `node-${nodes.length + 1}`, // Unique ID
+    const newNodeId = `store-${crypto.randomUUID()}`;
+    const store: StoreNode = {
+      nodeId: newNodeId,
+      value: ["empty_store"],
+      connections: [] as string[]
+    }
+    const newNode: FlowNodeConfig = {
+      id: newNodeId, // Unique ID
       type: "store-node", // Match the type used in `nodeTypes`
       position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-      data: {
-        value: "",
-      }, // add new node with empty fields
+      data: store
     };
-  
-    setNodes((nds) => [...nds, newNode]);
+    
+    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+    setNodes((existingNodes) => [...existingNodes, newNode]);
   };
-
   
   // project name setter
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

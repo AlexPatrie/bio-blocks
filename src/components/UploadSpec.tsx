@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { BigraphNodeType as BigraphSpec} from "../datamodel";
+import {Composition, FormattedComposition} from "../datamodel";
 
 interface  UploadSpecProps {
   onLoadGraph: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps) => {
-  const [jsonData, setJsonData] = useState<BigraphSpec | null | any>(null);
+  const [jsonData, setJsonData] = useState<FormattedComposition | null | any>(null);
 
   return (
     <div style={{ position: "absolute", top: 0, right: 200 }}>
