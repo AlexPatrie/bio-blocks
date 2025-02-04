@@ -54,19 +54,30 @@ export class VivariumService {
   };
   
   public newPosition(): FlowNodePosition {
-    return randomPosition(this.minX, this.maxX, this.minY, this.maxY);
+    return { x: Math.random() * 400, y: Math.random() * 400 }
   }
   
   public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null): BigraphNodeData {
-    const newId: string = `new-process-${!nodeIndex ? Math.round(randomInRange(0, 20)) : nodeIndex}`;
+    const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
+    const nodeId = !name ? newId : name as string;
+    const addressId = !address ? `local:${newId}` : address as string;
     return {
-        nodeId: !name ? newId : name as string,
+        nodeId: nodeId,
         _type: "process",
-        address: !address ? `local:${newId}` : address as string,
+        address: addressId,
         config: {},
         inputs: {},
         outputs: {}
       };
+  }
+  
+  public newEmptyStoreNodeData(nodeId?: string | undefined, nodeIndex?: number | null): StoreNodeData {
+    const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
+    return {
+      nodeId: newId,
+      value: [`${newId}_store`],
+      connections: []
+    }
   }
   
   public getFlowNodeConfig(nodeId: string): FlowNodeConfig | undefined {
@@ -78,16 +89,14 @@ export class VivariumService {
   }
 
   public addProcess(node: BigraphNodeData): void {
-    /* Takes in either an uploaded bigraph node (that is from a spec.json file in FormattedBigraphNode format),
-      or a name and address
-     */
-    // make process and add to nodes state
-    const newNode: BigraphNodeData = node;
-    this.nodeData.push(newNode);
+    /* Takes in bigraph node data (FormattedBigraphNode + nodeId) and does the following:
+      1. adds it to this.nodeData
+      2. creates a corresponding react-flow node config for this node
+    */
+    this.nodeData.push(node);
     
-    // make corresponding react flow node config for new node
     const position = this.newPosition();
-    this.addFlowNodeConfig(newNode, position.x, position.y);
+    this.addFlowNodeConfig(node, position.x, position.y);
   };
   
   public removeProcess(nodeId: string): void {
@@ -132,6 +141,9 @@ export class VivariumService {
   
   public addObject(store: StoreNodeData): void {
     this.objectData.push(store);
+
+    const position = this.newPosition();
+    this.addFlowNodeConfig(store, position.x, position.y);
   }
   
   public removeObject(nodeId: string): void {

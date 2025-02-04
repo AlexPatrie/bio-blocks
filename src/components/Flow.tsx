@@ -49,6 +49,7 @@ export default function App() {
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   let numNodes = nodes.length;
+  let numObjects: number = 0;
   console.log(`Starting with ${numNodes} nodes`);
   
   // vivarium builder (stateful)
@@ -197,18 +198,18 @@ export default function App() {
     vivarium.addProcess(emptyNode);
     
     // use flow node indexer to lookup the flow node config for the new node we just created, compat with CustomNodeType (react-flow specific)
-    const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
     // this conditional acts as a sanity check, which I need!!!
-    if (newNode) {
+    if (newFlowNode) {
       // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
       setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newNode]; // represents the latest state
+        const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
         console.log("Updated Nodes:", updatedNodes);
         return updatedNodes;
       });
       
-      // set timeout
+      // set timeout for blur render TODO: possibly remove this!
       setTimeout(() => {
         if (nodeRefs.current[newNodeId]) {
           nodeRefs.current[newNodeId]?.focus();
@@ -227,21 +228,28 @@ export default function App() {
   }
   
   const addEmptyStoreNode = () => {
-    const newNodeId = `store-${crypto.randomUUID()}`;
-    const store: StoreNodeData = {
-      nodeId: newNodeId,
-      value: ["empty_store"],
-      connections: ["None"] as string[]
-    }
-    const newNode: StoreNode = {
-      id: newNodeId, // Unique ID
-      type: "store-node", // Match the type used in `nodeTypes`
-      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-      data: store
-    };
+    numObjects += 1;
+    const newNodeId = `new-store`;
     
-    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    setNodes((existingNodes) => [...existingNodes, newNode]);
+    const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
+    vivarium.addObject(emptyStore);
+    
+    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+    if (newFlowNode) {
+      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+      setNodes((existingNodes) => {
+        const updatedNodes = [...existingNodes, newFlowNode];
+        console.log("Updated Nodes with stores:", updatedNodes);
+        return updatedNodes;
+      });
+      
+      // set timeout for blur render TODO: possibly remove this!
+      setTimeout(() => {
+        if (nodeRefs.current[newNodeId]) {
+          nodeRefs.current[newNodeId]?.focus();
+        }
+      }, 50);
+    }
   };
   
   // project name setter
@@ -348,3 +356,16 @@ export default function App() {
     </div>
   );
 }
+
+
+// const store: StoreNodeData = {
+//   nodeId: newNodeId,
+//   value: ["empty_store"],
+//   connections: ["None"] as string[]
+// }
+// const newNode: StoreNode = {
+//   id: newNodeId, // Unique ID
+//   type: "store-node", // Match the type used in `nodeTypes`
+//   position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+//   data: store
+// };
