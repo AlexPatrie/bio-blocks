@@ -35,6 +35,8 @@ import {
   FormattedComposition,
 } from "../datamodel";
 
+import { VivariumService } from "../services/VivariumService";
+
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
 // TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry
@@ -46,6 +48,9 @@ export default function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   let numNodes = nodes.length;
   console.log(`Starting with ${numNodes} nodes`);
+  
+  // vivarium builder (stateful)
+  const vivarium = new VivariumService();
 
   
   // graph connector
@@ -83,19 +88,22 @@ export default function App() {
       })),
     };
     
-    const compositionSpec: FormattedComposition = {};
-    nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-      // base type
-      const nodeData = node.data as BigraphNodeData;
-      const nodeId = nodeData.nodeId as string;
-      compositionSpec[nodeId] = {
-        _type: nodeData._type,
-        address: nodeData.address,
-        config: nodeData.config,
-        inputs: nodeData.inputs,
-        outputs: nodeData.outputs
-      };
-    });
+    // const compositionSpec: FormattedComposition = {};
+    // nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
+    //   // base type
+    //   const nodeData = node.data as BigraphNodeData;
+    //   const nodeId = nodeData.nodeId as string;
+    //   compositionSpec[nodeId] = {
+    //     _type: nodeData._type,
+    //     address: nodeData.address,
+    //     config: nodeData.config,
+    //     inputs: nodeData.inputs,
+    //     outputs: nodeData.outputs
+    //   };
+    // });
+    
+    vivarium.compile();
+    const compositionSpec = vivarium.composite;
     
     // get project name
     const projectName = inputValue.split(" ").join("_").toLowerCase();
@@ -145,63 +153,42 @@ export default function App() {
   
   // new node constructor
   const addNewProcessNode = () => {
-    console.log(`Before, nodes are: ${JSON.stringify(nodes)}`);
-    
-    // TODO: dynamically get this: increment number of nodes
+    // placeholder nodeId based on existing num nodes
     numNodes += 1;
-    
     const newNodeId = `process_${numNodes}`; // crypto.randomUUID();
-    const newNode: BigraphNode = {
-      id: newNodeId, // Unique ID
-      type: "bigraph-node", // Match the type used in `nodeTypes`
-      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-      data: {
-        nodeId: newNodeId,
-        _type: "process",
-        address: `local:${newNodeId}`, // placeholder
-        config: {},
-        inputs: {
-          // 'input_port1': ['input_port1_store'],
-        },
-        outputs: {},
-      }, // add new node with empty fields
-    };
+    
+    // add node to vivarium builder state
+    vivarium.addProcess(newNodeId, `local:${newNodeId}`);
+    const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    setNodes((existingNodes) => {
-      const updatedNodes = [...existingNodes, newNode]; // represents the latest state
-      console.log("Updated Nodes:", updatedNodes);
-      return updatedNodes;
-    });
-    
+    if (newNode) {  // acts as a sanity check
+      setNodes((existingNodes) => {
+        const updatedNodes = [...existingNodes, newNode]; // represents the latest state
+        console.log("Updated Nodes:", updatedNodes);
+        return updatedNodes;
+      });
+    }
     console.log(`Now num nodes are: ${numNodes}`);
   };
   
   const addNewStepNode = () => {
-    // TODO: dynamically get this: increment number of nodes
+    // placeholder nodeId based on existing num nodes
     numNodes += 1;
-    
     const newNodeId = `step_${numNodes}`; // crypto.randomUUID();
-    const newNode: BigraphNode = {
-      id: newNodeId, // Unique ID
-      type: "bigraph-node", // Match the type used in `nodeTypes`
-      position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-      data: {
-        nodeId: newNodeId,
-        _type: "step",
-        address: `local:${newNodeId}`, // placeholder
-        config: {},
-        inputs: {},
-        outputs: {},
-      }, // add new node with empty fields
-    };
+    
+    // add node to vivarium builder state
+    vivarium.addProcess(newNodeId, `local:${newNodeId}`);
+    const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    setNodes((existingNodes) => {
-      const updatedNodes = [...existingNodes, newNode]; // New state
-      console.log("Updated Nodes:", updatedNodes); // Logs the latest nodes with the new node
-      return updatedNodes;
-    });
+    if (newNode) {  // acts as a sanity check
+      setNodes((existingNodes) => {
+        const updatedNodes = [...existingNodes, newNode]; // represents the latest state
+        console.log("Updated Nodes:", updatedNodes);
+        return updatedNodes;
+      });
+    }
     console.log(`Now num nodes are: ${numNodes}`);
   };
   

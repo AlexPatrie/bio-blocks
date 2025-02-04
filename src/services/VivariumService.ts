@@ -5,7 +5,7 @@ import {
   FormattedStoreNode,
   FlowNodeConfig,
   FlowEdgeConfig,
-  FlowNodePosition
+  FlowNodePosition, FormattedComposition
 } from "../datamodel";
 import { randomPosition } from "../connect";
 
@@ -18,8 +18,8 @@ interface Core {
 export type PortDirection = "inputs" | "outputs";
 
 
-class VivariumService {
-  public composite: Record<string, FormattedBigraphNode | FormattedStoreNode> = {};
+export class VivariumService {
+  public composite: FormattedComposition = {};
   public nodes: BigraphNodeData[] = [];
   public objects: StoreNodeData[] = [];
   
@@ -53,6 +53,14 @@ class VivariumService {
     this.emitterConfig = emitterConfig;
   };
   
+  public getFlowNodeConfig(nodeId: string): FlowNodeConfig | undefined {
+    return this.flowNodes.find(node => node.data.nodeId === nodeId);
+  }
+  
+  public getFlowEdgeConfig(edgeId: string): FlowEdgeConfig | undefined {
+    return this.flowEdges.find(edge => edge.id === edgeId);
+  }
+
   public addProcess(name: string, address: string): void {
     // make process and add to nodes state
     const newNode: BigraphNodeData = {
@@ -148,7 +156,7 @@ class VivariumService {
         x: x,
         y: y
       },
-      data: node.data
+      data: node
     };
     this.flowNodes.push(flowNode);
   }
