@@ -59,11 +59,12 @@ a {
   font-weight: bold;
   display: flex;
   align-items: center;
-  padding-left: 1rem;
-  justify-content: space-between; /* Space out elements */
-  border-radius: 4px;
+  justify-content: center; /* Space out elements */
   height: 50px;
-  width: 100%;
+  border-radius: 7px;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  width: fit-content;
 }
 
 .handles {

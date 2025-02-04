@@ -76,7 +76,7 @@ export class VivariumService {
     const nodeId = !name ? newId : name as string;
     return {
       nodeId: nodeId,
-      value: [`${nodeId}_store`],
+      value: [`${nodeId}`],
       connections: []
     }
   }

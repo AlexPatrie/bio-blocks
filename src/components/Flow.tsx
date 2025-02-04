@@ -231,7 +231,7 @@ export default function App() {
   
   const addEmptyStoreNode = () => {
     const uuid = crypto.randomUUID();
-    const newNodeId = `new_${uuid.slice(uuid.length - 4, uuid.length)}`;
+    const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
     
     const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
     vivarium.addObject(emptyStore);
@@ -283,7 +283,8 @@ export default function App() {
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        fitView
+        defaultViewport={{ zoom: 1, x: 200, y: 200}}
+        // fitView
       >
         <Background />
         <MiniMap />

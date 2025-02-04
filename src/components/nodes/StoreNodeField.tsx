@@ -18,9 +18,6 @@ export function StoreNodeField({ data }: StoreNodeFieldProps) {
   const [currentValue, setValue] = useState<string[]>(data.value); // local state for editing
   const [inputValue, setInputValue] = useState(currentValue[0] || "");
   
-  console.log(`Current value: ${currentValue}`);
-  console.log(`Input Value: ${inputValue}`);
-  
   // get original value
   const originalValue = data.value;
   
@@ -36,7 +33,6 @@ export function StoreNodeField({ data }: StoreNodeFieldProps) {
   const handleKeyDown = useCallback(
     (keyEvent: React.KeyboardEvent<HTMLInputElement>) => {
       if (keyEvent.key === "Enter") {
-        console.log("Enter pressed.");
         setValue([inputValue]);
         setEditMode(false);
       }
