@@ -157,31 +157,57 @@ export default function App() {
     uploadComposition(event, (data: FormattedComposition) => {
       console.log("Received data:", data);
       Object.keys(data).forEach(key => {
-        const newNode = data[key];
+        // uploaded json file will be a formatted node(without nodeID, ingest-able by process-bigraph
+        const uploadedNode: FormattedBigraphNode = data[key];
+        
+        // convert formatted node to bigraph node data (nodeID)
+        const bigraphNode: BigraphNodeData = {
+          nodeId: key,
+          _type: uploadedNode._type,
+          address: uploadedNode.address,
+          config: uploadedNode.config,
+          inputs: uploadedNode.config,
+          outputs: uploadedNode.outputs
+        };
+        
+        // convert bigraph node data node to flow node
+        vivarium.addFlowNodeConfig(bigraphNode, )
+        
         // here run set nodes
         console.log(`Recieved uploaded node: ${JSON.stringify(newNode)}`);
+        setNodes((existingNodes) => {
+          const updatedNodes = [...existingNodes, newNode]; // represents the latest state
+          console.log("Updated Nodes:", updatedNodes);
+          return updatedNodes;
+        });
       });
       
     });
   };
   
-  // new node constructor
+  // new empty node constructor
   const addNewProcessNode = () => {
     // placeholder nodeId based on existing num nodes
     numNodes += 1;
     const newNodeId = `process_${numNodes}`; // crypto.randomUUID();
+    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId);
     
-    // add node to vivarium builder state
-    vivarium.addProcess(newNodeId, `local:${newNodeId}`);
+    // add node to vivarium builder nodes (this also adds the corresponding React-flow node config)
+    vivarium.addProcess(emptyNode);
+    
+    // use flow node indexer to lookup the flow node config for the new node we just created, compat with CustomNodeType (react-flow specific)
     const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
-    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    if (newNode) {  // acts as a sanity check
+    // this conditional acts as a sanity check, which I need!!!
+    if (newNode) {
+      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
       setNodes((existingNodes) => {
         const updatedNodes = [...existingNodes, newNode]; // represents the latest state
         console.log("Updated Nodes:", updatedNodes);
         return updatedNodes;
       });
+      
+      // set timeout
       setTimeout(() => {
         if (nodeRefs.current[newNodeId]) {
           nodeRefs.current[newNodeId]?.focus();
@@ -195,9 +221,10 @@ export default function App() {
     // placeholder nodeId based on existing num nodes
     numNodes += 1;
     const newNodeId = `step_${numNodes}`; // crypto.randomUUID();
+    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId);
     
     // add node to vivarium builder state
-    vivarium.addProcess(newNodeId, `local:${newNodeId}`);
+    vivarium.addProcess(emptyNode);
     const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]

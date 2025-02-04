@@ -7,7 +7,9 @@ import {
   FlowEdgeConfig,
   FlowNodePosition, FormattedComposition
 } from "../datamodel";
-import { randomPosition } from "../connect";
+import {randomInRange, randomPosition} from "../connect";
+import {Simulate} from "react-dom/test-utils";
+import input = Simulate.input;
 
 // Edge.ts
 
@@ -20,8 +22,8 @@ export type PortDirection = "inputs" | "outputs";
 
 export class VivariumService {
   public composite: FormattedComposition = {};
-  public nodes: BigraphNodeData[] = [];
-  public objects: StoreNodeData[] = [];
+  public nodeData: BigraphNodeData[] = [];
+  public objectData: StoreNodeData[] = [];
   
   public flowNodes: FlowNodeConfig[] = [];
   public flowEdges: FlowEdgeConfig[] = [];
@@ -30,12 +32,12 @@ export class VivariumService {
   public maxX?: number | undefined;
   public maxY?: number | undefined;
   
-  public document: object | null = null;
-  public processes: object | null = null;
-  public types: object | null = null;
-  public core: Core | null = null;
-  public require: string[] | null = null;
-  public emitterConfig: object | null = null;
+  public document?: object | null;
+  public processes?: object | null;
+  public types?: object | null;
+  public core?: Core | null;
+  public require?: string[] | null;
+  public emitterConfig?: object | null;
   
   public constructor(
     document: object | null = null,
@@ -53,6 +55,22 @@ export class VivariumService {
     this.emitterConfig = emitterConfig;
   };
   
+  public newPosition(): FlowNodePosition {
+    return randomPosition(this.minX, this.maxX, this.minY, this.maxY);
+  }
+  
+  public newEmptyBigraphNodeData(name?: string | null, address?: string | null): BigraphNodeData {
+    const newId: string = `new-process-${randomInRange(0, 20)}`;
+    return {
+        nodeId: !name ? newId : name as string,
+        _type: "process",
+        address: !address ? `local:${newId}` : address as string,
+        config: {},
+        inputs: {},
+        outputs: {}
+      };
+  }
+  
   public getFlowNodeConfig(nodeId: string): FlowNodeConfig | undefined {
     return this.flowNodes.find(node => node.data.nodeId === nodeId);
   }
@@ -61,32 +79,28 @@ export class VivariumService {
     return this.flowEdges.find(edge => edge.id === edgeId);
   }
 
-  public addProcess(name: string, address: string): void {
+  public addProcess(node: BigraphNodeData): void {
+    /* Takes in either an uploaded bigraph node (that is from a spec.json file in FormattedBigraphNode format),
+      or a name and address
+     */
     // make process and add to nodes state
-    const newNode: BigraphNodeData = {
-      nodeId: name,
-      _type: "process",
-      address: address,
-      config: {},
-      inputs: {},
-      outputs: {}
-    };
-    this.nodes.push(newNode);
+    const newNode: BigraphNodeData = node;
+    this.nodeData.push(newNode);
     
     // make corresponding react flow node config for new node
-    const position = randomPosition(this.minX, this.maxX, this.minY, this.maxY);
+    const position = this.newPosition();
     this.addFlowNodeConfig(newNode, position.x, position.y);
   };
   
   public removeProcess(nodeId: string): void {
-    this.nodes.forEach(node => {
-      const index = this.nodes.indexOf(node);
-      this.nodes.splice(index, 1)
+    this.nodeData.forEach(node => {
+      const index = this.nodeData.indexOf(node);
+      this.nodeData.splice(index, 1)
     });
   };
   
   public addPort(nodeId: string, direction: PortDirection, value: string): void {
-    this.nodes.forEach((node: BigraphNodeData) => {
+    this.nodeData.forEach((node: BigraphNodeData) => {
       if (nodeId === node.nodeId) {
         const inputValue = [`${value}_store`];
         // add input to node
@@ -98,7 +112,11 @@ export class VivariumService {
           connections: [node.nodeId],
           nodeId: value
         }
-        this.objects.push(store);
+        this.objectData.push(store);
+        
+        // add new flow node config corresponding to new store
+        const position = this.newPosition();
+        this.addFlowNodeConfig(store, position.x, position.y);
         
         // make corresponding flow edge config for new store
         this.addFlowEdgeConfig(node.nodeId, store.nodeId);
@@ -114,24 +132,19 @@ export class VivariumService {
     return this.addPort(nodeId, "outputs", value);
   };
   
-  public addObject(value: string): void {
-    const store: StoreNodeData = {
-      value: [value],
-      nodeId: value,
-      connections: []
-    };
-    this.objects.push(store);
-  };
+  public addObject(store: StoreNodeData): void {
+    this.objectData.push(store);
+  }
   
   public removeObject(nodeId: string): void {
-    this.objects.forEach(node => {
-      const index = this.objects.indexOf(node);
-      this.objects.splice(index, 1)
+    this.objectData.forEach(node => {
+      const index = this.objectData.indexOf(node);
+      this.objectData.splice(index, 1)
     });
   };
   
   public compile(): void {
-    this.nodes.forEach(node => {
+    this.nodeData.forEach(node => {
       this.composite[node.nodeId] = {
         _type: node._type,
         address: node.address,
@@ -143,15 +156,15 @@ export class VivariumService {
   };
   
   public flush(): void {
-    this.nodes = [];
-    this.objects = [];
+    this.nodeData = [];
+    this.objectData = [];
     this.composite = {};
   }
   
-  public addFlowNodeConfig(node: BigraphNodeData, x: number, y: number): void {
+  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number): void {
     const flowNode: FlowNodeConfig = {
       id: node.nodeId,
-      type: "bigraph-node",
+      type: node as BigraphNodeData ? "bigraph-node" : "store-node",
       position: {
         x: x,
         y: y

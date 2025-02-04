@@ -4,6 +4,7 @@ import type {
   NodeProps,
   NodeTypes
 } from "@xyflow/react";
+import {number} from "prop-types";
 
 
 /* base models for nodes and stores */
@@ -114,6 +115,7 @@ export type FlowEdgeConfig = {
   target: string;
   animated: boolean;
 }
+
 
 
 
