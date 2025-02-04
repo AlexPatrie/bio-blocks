@@ -53,6 +53,19 @@ a {
   width: 100%;
 }
 
+.store-node-header {
+  background-color: rebeccapurple;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  justify-content: space-between; /* Space out elements */
+  border-radius: 4px;
+  height: 50px;
+  width: 100%;
+}
+
 .handles {
   grid-column: span 4; /* Stretch the handles across all 4 columns */
   display: flex;
@@ -72,9 +85,7 @@ a {
   padding: 8px;
 }
 
-.store-node {
-  border-radius: 50% !important;
-}
+
 
 .port-handle {
   scale: 2;
@@ -100,7 +111,15 @@ a {
   font-size: 14px;
   width: fit-content;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-  /* padding: */
+
+  .store-node {
+    border-radius: 50% !important;
+    height: 200px;
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 

@@ -2,6 +2,8 @@ import React, { useCallback } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 
 import {StoreNode as _StoreNode, StoreNodeData} from "../../datamodel";
+import {NodeField} from "./NodeField";
+import {StoreNodeField} from "./StoreNodeField";
 
 
 export function StoreNode({
@@ -32,22 +34,18 @@ export function StoreNode({
   }
   
   return (
-    <div className="react-flow__node-default flow store-node">
+    <div className="react-flow__node store-node">
       
       {/* Node Id/Name */}
-      <h3 className="node-header">
-        {/*<StoreField
-          storeNode={currentData}
-          field="value"
-          handleInputChange={(keyEvent, changeEvent,field) => handleInputChange(keyEvent, changeEvent, field as string)}
-        />*/}
-        <input
+      <div className="store-node-header">
+        <StoreNodeField data={data} />
+        {/*<input
           type="text"
           value={nodeData.value}
           autoFocus
           placeholder="Enter field"
-        />
-      </h3>
+        />*/}
+      </div>
       
       {/* dynamically add input handles based on the number of inputs */}
       {/* Input Handle */}
