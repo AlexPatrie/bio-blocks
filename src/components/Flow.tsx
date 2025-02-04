@@ -186,11 +186,12 @@ export default function App() {
   };
   
   // new empty node constructor
-  const addNewProcessNode = () => {
+  const addEmptyNode = (nodeType: string) => {
     // placeholder nodeId based on existing num nodes
     numNodes += 1;
-    const newNodeId = `process_${numNodes}`; // crypto.randomUUID();
-    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId);
+    const newNodeId = `${nodeType}_${numNodes}`; // crypto.randomUUID();
+    const placeholderAddress = `local:${newNodeId}`;
+    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes);
     
     // add node to vivarium builder nodes (this also adds the corresponding React-flow node config)
     vivarium.addProcess(emptyNode);
@@ -217,28 +218,15 @@ export default function App() {
     console.log(`Now num nodes are: ${numNodes}`);
   };
   
-  const addNewStepNode = () => {
-    // placeholder nodeId based on existing num nodes
-    numNodes += 1;
-    const newNodeId = `step_${numNodes}`; // crypto.randomUUID();
-    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId);
-    
-    // add node to vivarium builder state
-    vivarium.addProcess(emptyNode);
-    const newNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
-    
-    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-    if (newNode) {  // acts as a sanity check
-      setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newNode]; // represents the latest state
-        console.log("Updated Nodes:", updatedNodes);
-        return updatedNodes;
-      });
-    }
-    console.log(`Now num nodes are: ${numNodes}`);
-  };
+  const addEmptyProcessNode = () => {
+    return addEmptyNode("process")
+  }
   
-  const addNewStoreNode = () => {
+  const addEmptyStepNode = () => {
+    return addEmptyNode("step")
+  }
+  
+  const addEmptyStoreNode = () => {
     const newNodeId = `store-${crypto.randomUUID()}`;
     const store: StoreNodeData = {
       nodeId: newNodeId,
@@ -306,7 +294,7 @@ export default function App() {
           Export to JSON
         </button>
         <button
-          onClick={addNewProcessNode}
+          onClick={addEmptyProcessNode}
           style={{
             position: "absolute",
             top: 0,
@@ -323,7 +311,7 @@ export default function App() {
           Add new process
         </button>
         <button
-          onClick={addNewStepNode}
+          onClick={addEmptyStepNode}
           style={{
             position: "absolute",
             top: 0,
@@ -340,7 +328,7 @@ export default function App() {
           Add new step
         </button>
         <button
-          onClick={addNewStoreNode}
+          onClick={addEmptyStoreNode}
           style={{
             position: "absolute",
             top: 0,

@@ -8,8 +8,6 @@ import {
   FlowNodePosition, FormattedComposition
 } from "../datamodel";
 import {randomInRange, randomPosition} from "../connect";
-import {Simulate} from "react-dom/test-utils";
-import input = Simulate.input;
 
 // Edge.ts
 
@@ -59,8 +57,8 @@ export class VivariumService {
     return randomPosition(this.minX, this.maxX, this.minY, this.maxY);
   }
   
-  public newEmptyBigraphNodeData(name?: string | null, address?: string | null): BigraphNodeData {
-    const newId: string = `new-process-${randomInRange(0, 20)}`;
+  public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null): BigraphNodeData {
+    const newId: string = `new-process-${!nodeIndex ? Math.round(randomInRange(0, 20)) : nodeIndex}`;
     return {
         nodeId: !name ? newId : name as string,
         _type: "process",
