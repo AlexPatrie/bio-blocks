@@ -23,13 +23,13 @@ a {
 
 .flow {
   border: 4px solid rebeccapurple !important;
-  width: fit-content !important;
+  width: 100% !important;
 }
 
 .node-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 4 columns */
-  grid-template-rows: repeat(2, auto);  /* 4 rows */
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
   height: 100%;
   width: 100%;
 }
@@ -39,9 +39,18 @@ a {
   text-align: center; /* Center content within grid items */
 }
 
+
 .node-header {
-  text-align: center;
+  background-color: rebeccapurple;
+  color: white;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  justify-content: space-between; /* Space out elements */
+  border-radius: 4px;
+  height: 50px;
+  width: 100%;
 }
 
 .handles {
@@ -80,3 +89,19 @@ a {
   background-color: green !important;
   border: 1px solid green !important;
 }
+
+/* Node container styling */
+.react-flow__node {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border: 2px solid #555555;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  width: fit-content;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  /* padding: */
+}
+
+
+

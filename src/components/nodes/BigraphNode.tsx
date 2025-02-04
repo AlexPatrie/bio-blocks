@@ -38,15 +38,19 @@ export function BigraphNode({ data, addProcessNode }: BigraphNodeProps) {
   
 
   return (
-    <div className="react-flow__node-default flow">
+    <div className="react-flow__node">
       
       {/* Node Id/Name */}
-      <h3 className="node-header">
-        <NodeField
-          data={data}
-          portName={"nodeId"}
-        />
-      </h3>
+      <div className="node-header">
+        <h3>
+          <NodeField
+            data={data}
+            portName={"nodeId"}
+          />
+        </h3>
+        <div className="separate"></div>
+      </div>
+      
       
       <div className="node-grid">
         <div className="grid-item">
