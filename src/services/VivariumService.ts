@@ -71,11 +71,12 @@ export class VivariumService {
       };
   }
   
-  public newEmptyStoreNodeData(nodeId?: string | undefined, nodeIndex?: number | null): StoreNodeData {
+  public newEmptyStoreNodeData(name?: string | undefined, nodeIndex?: number | undefined): StoreNodeData {
     const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
+    const nodeId = !name ? newId : name as string;
     return {
-      nodeId: newId,
-      value: [`${newId}_store`],
+      nodeId: nodeId,
+      value: [`${nodeId}_store`],
       connections: []
     }
   }
@@ -96,7 +97,7 @@ export class VivariumService {
     this.nodeData.push(node);
     
     const position = this.newPosition();
-    this.addFlowNodeConfig(node, position.x, position.y);
+    this.addFlowNodeConfig(node, position.x, position.y, "bigraph-node");
   };
   
   public removeProcess(nodeId: string): void {
@@ -123,7 +124,7 @@ export class VivariumService {
         
         // add new flow node config corresponding to new store
         const position = this.newPosition();
-        this.addFlowNodeConfig(store, position.x, position.y);
+        this.addFlowNodeConfig(store, position.x, position.y, "store-node");
         
         // make corresponding flow edge config for new store
         this.addFlowEdgeConfig(node.nodeId, store.nodeId);
@@ -143,7 +144,7 @@ export class VivariumService {
     this.objectData.push(store);
 
     const position = this.newPosition();
-    this.addFlowNodeConfig(store, position.x, position.y);
+    this.addFlowNodeConfig(store, position.x, position.y, "store-node");
   }
   
   public removeObject(nodeId: string): void {
@@ -171,10 +172,10 @@ export class VivariumService {
     this.composite = {};
   }
   
-  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number): void {
+  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node"): void {
     const flowNode: FlowNodeConfig = {
       id: node.nodeId,
-      type: node as BigraphNodeData ? "bigraph-node" : "store-node",
+      type: nodeType,
       position: {
         x: x,
         y: y
@@ -182,6 +183,7 @@ export class VivariumService {
       data: node
     };
     this.flowNodes.push(flowNode);
+    console.log(`Pushed new flow node of type ${node}`);
   }
   
   public addFlowEdgeConfig(sourceId: string, targetId: string): void {

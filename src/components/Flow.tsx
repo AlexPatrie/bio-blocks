@@ -41,6 +41,8 @@ import { VivariumService } from "../services/VivariumService";
 // TODO: create button which dynamically adds new nodes to the initialNodes array
 // TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry
 
+let nObjects: number = 0;
+
 export default function App() {
   // hooks
   const [inputValue, setInputValue] = useState<string>('My Composition');
@@ -49,8 +51,8 @@ export default function App() {
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   let numNodes = nodes.length;
-  let numObjects: number = 0;
-  console.log(`Starting with ${numNodes} nodes`);
+  let numObjects = 0;
+  console.log(`Starting with ${numNodes} nodes and ${numObjects} objects`);
   
   // vivarium builder (stateful)
   const vivarium = new VivariumService();
@@ -228,12 +230,13 @@ export default function App() {
   }
   
   const addEmptyStoreNode = () => {
-    numObjects += 1;
-    const newNodeId = `new-store`;
+    const uuid = crypto.randomUUID();
+    const newNodeId = `new_${uuid.slice(uuid.length - 4, uuid.length)}`;
     
     const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
     vivarium.addObject(emptyStore);
     
+    console.log(`vivarium objects: ${JSON.stringify(vivarium.objectData)}`)
     const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     if (newFlowNode) {
       // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
@@ -249,7 +252,10 @@ export default function App() {
           nodeRefs.current[newNodeId]?.focus();
         }
       }, 50);
+    } else {
+      console.log('couldnt find flow node')
     }
+    console.log(`After store, Now num nodes are: ${numObjects}`);
   };
   
   // project name setter
