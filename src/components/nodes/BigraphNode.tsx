@@ -24,6 +24,7 @@ export function BigraphNode({ data }: BigraphNodeProps) {
       inputData[portName] = [`${portName}_store`];
       return inputData;
     });
+    
     // currentData.inputs[portName] = [`${portName}_store`];
     // return setData(currentData);
   }, [inputData]);
