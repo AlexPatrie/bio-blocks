@@ -93,10 +93,14 @@ export function newStoreNodeConfig(nodeId?: string, data?: StoreNode): FlowNodeC
   );
 }
 
-export const randomCoordinate = (min?: number, max?: number): number => {
-  min = min ? min : Math.floor(Math.random());
-  max = max ? max : Math.floor(Math.random());
+export const randomInRange = (min: number, max: number): number => {
   return Math.random() * (max - min) + min;
+}
+
+const randomCoordinate = (min?: number, max?: number): number => {
+  min = min ? min : randomInRange(Math.random() + Math.random(), Math.random() + Math.random());
+  max = max ? max : randomInRange(Math.random() + Math.random(), Math.random() + Math.random());
+  return randomInRange(min, max) * (max - min) + min;
 };
 
 export function randomPosition(minX?: number, maxX?: number, minY?: number, maxY?: number): FlowNodePosition {
