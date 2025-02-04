@@ -15,6 +15,8 @@ interface Core {
     generate(schema: object, config: object): [any, object];
 }
 
+export type PortDirection = "inputs" | "outputs";
+
 
 class VivariumService {
   public composite: Record<string, FormattedBigraphNode | FormattedStoreNode> = {};
@@ -75,38 +77,33 @@ class VivariumService {
     });
   };
   
-  public addInput(node: BigraphNodeData, value: string): void {
-    const inputValue = [value];
-    // add input to node
-    node.inputs[value] = inputValue;
-    
-    // make new corresponding store
-    const store: StoreNodeData = {
-      value: inputValue,
-      connections: [node.nodeId],
-      nodeId: value
-    }
-    this.objects.push(store);
-    
-    // make corresponding flow edge config for new store
-    this.addFlowEdgeConfig(node.nodeId, store.nodeId);
+  public addPort(nodeId: string, direction: PortDirection, value: string): void {
+    this.nodes.forEach((node: BigraphNodeData) => {
+      if (nodeId === node.nodeId) {
+        const inputValue = [`${value}_store`];
+        // add input to node
+        node[direction as string][value] = inputValue;
+        
+        // make new corresponding store
+        const store: StoreNodeData = {
+          value: inputValue,
+          connections: [node.nodeId],
+          nodeId: value
+        }
+        this.objects.push(store);
+        
+        // make corresponding flow edge config for new store
+        this.addFlowEdgeConfig(node.nodeId, store.nodeId);
+      }
+    });
   };
   
-  public addOutput(node: BigraphNodeData, value: string): void {
-    const outputValue = [value];
-    // add output to node
-    node.inputs[value] = outputValue;
-    
-    // make new corresponding store
-    const store: StoreNodeData = {
-      value: outputValue,
-      connections: [node.nodeId],
-      nodeId: value
-    }
-    this.objects.push(store);
-    
-    // make corresponding flow edge config for new store
-    this.addFlowEdgeConfig(node.nodeId, store.nodeId);
+  public addInput(nodeId: string, value: string): void {
+    return this.addPort(nodeId, "inputs", value);
+  };
+  
+  public addOutput(nodeId: string, value: string): void {
+    return this.addPort(nodeId, "outputs", value);
   };
   
   public addObject(value: string): void {
@@ -127,7 +124,7 @@ class VivariumService {
   
   public compile(): void {
     this.nodes.forEach(node => {
-      this.composite[node.name] = {
+      this.composite[node.nodeId] = {
         _type: node._type,
         address: node.address,
         config: node.config,
