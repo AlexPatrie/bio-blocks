@@ -2,38 +2,42 @@ import React from "react";
 import {FormattedComposition} from "./datamodel";
 
 
-export const uploadComposition = (event: React.ChangeEvent<HTMLInputElement>): FormattedComposition | undefined => {
+export const uploadComposition = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  onSuccess: (data: FormattedComposition) => void
+) => {
   const file = event.target.files?.[0];
   if (!file) return;
 
   const reader = new FileReader();
-  let isValidSpec = true;
+
   reader.onload = (e) => {
     try {
-      // parse the input json
       const jsonData: FormattedComposition = JSON.parse(e.target?.result as string);
-      // iterate over the keys (node names) then iterate over the node.
+
+      let isValidSpec = true;
       Object.keys(jsonData).forEach((key: string) => {
         const uploadedNode = jsonData[key];
-        isValidSpec = validateUpload(uploadedNode);
+        if (!validateUpload(uploadedNode)) {
+          isValidSpec = false;
+        }
       });
-      // validate and set the data
+
       if (isValidSpec) {
-        // setData(jsonData);  HERE setData should create new node elements (html)
-        console.log("Uploaded valid data via importComposition:");
-        console.log( jsonData);
-        return jsonData;
+        console.log("Uploaded valid data via importComposition:", jsonData);
+        onSuccess(jsonData); // Call the callback function with the parsed data
       } else {
         alert("Invalid JSON structure!");
       }
     } catch (err) {
-        console.error("Error reading or parsing file:", err);
-        alert("Invalid JSON file!");
-      }
-    };
-  
+      console.error("Error reading or parsing file:", err);
+      alert("Invalid JSON file!");
+    }
+  };
+
   reader.readAsText(file);
 };
+
 
 export const exportComposition = (data: any, filename: string) => {
   const json = JSON.stringify(data, null, 2);

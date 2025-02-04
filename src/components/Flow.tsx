@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {
   Background,
   Controls,
@@ -46,6 +46,8 @@ export default function App() {
   const [inputValue, setInputValue] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
+  const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  
   let numNodes = nodes.length;
   console.log(`Starting with ${numNodes} nodes`);
   
@@ -122,34 +124,46 @@ export default function App() {
     });
   };
   
-  const importComposition = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse the uploaded composition file
-    const uploadedComposition: FormattedComposition = uploadComposition(event) as FormattedComposition;
+  // const importComposition = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  //   // Parse the uploaded composition file
+  //   const uploadedComposition: FormattedComposition = uploadComposition(event) as FormattedComposition;
+  //   console.log(`Got ${uploadedComposition}`);
+  //   if (uploadedComposition) {
+  //     // Create nodes from the uploaded composition
+  //     const newNodes = Object.keys(uploadedComposition).map((nodeName: string) => {
+  //       const uploadedNode: FormattedBigraphNode = uploadedComposition[nodeName];
+  //
+  //       return {
+  //         id: nodeName, // Unique ID from the composition
+  //         type: "bigraph-node", // Node type
+  //         position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
+  //         data: {
+  //           nodeId: nodeName,
+  //           _type: uploadedNode._type,
+  //           address: uploadedNode.address,
+  //           config: uploadedNode.config,
+  //           inputs: uploadedNode.inputs,
+  //           outputs: uploadedNode.outputs,
+  //         },
+  //       } as BigraphNode;
+  //     });
+  //
+  //     // Update the nodes state
+  //     setNodes((existingNodes) => [...existingNodes, ...newNodes]);
+  //   }
+  // }, [setNodes]);
   
-    if (uploadedComposition) {
-      // Create nodes from the uploaded composition
-      const newNodes = Object.keys(uploadedComposition).map((nodeName: string) => {
-        const uploadedNode: FormattedBigraphNode = uploadedComposition[nodeName];
-  
-        return {
-          id: nodeName, // Unique ID from the composition
-          type: "bigraph-node", // Node type
-          position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-          data: {
-            nodeId: nodeName,
-            _type: uploadedNode._type,
-            address: uploadedNode.address,
-            config: uploadedNode.config,
-            inputs: uploadedNode.inputs,
-            outputs: uploadedNode.outputs,
-          },
-        } as BigraphNode;
+  const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
+    uploadComposition(event, (data: FormattedComposition) => {
+      console.log("Received data:", data);
+      Object.keys(data).forEach(key => {
+        const newNode = data[key];
+        // here run set nodes
+        console.log(`Recieved uploaded node: ${JSON.stringify(newNode)}`);
       });
-  
-      // Update the nodes state
-      setNodes((existingNodes) => [...existingNodes, ...newNodes]);
-    }
-  }, [setNodes]);
+      
+    });
+  };
   
   // new node constructor
   const addNewProcessNode = () => {
@@ -168,6 +182,11 @@ export default function App() {
         console.log("Updated Nodes:", updatedNodes);
         return updatedNodes;
       });
+      setTimeout(() => {
+        if (nodeRefs.current[newNodeId]) {
+          nodeRefs.current[newNodeId]?.focus();
+        }
+      }, 50);
     }
     console.log(`Now num nodes are: ${numNodes}`);
   };
