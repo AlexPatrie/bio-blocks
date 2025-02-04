@@ -235,8 +235,7 @@ export default function App() {
     
     const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
     vivarium.addObject(emptyStore);
-    
-    console.log(`vivarium objects: ${JSON.stringify(vivarium.objectData)}`)
+
     const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     if (newFlowNode) {
       // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]

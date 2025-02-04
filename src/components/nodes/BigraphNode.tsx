@@ -4,38 +4,40 @@ import {Handle, NodeProps, Position, useNodesState} from "@xyflow/react";
 import {BigraphNode as _BigraphNode, BigraphNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
+import {VivariumService} from "../../services/VivariumService";
 
 
 export type BigraphNodeProps = {
   data: BigraphNodeData;
-  addProcessNode: () => void;
 }
 
-export function BigraphNode({ data, addProcessNode }: BigraphNodeProps) {
+export function BigraphNode({ data }: BigraphNodeProps) {
   const [editMode, setEditMode] = useState(false);
   const [currentData, setData] = useState(data); // local state for editing
+  const [inputData, setInputData] = useState(currentData.inputs);
+  const [outputData, setOutputData] = useState(currentData.outputs);
   
   const addInputPort = useCallback(() => {
-    // Update the state directly with new data
-    const portName = `new_input_${crypto.randomUUID()}`
-    data.inputs[portName] = [`${portName}_store`];
-    //setData({ ...currentInputs, 'newInput': ["newInputStore"] });
-    return setData(data);
-  }, [currentData]);
+    const uuid = crypto.randomUUID();
+    const portName = `new_input_${uuid.slice(uuid.length - 3, uuid.length)}`;
+    setInputData((inputData) => {
+      inputData[portName] = [`${portName}_store`];
+      return inputData;
+    });
+    // currentData.inputs[portName] = [`${portName}_store`];
+    // return setData(currentData);
+  }, [inputData]);
   
   const addOutputPort = useCallback(() => {
-    // Update the state directly with new data
-    const portName = `new_output_${crypto.randomUUID()}`
-    data.outputs[portName] = [`${portName}_store`];
-    return setData(data);
-  }, [currentData]);
-
-  // this is the method that should add and verify the ports on user "Enter" event
-  // const handleInputChange = useCallback(() => {
-  //   },
-  //   [data, id]
-  // );
-  
+    const uuid = crypto.randomUUID();
+    const portName = `new_output_${uuid.slice(uuid.length - 3, uuid.length)}`;
+    setOutputData((outputData) => {
+      outputData[portName] = [`${portName}_store`];
+      return outputData;
+    });
+    // currentData.inputs[portName] = [`${portName}_store`];
+    // return setData(currentData);
+  }, [outputData]);
 
   return (
     <div className="react-flow__node">

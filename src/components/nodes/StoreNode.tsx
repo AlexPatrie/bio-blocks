@@ -39,15 +39,8 @@ export function StoreNode({
       {/* Node Id/Name */}
       <div className="store-node-header">
         <StoreNodeField data={data} />
-        {/*<input
-          type="text"
-          value={nodeData.value}
-          autoFocus
-          placeholder="Enter field"
-        />*/}
       </div>
       
-      {/* dynamically add input handles based on the number of inputs */}
       {/* Input Handle */}
       <Handle
         type="target"
