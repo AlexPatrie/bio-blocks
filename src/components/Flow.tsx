@@ -75,12 +75,17 @@ export default function App() {
     addStoreNode(storeNodeId, [portName], [nodeId]);
     
     // add an edge between the two
-    addEdge(nodeId, storeNodeId);
+    if (portType === "inputs") {
+      addEdge(storeNodeId, nodeId);
+    } else {
+      addEdge(nodeId, storeNodeId);
+    }
+    
     
     // addEdge(nodeId, storeNodeId);
     const connection: Connection = {
-      source: nodeId,
-      target: storeNodeId,
+      source: storeNodeId,
+      target: nodeId,
       sourceHandle: null,
       targetHandle: null,
     }

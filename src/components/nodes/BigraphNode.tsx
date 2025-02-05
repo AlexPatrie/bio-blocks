@@ -50,7 +50,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
     
     // here, onPortAdded is a function within the parent (Flow) which is parameterized by content within this component.
     if (onPortAdded) {
-      onPortAdded(id, "inputs", portName);
+      onPortAdded(nodeId, "inputs", portName);
     } else {
       console.log('no callback!')
     }
@@ -59,18 +59,24 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
     const portName = `new_output_${uuid.slice(uuid.length - 3, uuid.length)}`;
-    setOutputData((outputData: Record<string, string[]>) => {
-      outputData[portName] = [`${portName}_store`];
-      return outputData;
-    });
+    const portValue = [`${portName}_store`];
+    
+    // set the input data state
+    setOutputData((previousOutputData: Record<string, string[]>) => ({
+      ...previousOutputData,
+      [portName]: portValue
+    }));
+    
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
+    
+    // here, onPortAdded is a function within the parent (Flow) which is parameterized by content within this component.
     if (onPortAdded) {
-      onPortAdded(id, "inputs", portName);
+      onPortAdded(id, "outputs", portName);
     } else {
       console.log('no callback!')
     }
-  }, []);
+  }, [numHandles, nodeId, updateNodeInternals, onPortAdded]);
 
   return (
     <div className="react-flow__node bigraph-node">
