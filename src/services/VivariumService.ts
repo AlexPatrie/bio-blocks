@@ -57,13 +57,13 @@ export class VivariumService {
     return { x: Math.random() * 400, y: Math.random() * 400 }
   }
   
-  public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null): BigraphNodeData {
+  public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null, nodeType?: "process" | "step" | undefined | string): BigraphNodeData {
     const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
     const nodeId = !name ? newId : name as string;
     const addressId = !address ? `local:${newId}` : address as string;
     return {
         nodeId: nodeId,
-        _type: "process",
+        _type: nodeType ? nodeType : "process",
         address: addressId,
         config: {},
         inputs: {},

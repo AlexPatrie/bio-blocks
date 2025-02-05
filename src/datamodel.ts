@@ -21,7 +21,7 @@ export type NodeData = Data & {
 
 // base type for process and step nodes
 export type BigraphNodeData =  NodeData & {
-  _type: "process" | "step";
+  _type: "process" | "step" | string;
   address: string;
   config: Record<string, any>;
   inputs: Record<string, string[]>;

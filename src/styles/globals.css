@@ -35,7 +35,6 @@ a {
 }
 
 .grid-item {
-  padding: 8px;
   text-align: center; /* Center content within grid items */
 }
 
@@ -112,6 +111,10 @@ a {
   font-size: 14px;
   width: fit-content;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+
+  .bigraph-node {
+    width: 425px;
+  }
 
   .store-node {
     border-radius: 50% !important;

@@ -194,7 +194,7 @@ export default function App() {
     numNodes += 1;
     const newNodeId = `${nodeType}_${numNodes}`; // crypto.randomUUID();
     const placeholderAddress = `local:${newNodeId}`;
-    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes);
+    const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes, nodeType);
     
     // add node to vivarium builder nodes (this also adds the corresponding React-flow node config)
     vivarium.addProcess(emptyNode);

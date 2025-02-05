@@ -56,7 +56,7 @@ export function NodeField({ data, portName }: NodeFieldProps) {
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>
-          {data[portName]}
+          {currentValue}
         </h3>
       )}
     </div>
