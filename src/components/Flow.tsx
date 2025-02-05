@@ -46,6 +46,7 @@ let nObjects: number = 0;
 export default function App() {
   // hooks
   const [projectName, setProjectName] = useState<string>('My Composition');
+  const [stores, setStores] = useState<StoreNodeData[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -93,22 +94,19 @@ export default function App() {
       })),
     };
     
-    // const compositionSpec: FormattedComposition = {};
-    // nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-    //   // base type
-    //   const nodeData = node.data as BigraphNodeData;
-    //   const nodeId = nodeData.nodeId as string;
-    //   compositionSpec[nodeId] = {
-    //     _type: nodeData._type,
-    //     address: nodeData.address,
-    //     config: nodeData.config,
-    //     inputs: nodeData.inputs,
-    //     outputs: nodeData.outputs
-    //   };
-    // });
-    
-    vivarium.compile();
-    const compositionSpec = vivarium.composite;
+    // translate BigraphNodeData (which has nodeId) to formatted node ingest-able by process-bigraph
+    const compositionSpec: FormattedComposition = {};
+    nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
+      const nodeData = node.data as BigraphNodeData;
+      const nodeId = nodeData.nodeId as string;
+      compositionSpec[nodeId] = {
+        _type: nodeData._type,
+        address: nodeData.address,
+        config: nodeData.config,
+        inputs: nodeData.inputs,
+        outputs: nodeData.outputs
+      };
+    });
     
     // get project name
     const compositeName = projectName.split(" ").join("_").toLowerCase();
@@ -182,6 +180,8 @@ export default function App() {
         return updatedNodes;
       });
       
+      // add new store node parameterized by the new node
+      
       // set timeout for blur render TODO: possibly remove this!
       setTimeout(() => {
         if (nodeRefs.current[newNodeId]) {
@@ -229,8 +229,8 @@ export default function App() {
     console.log(`After store, Now num nodes are: ${numObjects}`);
   };
   
-  const addStoreNode = (newNodeId: string) => {
-    const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId);
+  const addStoreNode = (newNodeId: string, value: string[], connections: string[]) => {
+    const emptyStore = vivarium.newStoreNodeData(newNodeId, value, connections);
     vivarium.addObject(emptyStore);
 
     const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;

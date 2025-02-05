@@ -1,18 +1,20 @@
 import React, {useCallback, useState} from "react";
 import {Handle, NodeProps, Position, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
 
-import {BigraphNode as _BigraphNode, BigraphNodeData} from "../../datamodel";
+import {BigraphNode as _BigraphNode, BigraphNodeData, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
 import {VivariumService} from "../../services/VivariumService";
 import {node} from "prop-types";
+import {StoreNode} from "./StoreNode";
 
 
 export type BigraphNodeProps = {
-  data: BigraphNodeData;
+  props: BigraphNodeData | any;
 }
 
-export function BigraphNode({ data }: BigraphNodeProps) {
+export function BigraphNode({ props }: BigraphNodeProps) {
+  const { data, addStoreNode } = props;
   // editing toggle hook
   const [editMode, setEditMode] = useState(false);
   
@@ -36,19 +38,23 @@ export function BigraphNode({ data }: BigraphNodeProps) {
     */
     const uuid = crypto.randomUUID();
     const portName = `new_input_${uuid.slice(uuid.length - 3, uuid.length)}`;
-    
-    setInputData((previousInputData) => ({
+    const portValue = [`${portName}_store`];
+    // set the input data state
+    setInputData((previousInputData: Record<string, string[]>) => ({
       ...previousInputData,
-      [portName]: [`${portName}_store`]
+      [portName]: portValue
     }));
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
-  }, [nodeId, numHandles, updateNodeInternals]);
+    
+    // add a store node for the corresponding data
+    addStoreNode(portName, portValue, [nodeId]);
+  }, [numHandles, nodeId, updateNodeInternals, addStoreNode]);
   
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
     const portName = `new_output_${uuid.slice(uuid.length - 3, uuid.length)}`;
-    setOutputData((outputData) => {
+    setOutputData((outputData: Record<string, string[]>) => {
       outputData[portName] = [`${portName}_store`];
       return outputData;
     });
@@ -139,7 +145,16 @@ export function BigraphNode({ data }: BigraphNodeProps) {
           </table>
         </div>
         
-        <div className="grid-item">
+        {/*<div className="grid-item">
+          <div>
+            {stores.map((store) => (
+              <StoreNode
+                key={store.nodeId}
+                id={store.nodeId}
+                data={store} type={""} dragging={true} zIndex={0} isConnectable={true} positionAbsoluteX={0}
+                positionAbsoluteY={0}        />
+            ))}
+          </div>
           <table className="process-table-display outputs">
             <thead>
             <tr>
@@ -164,7 +179,7 @@ export function BigraphNode({ data }: BigraphNodeProps) {
             </tr>
             </tbody>
           </table>
-        </div>
+        </div>*/}
      
         {/* input handles */}
         {Object.keys(inputData).map((inputName: string, index: number) => (

@@ -105,7 +105,9 @@ export class VivariumService {
       1. adds it to this.nodeData
       2. creates a corresponding react-flow node config for this node
     */
+    console.log(`Adding process ${node.nodeId}`);
     this.nodeData.push(node);
+    console.log(`Nodes: ${JSON.stringify(this.nodeData)}`);
     
     const position = this.newPosition();
     this.addFlowNodeConfig(node, position.x, position.y, "bigraph-node");
@@ -166,6 +168,7 @@ export class VivariumService {
   };
   
   public compile(): void {
+    console.log(`Node data length: ${this.nodeData.length}`)
     this.nodeData.forEach(node => {
       this.composite[node.nodeId] = {
         _type: node._type,
@@ -175,6 +178,7 @@ export class VivariumService {
         outputs: node.outputs
       };
     });
+    console.log(`The composite: ${JSON.stringify(this.composite)}`);
   };
   
   public flush(): void {
@@ -183,7 +187,7 @@ export class VivariumService {
     this.composite = {};
   }
   
-  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node"): void {
+  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node", callback?: any): void {
     const flowNode: FlowNodeConfig = {
       id: node.nodeId,
       type: nodeType,
@@ -191,7 +195,7 @@ export class VivariumService {
         x: x,
         y: y
       },
-      data: node
+      data: { nodeData: node, callback}
     };
     this.flowNodes.push(flowNode);
     console.log(`Pushed new flow node of type ${node}`);
