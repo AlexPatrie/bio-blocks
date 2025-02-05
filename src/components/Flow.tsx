@@ -54,7 +54,6 @@ export default function App() {
   
   let numNodes = nodes.length;
   let numObjects = 0;
-  console.log(`Starting with ${numNodes} nodes and ${numObjects} objects`);
   
   // vivarium builder (stateful)
   const vivarium = new VivariumService();
@@ -72,47 +71,40 @@ export default function App() {
     console.log(`New port of type: ${portType} added to node ${nodeId}: ${portName}`);
     
     // now, add a new store node, as you are recieving a stream of updates from the child.
-  
-    // setNodes((prevNodes) =>
-    //   prevNodes.map((node) =>
-    //     node.id === nodeId
-    //       ? {
-    //           ...node,
-    //           data: {
-    //             ...node.data,
-    //             [portType === "input" ? "inputs" : "outputs"]: {
-    //               ...node.data[portType === "input" ? "inputs" : "outputs"],
-    //               [portName]: [`${portName}_store`],
-    //             },
-    //           },
-    //         }
-    //       : node
-    //   )
-    // );
+    const storeNodeId = portName;
+    addStoreNode(storeNodeId, [portName], [nodeId]);
+    
+    // add an edge between the two
+    addEdge(nodeId, storeNodeId);
+    
   };
-
-  
-
-
-
   
   // graph connector
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      // Call your validation function
-      const isValid = verifyConnection(connection);
+      console.log(`Connection event: ${JSON.stringify(connection)}`);
   
-      if (isValid) {
-        // Proceed to add the edge if valid
-        setEdges((edges) => addEdge(connection, edges));
-      } else {
-        // Optionally, handle invalid connections (e.g., log or show a message)
-        console.log("Invalid connection:", connection);
+      if (!connection.source || !connection.target) {
+        console.error("Invalid connection: missing source or target");
+        return;
       }
+  
+      // Add edge to state
+      setEdges((prevEdges) => {
+        const newEdge = {
+          id: `${connection.source}-${connection.target}`,
+          source: connection.source,
+          target: connection.target,
+          type: "button-edge",
+          animate: true
+        };
+  
+        console.log("Adding edge:", newEdge);
+        return [...prevEdges, newEdge];
+      });
     },
-    [setEdges] // Dependencies
+    [setEdges]
   );
-
   
   // graph exporter
   const exportComposition = () => {
@@ -269,6 +261,15 @@ export default function App() {
     }
     console.log(`After store, Now num nodes are: ${numObjects}`);
   };
+  
+  const addEdge = (sourceId: string, targetId: string) => {
+    const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
+    console.log(`New edge: ${JSON.stringify(newEdge)}`);
+    setEdges((existingEdges) => {
+      const updatedEdges = [...existingEdges, newEdge];
+      return updatedEdges;
+    })
+  }
   
   const addStoreNode = (newNodeId: string, value: string[], connections: string[]) => {
     const emptyStore = vivarium.newStoreNodeData(newNodeId, value, connections);

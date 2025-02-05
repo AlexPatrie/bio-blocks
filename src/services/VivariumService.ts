@@ -201,7 +201,7 @@ export class VivariumService {
     console.log(`Pushed new flow node of type ${node}`);
   }
   
-  public addFlowEdgeConfig(sourceId: string, targetId: string): void {
+  public addFlowEdgeConfig(sourceId: string, targetId: string): FlowEdgeConfig {
     const flowNode: FlowEdgeConfig = {
       id: `${sourceId}->${targetId}`,
       type: "button-edge",
@@ -210,6 +210,7 @@ export class VivariumService {
       animated: true
     };
     this.flowEdges.push(flowNode);
+    return flowNode
   }
   
 }
