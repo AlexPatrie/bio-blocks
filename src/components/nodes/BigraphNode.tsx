@@ -10,11 +10,10 @@ import {StoreNode} from "./StoreNode";
 
 
 export type BigraphNodeProps = {
-  props: BigraphNodeData | any;
+  data: BigraphNodeData;
 }
 
-export function BigraphNode({ props }: BigraphNodeProps) {
-  const { data, addStoreNode } = props;
+export function BigraphNode({ data }: BigraphNodeProps) {
   // editing toggle hook
   const [editMode, setEditMode] = useState(false);
   
@@ -48,8 +47,8 @@ export function BigraphNode({ props }: BigraphNodeProps) {
     updateNodeInternals(nodeId);
     
     // add a store node for the corresponding data
-    addStoreNode(portName, portValue, [nodeId]);
-  }, [numHandles, nodeId, updateNodeInternals, addStoreNode]);
+    // addStoreNode(portName, portValue, [nodeId]);
+  }, [numHandles, nodeId, updateNodeInternals]);
   
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
@@ -144,17 +143,7 @@ export function BigraphNode({ props }: BigraphNodeProps) {
             </tbody>
           </table>
         </div>
-        
-        {/*<div className="grid-item">
-          <div>
-            {stores.map((store) => (
-              <StoreNode
-                key={store.nodeId}
-                id={store.nodeId}
-                data={store} type={""} dragging={true} zIndex={0} isConnectable={true} positionAbsoluteX={0}
-                positionAbsoluteY={0}        />
-            ))}
-          </div>
+        <div className="grid-item">
           <table className="process-table-display outputs">
             <thead>
             <tr>
@@ -179,7 +168,7 @@ export function BigraphNode({ props }: BigraphNodeProps) {
             </tr>
             </tbody>
           </table>
-        </div>*/}
+        </div>
      
         {/* input handles */}
         {Object.keys(inputData).map((inputName: string, index: number) => (

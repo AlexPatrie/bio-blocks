@@ -195,7 +195,7 @@ export class VivariumService {
         x: x,
         y: y
       },
-      data: { nodeData: node, callback}
+      data: node
     };
     this.flowNodes.push(flowNode);
     console.log(`Pushed new flow node of type ${node}`);

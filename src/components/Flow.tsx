@@ -161,7 +161,7 @@ export default function App() {
   const addEmptyNode = (nodeType: string) => {
     // placeholder nodeId based on existing num nodes
     numNodes += 1;
-    const newNodeId = `${nodeType}_${numNodes}`; // crypto.randomUUID();
+    const newNodeId = `${nodeType}_${numNodes}`;
     const placeholderAddress = `local:${newNodeId}`;
     const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes, nodeType);
     
@@ -188,6 +188,8 @@ export default function App() {
           nodeRefs.current[newNodeId]?.focus();
         }
       }, 50);
+    } else {
+      console.log("No node found for this node");
     }
     console.log(`Now num nodes are: ${numNodes}`);
   };

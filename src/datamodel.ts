@@ -59,7 +59,7 @@ export type FlowNodeConfig = {
   id: string,
   type: string,
   position: FlowNodePosition,
-  data: StoreNodeData | BigraphNodeData | any;
+  data: StoreNodeData | BigraphNodeData;
 }
 
 export type FlowNodePosition = {
