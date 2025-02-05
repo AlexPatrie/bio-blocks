@@ -29,14 +29,14 @@ import {
   BigraphNodeData,
   StoreNodeData,
   FlowNodeConfig,
-  BigraphNode,
   StoreNode,
   FormattedBigraphNode,
   FormattedComposition,
 } from "../datamodel";
 
 import { VivariumService } from "../services/VivariumService";
-
+import { BigraphNode } from "./nodes/BigraphNode";
+import {PortCallbackContext} from "../PortCallbackContext";
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
 // TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry
@@ -47,6 +47,7 @@ export default function App() {
   // hooks
   const [projectName, setProjectName] = useState<string>('My Composition');
   const [stores, setStores] = useState<StoreNodeData[]>([]);
+  const [bigraphNodes, setBigraphNodes] = useState<BigraphNodeData[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -57,6 +58,42 @@ export default function App() {
   
   // vivarium builder (stateful)
   const vivarium = new VivariumService();
+  
+  //const portCallbackMap = new Map<string, (nodeId: string, portType: string, portName: string) => void>();
+  const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
+  
+  // Function to register a new node's callback
+  const registerPortCallback = (nodeId: string) => {
+    console.log(`🗂️ Registering handlePortAdded for ${nodeId}`);
+    portCallbackMap.current.set(nodeId, handlePortAdded);
+  };
+  
+  const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
+    console.log(`New port of type: ${portType} added to node ${nodeId}: ${portName}`);
+    
+    // now, add a new store node, as you are recieving a stream of updates from the child.
+  
+    // setNodes((prevNodes) =>
+    //   prevNodes.map((node) =>
+    //     node.id === nodeId
+    //       ? {
+    //           ...node,
+    //           data: {
+    //             ...node.data,
+    //             [portType === "input" ? "inputs" : "outputs"]: {
+    //               ...node.data[portType === "input" ? "inputs" : "outputs"],
+    //               [portName]: [`${portName}_store`],
+    //             },
+    //           },
+    //         }
+    //       : node
+    //   )
+    // );
+  };
+
+  
+
+
 
   
   // graph connector
@@ -180,6 +217,8 @@ export default function App() {
         return updatedNodes;
       });
       
+      registerPortCallback(newNodeId);
+      
       // add new store node parameterized by the new node
       
       // set timeout for blur render TODO: possibly remove this!
@@ -274,21 +313,24 @@ export default function App() {
             placeholder="Enter project name..."
           />
       </div>
-      <ReactFlow<CustomNodeType, CustomEdgeType>
-        nodes={nodes}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        edges={edges}
-        edgeTypes={edgeTypes}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        defaultViewport={{ zoom: 1, x: 200, y: 200}}
-        // fitView
-      >
-        <Background />
-        <MiniMap />
-        <Controls />
-      </ReactFlow>
+      <PortCallbackContext.Provider value={portCallbackMap.current}>
+        <ReactFlow<CustomNodeType, CustomEdgeType>
+          nodes={nodes}
+          nodeTypes={nodeTypes}
+          onNodesChange={onNodesChange}
+          edges={edges}
+          edgeTypes={edgeTypes}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          defaultViewport={{ zoom: 1, x: 200, y: 200}}
+          // fitView
+        >
+          <Background />
+          <MiniMap />
+          <Controls />
+        </ReactFlow>
+      </PortCallbackContext.Provider>
+      
       <div className="buttons-container">
         <UploadSpec onLoadGraph={importComposition}/>
         <button

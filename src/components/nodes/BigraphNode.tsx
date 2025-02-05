@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useContext, useState} from "react";
 import {Handle, NodeProps, Position, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
 
 import {BigraphNode as _BigraphNode, BigraphNodeData, StoreNodeData} from "../../datamodel";
@@ -7,13 +7,18 @@ import type {CustomNodeType} from "./index";
 import {VivariumService} from "../../services/VivariumService";
 import {node} from "prop-types";
 import {StoreNode} from "./StoreNode";
+import {PortCallbackContext} from "../../PortCallbackContext";
 
 
 export type BigraphNodeProps = {
   data: BigraphNodeData;
+  id: string;
 }
 
-export function BigraphNode({ data }: BigraphNodeProps) {
+export function BigraphNode({ data, id }: BigraphNodeProps) {
+  const portCallbackMap = useContext(PortCallbackContext);
+  const onPortAdded = portCallbackMap?.get(id);
+  
   // editing toggle hook
   const [editMode, setEditMode] = useState(false);
   
@@ -45,10 +50,14 @@ export function BigraphNode({ data }: BigraphNodeProps) {
     }));
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
-    
+    if (onPortAdded) {
+      onPortAdded(id, "inputs", portName);
+    } else {
+      console.log('no callback!')
+    }
     // add a store node for the corresponding data
     // addStoreNode(portName, portValue, [nodeId]);
-  }, [numHandles, nodeId, updateNodeInternals]);
+  }, [numHandles, nodeId, updateNodeInternals, onPortAdded]);
   
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
@@ -59,6 +68,11 @@ export function BigraphNode({ data }: BigraphNodeProps) {
     });
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
+    if (onPortAdded) {
+      onPortAdded(id, "inputs", portName);
+    } else {
+      console.log('no callback!')
+    }
   }, []);
 
   return (
@@ -201,57 +215,4 @@ export function BigraphNode({ data }: BigraphNodeProps) {
   );
 }
 
-// return (
-//     <div className="react-flow__node-default flow">
-//       {/* Node Id/Name */}
-//       <h3>
-//         <BigraphNodeField
-//           data={data}
-//           field="nodeId"
-//           handleInputChange={(e, field) => handleInputChange(e, field)}
-//         />
-//       </h3>
-//       <table className="process-table-display type">
-//         <thead>
-//         <tr>
-//           <th>Type</th>
-//         </tr>
-//         </thead>
-//         <tbody>
-//         <tr>
-//           <td data-label="Type">
-//               <input
-//                 type="text"
-//                 value={data._type || ""}
-//                 onChange={(e) => handleInputChange(e, "_type")}
-//                 placeholder="Enter type"
-//               />
-//             </td>
-//           </tr>
-//         </tbody>
-//       </table>
-//       <table className="process-table-display address">
-//         <thead>
-//           <tr>
-//             <th>Address</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           <tr>
-//             <td data-label="Address">
-//               <input
-//                 type="text"
-//                 value={data.address || ""}
-//                 onChange={(e) => handleInputChange(e, "address")}
-//                 placeholder="Enter address"
-//               />
-//             </td>
-//           </tr>
-//         </tbody>
-//       </table>
-//       {/* Input Handle */}
-//       <Handle type="target" position={Position.Left} />
-//       {/* Output Handle */}
-//       <Handle type="source" position={Position.Right} />
-//     </div>
-//   );
+
