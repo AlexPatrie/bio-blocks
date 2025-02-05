@@ -35,28 +35,25 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   const updateNodeInternals = useUpdateNodeInternals();
   
   const addInputPort = useCallback(() => {
-    /*
-      This function should:
-        1. use setInputData to update the node input field
-        2. create a new store node with
-    */
     const uuid = crypto.randomUUID();
     const portName = `new_input_${uuid.slice(uuid.length - 3, uuid.length)}`;
     const portValue = [`${portName}_store`];
+    
     // set the input data state
     setInputData((previousInputData: Record<string, string[]>) => ({
       ...previousInputData,
       [portName]: portValue
     }));
+    
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
+    
+    // here, onPortAdded is a function within the parent (Flow) which is parameterized by content within this component.
     if (onPortAdded) {
       onPortAdded(id, "inputs", portName);
     } else {
       console.log('no callback!')
     }
-    // add a store node for the corresponding data
-    // addStoreNode(portName, portValue, [nodeId]);
   }, [numHandles, nodeId, updateNodeInternals, onPortAdded]);
   
   const addOutputPort = useCallback(() => {

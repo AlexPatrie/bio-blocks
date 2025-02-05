@@ -15,11 +15,11 @@ import JSZip from "jszip";
 import UploadSpec from "./UploadSpec";
 import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
-import { verifyConnection, newBigraphNodeConfig, newStoreNodeConfig } from "../connect";
+import {verifyConnection, newBigraphNodeConfig, newStoreNodeConfig, randomPosition} from "../connect";
 import {
   exportComposition,
   validateUpload,
-  uploadComposition
+  uploadComposition, FlowRepresentation, compileFlow, compileComposition, writeComposition
 } from "../io";
 import {
   initialNodes,
@@ -39,7 +39,7 @@ import { BigraphNode } from "./nodes/BigraphNode";
 import {PortCallbackContext} from "../PortCallbackContext";
 // TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
 // TODO: create button which dynamically adds new nodes to the initialNodes array
-// TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry
+// TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry9
 
 let nObjects: number = 0;
 
@@ -77,6 +77,16 @@ export default function App() {
     // add an edge between the two
     addEdge(nodeId, storeNodeId);
     
+    // addEdge(nodeId, storeNodeId);
+    const connection: Connection = {
+      source: nodeId,
+      target: storeNodeId,
+      sourceHandle: null,
+      targetHandle: null,
+    }
+    
+    // onConnect(connection);
+    
   };
   
   // graph connector
@@ -96,7 +106,7 @@ export default function App() {
           source: connection.source,
           target: connection.target,
           type: "button-edge",
-          animate: true
+          animated: true
         };
   
         console.log("Adding edge:", newEdge);
@@ -107,51 +117,16 @@ export default function App() {
   );
   
   // graph exporter
-  const exportComposition = () => {
-    const flowRepresentation = {  // translation of process bigraph spec to bio blocks upload
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        data: node.data,
-      })),
-      edges: edges.map((edge) => ({
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        sourceHandle: edge.sourceHandle,
-        targetHandle: edge.targetHandle,
-        type: edge.type,
-      })),
-    };
-    
-    // translate BigraphNodeData (which has nodeId) to formatted node ingest-able by process-bigraph
-    const compositionSpec: FormattedComposition = {};
-    nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-      const nodeData = node.data as BigraphNodeData;
-      const nodeId = nodeData.nodeId as string;
-      compositionSpec[nodeId] = {
-        _type: nodeData._type,
-        address: nodeData.address,
-        config: nodeData.config,
-        inputs: nodeData.inputs,
-        outputs: nodeData.outputs
-      };
-    });
-    
-    // get project name
-    const compositeName = projectName.split(" ").join("_").toLowerCase();
-    
-    const zip = new JSZip();
-    zip.file("blocks.json", JSON.stringify(flowRepresentation, null, 2));
-    zip.file("bigraph.json", JSON.stringify(compositionSpec, null, 2));
-    zip.generateAsync({ type: "blob" }).then((content) => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(content);
-        link.download = `${compositeName}.zip`;
-        link.click();
-
-        URL.revokeObjectURL(link.href);
-        alert("Graph and metadata exported as composition.zip!");
-    });
+  const exportComposition = (
+    nodes: CustomNodeType[],
+    edges: CustomEdgeType[],
+    projectName: string,
+  ) => {
+    // graph exporter
+    const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
+    const compositionSpec: FormattedComposition = compileComposition(nodes);
+    const compositionName = projectName.split(" ").join("_").toLowerCase();
+    writeComposition(flowRepresentation, compositionSpec, compositionName);
   };
   
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,7 +147,9 @@ export default function App() {
         };
         
         // convert bigraph node data node to flow node
-        vivarium.addFlowNodeConfig(bigraphNode, )
+        const nodePosition = randomPosition();
+        vivarium.addFlowNodeConfig(bigraphNode, nodePosition.x, nodePosition.y, "bigraph-node");
+        const newFlowNode = vivarium.getFlowNodeConfig(bigraphNode.nodeId) as CustomNodeType;
         
         // here run set nodes
         console.log(`Recieved uploaded node: ${JSON.stringify(newNode)}`);
@@ -185,6 +162,24 @@ export default function App() {
       
     });
   };
+  
+  const setNewNode = (newFlowNode: CustomNodeType, newNodeId: string) => {
+    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+    setNodes((existingNodes) => {
+      const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
+      console.log("Updated Nodes:", updatedNodes);
+      return updatedNodes;
+    });
+    
+    // link this node id to the port callback listener within the child BigraphNode
+    registerPortCallback(newNodeId);
+    
+    // buffer on blur (possibly remove)
+    setTimeout(() => {
+      if (nodeRefs.current[newNodeId]) {
+        nodeRefs.current[newNodeId]?.focus();
+      }}, 50);
+  }
   
   // new empty node constructor
   const addEmptyNode = (nodeType: string) => {
@@ -202,29 +197,14 @@ export default function App() {
     
     // this conditional acts as a sanity check, which I need!!!
     if (newFlowNode) {
-      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-      setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
-        console.log("Updated Nodes:", updatedNodes);
-        return updatedNodes;
-      });
-      
-      registerPortCallback(newNodeId);
-      
-      // add new store node parameterized by the new node
-      
-      // set timeout for blur render TODO: possibly remove this!
-      setTimeout(() => {
-        if (nodeRefs.current[newNodeId]) {
-          nodeRefs.current[newNodeId]?.focus();
-        }
-      }, 50);
+      // register this node, thereby propagating changes to all children and set with react-flow
+      setNewNode(newFlowNode, newNodeId);
     } else {
       console.log("No node found for this node");
     }
-    console.log(`Now num nodes are: ${numNodes}`);
   };
   
+  // used on buttons:
   const addEmptyProcessNode = () => {
     return addEmptyNode("process");
   }
@@ -262,16 +242,19 @@ export default function App() {
     console.log(`After store, Now num nodes are: ${numObjects}`);
   };
   
-  const addEdge = (sourceId: string, targetId: string) => {
+  const addEdge = useCallback(
+    (sourceId: string, targetId: string) => {
     const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
     console.log(`New edge: ${JSON.stringify(newEdge)}`);
     setEdges((existingEdges) => {
       const updatedEdges = [...existingEdges, newEdge];
       return updatedEdges;
-    })
-  }
+    });
+  }, [setEdges]);
   
-  const addStoreNode = (newNodeId: string, value: string[], connections: string[]) => {
+  // function for automatically adding a new store node whenever an individual node's port is added or changed
+  const addStoreNode = useCallback(
+    (newNodeId: string, value: string[], connections: string[]) => {
     const emptyStore = vivarium.newStoreNodeData(newNodeId, value, connections);
     vivarium.addObject(emptyStore);
 
@@ -294,8 +277,7 @@ export default function App() {
       // TODO: change this
       alert("Could not parse a flow node config from this store.")
     }
-    console.log(`After store, Now num nodes are: ${numObjects}`);
-  };
+  }, [setNodes]);
   
   // project name setter
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
