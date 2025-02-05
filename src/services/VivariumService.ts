@@ -8,6 +8,7 @@ import {
   FlowNodePosition, FormattedComposition
 } from "../datamodel";
 import {randomInRange, randomPosition} from "../connect";
+import {CustomNodeType} from "../components/nodes";
 
 // Edge.ts
 
@@ -99,26 +100,46 @@ export class VivariumService {
   public getFlowEdgeConfig(edgeId: string): FlowEdgeConfig | undefined {
     return this.flowEdges.find(edge => edge.id === edgeId);
   }
-
-  public addProcess(node: BigraphNodeData): void {
-    /* Takes in bigraph node data (FormattedBigraphNode + nodeId) and does the following:
-      1. adds it to this.nodeData
-      2. creates a corresponding react-flow node config for this node
-    */
-    console.log(`Adding process ${node.nodeId}`);
+  
+  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node", callback?: any): FlowNodeConfig {
+    const flowNode: FlowNodeConfig = {
+      id: node.nodeId,
+      type: nodeType,
+      position: {
+        x: x,
+        y: y
+      },
+      data: node
+    };
+    this.flowNodes.push(flowNode);
+    return flowNode
+  }
+  
+  public addFlowEdgeConfig(sourceId: string, targetId: string): FlowEdgeConfig {
+    const flowNode: FlowEdgeConfig = {
+      id: `${sourceId}->${targetId}`,
+      type: "button-edge",
+      source: sourceId,
+      target: targetId,
+      animated: true
+    };
+    this.flowEdges.push(flowNode);
+    return flowNode
+  }
+  
+  // logs nodeData into state -> converts nodeData spec to custom node type -> returns custom node
+  public addProcess(node: BigraphNodeData): CustomNodeType {
     this.nodeData.push(node);
-    console.log(`Nodes: ${JSON.stringify(this.nodeData)}`);
-    
     const position = this.newPosition();
-    this.addFlowNodeConfig(node, position.x, position.y, "bigraph-node");
+    return this.addFlowNodeConfig(node, position.x, position.y, "bigraph-node") as CustomNodeType;
   };
   
-  public removeProcess(nodeId: string): void {
-    this.nodeData.forEach(node => {
-      const index = this.nodeData.indexOf(node);
-      this.nodeData.splice(index, 1)
-    });
-  };
+  public addStore(store: StoreNodeData): CustomNodeType {
+    this.objectData.push(store);
+
+    const position = this.newPosition();
+    return this.addFlowNodeConfig(store, position.x, position.y, "store-node") as CustomNodeType;
+  }
   
   public addPort(nodeId: string, direction: PortDirection, value: string): void {
     this.nodeData.forEach((node: BigraphNodeData) => {
@@ -153,12 +174,12 @@ export class VivariumService {
     return this.addPort(nodeId, "outputs", value);
   };
   
-  public addObject(store: StoreNodeData): void {
-    this.objectData.push(store);
-
-    const position = this.newPosition();
-    this.addFlowNodeConfig(store, position.x, position.y, "store-node");
-  }
+  public removeProcess(nodeId: string): void {
+    this.nodeData.forEach(node => {
+      const index = this.nodeData.indexOf(node);
+      this.nodeData.splice(index, 1)
+    });
+  };
   
   public removeObject(nodeId: string): void {
     this.objectData.forEach(node => {
@@ -186,31 +207,4 @@ export class VivariumService {
     this.objectData = [];
     this.composite = {};
   }
-  
-  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node", callback?: any): void {
-    const flowNode: FlowNodeConfig = {
-      id: node.nodeId,
-      type: nodeType,
-      position: {
-        x: x,
-        y: y
-      },
-      data: node
-    };
-    this.flowNodes.push(flowNode);
-    console.log(`Pushed new flow node of type ${node}`);
-  }
-  
-  public addFlowEdgeConfig(sourceId: string, targetId: string): FlowEdgeConfig {
-    const flowNode: FlowEdgeConfig = {
-      id: `${sourceId}->${targetId}`,
-      type: "button-edge",
-      source: sourceId,
-      target: targetId,
-      animated: true
-    };
-    this.flowEdges.push(flowNode);
-    return flowNode
-  }
-  
 }

@@ -36,6 +36,7 @@ a {
 
 .grid-item {
   text-align: center; /* Center content within grid items */
+  border-radius: 4px;
 }
 
 
@@ -79,6 +80,7 @@ a {
   /*display: block;*/
   width: 100% !important;
   height: fit-content !important;
+  border-radius: 3px;
 }
 
 .node-attribute-name {

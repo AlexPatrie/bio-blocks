@@ -4,44 +4,35 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
-  addEdge,
   useNodesState,
   useEdgesState,
-  type OnConnect, Connection,
+  type OnConnect,
+  Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import JSZip from "jszip";
 
-import UploadSpec from "./UploadSpec";
-import { nodeTypes, type CustomNodeType } from "./nodes";
-import { edgeTypes, type CustomEdgeType } from "./edges";
-import {verifyConnection, newBigraphNodeConfig, newStoreNodeConfig, randomPosition} from "../connect";
-import {
-  exportComposition,
-  validateUpload,
-  uploadComposition, FlowRepresentation, compileFlow, compileComposition, writeComposition
-} from "../io";
-import {
-  initialNodes,
-  initialEdges,
-} from "../examples";
 import {
   BigraphNodeData,
   StoreNodeData,
-  FlowNodeConfig,
-  StoreNode,
   FormattedBigraphNode,
   FormattedComposition,
 } from "../datamodel";
 
-import { VivariumService } from "../services/VivariumService";
-import { BigraphNode } from "./nodes/BigraphNode";
-import {PortCallbackContext} from "../PortCallbackContext";
-// TODO: create method which takes in only spec.json and infers edges/block-specific data from the input/output ports!
-// TODO: create button which dynamically adds new nodes to the initialNodes array
-// TODO: change block table elements to be string <inputs> that are dynamically created if not using the registry9
+import { nodeTypes, type CustomNodeType } from "./nodes";
+import { edgeTypes, type CustomEdgeType } from "./edges";
 
-let nObjects: number = 0;
+import UploadSpec from "./UploadSpec";
+import { VivariumService } from "../services/VivariumService";
+import { PortCallbackContext } from "../PortCallbackContext";
+import {
+  validateUpload,
+  uploadComposition,
+  FlowRepresentation,
+  compileFlow,
+  compileComposition,
+  writeComposition
+} from "../io";
+import { randomPosition } from "../connect";
 
 export default function App() {
   // hooks
@@ -61,40 +52,30 @@ export default function App() {
   //const portCallbackMap = new Map<string, (nodeId: string, portType: string, portName: string) => void>();
   const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
   
-  // Function to register a new node's callback
+  // called when a new port is added in the bigraph node child which links components
   const registerPortCallback = (nodeId: string) => {
-    console.log(`🗂️ Registering handlePortAdded for ${nodeId}`);
     portCallbackMap.current.set(nodeId, handlePortAdded);
   };
   
+  // TODO: use useEffect to sync stores to processes
+  
+  // called when user adds new input/output ports in BigraphNode child(parameterized by the child)
   const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
-    console.log(`New port of type: ${portType} added to node ${nodeId}: ${portName}`);
-    
-    // now, add a new store node, as you are recieving a stream of updates from the child.
+    // store id should be linked to the port name
     const storeNodeId = portName;
+    
+    // generate, register, and render new store node
     addStoreNode(storeNodeId, [portName], [nodeId]);
     
-    // add an edge between the two
+    // add an edge between the new store node and its corresponding bigraph node
     if (portType === "inputs") {
       addEdge(storeNodeId, nodeId);
     } else {
       addEdge(nodeId, storeNodeId);
     }
-    
-    
-    // addEdge(nodeId, storeNodeId);
-    const connection: Connection = {
-      source: storeNodeId,
-      target: nodeId,
-      sourceHandle: null,
-      targetHandle: null,
-    }
-    
-    // onConnect(connection);
-    
   };
   
-  // graph connector
+  // called when users manually connect edges
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
       console.log(`Connection event: ${JSON.stringify(connection)}`);
@@ -103,7 +84,7 @@ export default function App() {
         console.error("Invalid connection: missing source or target");
         return;
       }
-  
+      
       // Add edge to state
       setEdges((prevEdges) => {
         const newEdge = {
@@ -121,7 +102,7 @@ export default function App() {
     [setEdges]
   );
   
-  // graph exporter
+  // called on export to JSON button
   const exportComposition = (
     nodes: CustomNodeType[],
     edges: CustomEdgeType[],
@@ -134,9 +115,10 @@ export default function App() {
     writeComposition(flowRepresentation, compositionSpec, compositionName);
   };
   
+  // called on upload spec
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
     uploadComposition(event, (data: FormattedComposition) => {
-      console.log("Received data:", data);
+      console.log("Imported data:", data);
       Object.keys(data).forEach(key => {
         // uploaded json file will be a formatted node(without nodeID, ingest-able by process-bigraph
         const uploadedNode: FormattedBigraphNode = data[key];
@@ -157,10 +139,8 @@ export default function App() {
         const newFlowNode = vivarium.getFlowNodeConfig(bigraphNode.nodeId) as CustomNodeType;
         
         // here run set nodes
-        console.log(`Recieved uploaded node: ${JSON.stringify(newNode)}`);
         setNodes((existingNodes) => {
-          const updatedNodes = [...existingNodes, newNode]; // represents the latest state
-          console.log("Updated Nodes:", updatedNodes);
+          const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
           return updatedNodes;
         });
       });
@@ -168,10 +148,11 @@ export default function App() {
     });
   };
   
+  // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
   const setNewNode = (newFlowNode: CustomNodeType, newNodeId: string) => {
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
     setNodes((existingNodes) => {
-      const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
+      const updatedNodes = [...existingNodes, newFlowNode];
       console.log("Updated Nodes:", updatedNodes);
       return updatedNodes;
     });
@@ -195,12 +176,11 @@ export default function App() {
     const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes, nodeType);
     
     // add node to vivarium builder nodes (this also adds the corresponding React-flow node config)
-    vivarium.addProcess(emptyNode);
+    const newFlowNode = vivarium.addProcess(emptyNode);
     
     // use flow node indexer to lookup the flow node config for the new node we just created, compat with CustomNodeType (react-flow specific)
-    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+    // const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
-    // this conditional acts as a sanity check, which I need!!!
     if (newFlowNode) {
       // register this node, thereby propagating changes to all children and set with react-flow
       setNewNode(newFlowNode, newNodeId);
@@ -223,9 +203,8 @@ export default function App() {
     const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
     
     const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
-    vivarium.addObject(emptyStore);
-
-    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+    const newFlowNode: CustomNodeType = vivarium.addStore(emptyStore);
+    
     if (newFlowNode) {
       // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
       setNodes((existingNodes) => {
@@ -241,10 +220,8 @@ export default function App() {
         }
       }, 50);
     } else {
-      // TODO: change this
-      alert("Could not parse a flow node config from this store.")
+      console.log("Could not parse a flow node config from this store.")
     }
-    console.log(`After store, Now num nodes are: ${numObjects}`);
   };
   
   const addEdge = useCallback(
@@ -260,28 +237,32 @@ export default function App() {
   // function for automatically adding a new store node whenever an individual node's port is added or changed
   const addStoreNode = useCallback(
     (newNodeId: string, value: string[], connections: string[]) => {
-    const emptyStore = vivarium.newStoreNodeData(newNodeId, value, connections);
-    vivarium.addObject(emptyStore);
-
-    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
-    if (newFlowNode) {
-      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-      setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newFlowNode];
-        console.log("Updated Nodes with stores:", updatedNodes);
-        return updatedNodes;
-      });
+      // get x and y position from bigraph node associated
       
-      // set timeout for blur render TODO: possibly remove this!
-      setTimeout(() => {
-        if (nodeRefs.current[newNodeId]) {
-          nodeRefs.current[newNodeId]?.focus();
-        }
-      }, 50);
-    } else {
-      // TODO: change this
-      alert("Could not parse a flow node config from this store.")
-    }
+      // vivarium.addFlowNodeConfig(scaledBigraphNodeX, scaledBigraphNodeY)
+      
+      const emptyStoreNode = vivarium.newStoreNodeData(newNodeId, value, connections);
+      const newFlowNode: CustomNodeType = vivarium.addStore(emptyStoreNode);
+      // const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+      
+      if (newFlowNode) {
+        // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+        setNodes((existingNodes) => {
+          const updatedNodes = [...existingNodes, newFlowNode];
+          console.log("Updated Nodes with stores:", updatedNodes);
+          return updatedNodes;
+        });
+        
+        // set timeout for blur render TODO: possibly remove this!
+        setTimeout(() => {
+          if (nodeRefs.current[newNodeId]) {
+            nodeRefs.current[newNodeId]?.focus();
+          }
+        }, 50);
+      } else {
+        // TODO: change this
+        alert("Could not parse a flow node config from this store.")
+      }
   }, [setNodes]);
   
   // project name setter

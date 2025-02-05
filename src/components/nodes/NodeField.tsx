@@ -44,7 +44,7 @@ export function NodeField({ data, portName }: NodeFieldProps) {
   }, []);
   {/*onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempValue(tempValue)} // Update local state as the user types*/}
   return (
-    <div>
+    <div className="node-field">
       {editMode ? (
         <input
           type="text"

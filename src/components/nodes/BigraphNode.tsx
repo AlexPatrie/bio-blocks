@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useState} from "react";
 import {Handle, NodeProps, Position, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
 
-import {BigraphNode as _BigraphNode, BigraphNodeData, StoreNodeData} from "../../datamodel";
+import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
 import {VivariumService} from "../../services/VivariumService";
