@@ -53,32 +53,43 @@ export class VivariumService {
     this.emitterConfig = emitterConfig;
   };
   
+  // methods for generating generic type implementations
   public newPosition(): FlowNodePosition {
     return { x: Math.random() * 400, y: Math.random() * 400 }
   }
   
+  public newBigraphNodeData(nodeId: string, nodeType: "process" | "step" | string, addressId: string): BigraphNodeData {
+    return {
+      nodeId: nodeId,
+      _type: nodeType,
+      address: addressId,
+      config: {},
+      inputs: {},
+      outputs: {}
+    };
+  }
+  
+  public newStoreNodeData(nodeId: string, value: string[], connections?: string[] | undefined): StoreNodeData {
+    return {
+      nodeId: nodeId,
+      value: value,
+      connections: connections ? connections : []
+    }
+  }
+  
+  // factories for empty nodes(button-generated)
   public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null, nodeType?: "process" | "step" | undefined | string): BigraphNodeData {
     const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
     const nodeId = !name ? newId : name as string;
     const addressId = !address ? `local:${newId}` : address as string;
-    return {
-        nodeId: nodeId,
-        _type: nodeType ? nodeType : "process",
-        address: addressId,
-        config: {},
-        inputs: {},
-        outputs: {}
-      };
+    return this.newBigraphNodeData(nodeId, nodeType ? nodeType : "process", addressId);
   }
   
   public newEmptyStoreNodeData(name?: string | undefined, nodeIndex?: number | undefined): StoreNodeData {
     const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
     const nodeId = !name ? newId : name as string;
-    return {
-      nodeId: nodeId,
-      value: [`${nodeId}`],
-      connections: []
-    }
+    const value = [`${nodeId}`];
+    return this.newStoreNodeData(nodeId, value);
   }
   
   public getFlowNodeConfig(nodeId: string): FlowNodeConfig | undefined {

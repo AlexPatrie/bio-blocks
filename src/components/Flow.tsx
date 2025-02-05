@@ -45,7 +45,7 @@ let nObjects: number = 0;
 
 export default function App() {
   // hooks
-  const [inputValue, setInputValue] = useState<string>('My Composition');
+  const [projectName, setProjectName] = useState<string>('My Composition');
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -111,7 +111,7 @@ export default function App() {
     const compositionSpec = vivarium.composite;
     
     // get project name
-    const projectName = inputValue.split(" ").join("_").toLowerCase();
+    const compositeName = projectName.split(" ").join("_").toLowerCase();
     
     const zip = new JSZip();
     zip.file("blocks.json", JSON.stringify(flowRepresentation, null, 2));
@@ -119,42 +119,13 @@ export default function App() {
     zip.generateAsync({ type: "blob" }).then((content) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);
-        link.download = `${projectName}.zip`;
+        link.download = `${compositeName}.zip`;
         link.click();
 
         URL.revokeObjectURL(link.href);
         alert("Graph and metadata exported as composition.zip!");
     });
   };
-  
-  // const importComposition = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-  //   // Parse the uploaded composition file
-  //   const uploadedComposition: FormattedComposition = uploadComposition(event) as FormattedComposition;
-  //   console.log(`Got ${uploadedComposition}`);
-  //   if (uploadedComposition) {
-  //     // Create nodes from the uploaded composition
-  //     const newNodes = Object.keys(uploadedComposition).map((nodeName: string) => {
-  //       const uploadedNode: FormattedBigraphNode = uploadedComposition[nodeName];
-  //
-  //       return {
-  //         id: nodeName, // Unique ID from the composition
-  //         type: "bigraph-node", // Node type
-  //         position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-  //         data: {
-  //           nodeId: nodeName,
-  //           _type: uploadedNode._type,
-  //           address: uploadedNode.address,
-  //           config: uploadedNode.config,
-  //           inputs: uploadedNode.inputs,
-  //           outputs: uploadedNode.outputs,
-  //         },
-  //       } as BigraphNode;
-  //     });
-  //
-  //     // Update the nodes state
-  //     setNodes((existingNodes) => [...existingNodes, ...newNodes]);
-  //   }
-  // }, [setNodes]);
   
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
     uploadComposition(event, (data: FormattedComposition) => {
@@ -222,11 +193,11 @@ export default function App() {
   };
   
   const addEmptyProcessNode = () => {
-    return addEmptyNode("process")
+    return addEmptyNode("process");
   }
   
   const addEmptyStepNode = () => {
-    return addEmptyNode("step")
+    return addEmptyNode("step");
   }
   
   const addEmptyStoreNode = () => {
@@ -252,14 +223,41 @@ export default function App() {
         }
       }, 50);
     } else {
-      console.log('couldnt find flow node')
+      // TODO: change this
+      alert("Could not parse a flow node config from this store.")
+    }
+    console.log(`After store, Now num nodes are: ${numObjects}`);
+  };
+  
+  const addStoreNode = (newNodeId: string) => {
+    const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId);
+    vivarium.addObject(emptyStore);
+
+    const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+    if (newFlowNode) {
+      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
+      setNodes((existingNodes) => {
+        const updatedNodes = [...existingNodes, newFlowNode];
+        console.log("Updated Nodes with stores:", updatedNodes);
+        return updatedNodes;
+      });
+      
+      // set timeout for blur render TODO: possibly remove this!
+      setTimeout(() => {
+        if (nodeRefs.current[newNodeId]) {
+          nodeRefs.current[newNodeId]?.focus();
+        }
+      }, 50);
+    } else {
+      // TODO: change this
+      alert("Could not parse a flow node config from this store.")
     }
     console.log(`After store, Now num nodes are: ${numObjects}`);
   };
   
   // project name setter
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value); // Update state with input value
+    setProjectName(event.target.value); // Update state with input value
   };
 
   return (
@@ -268,7 +266,7 @@ export default function App() {
           <input
             id="inputField"
             type="text"
-            value={inputValue}
+            value={projectName}
             onChange={handleProjectNameChange}
             className="border rounded p-2 mt-1 w-full"
             placeholder="Enter project name..."

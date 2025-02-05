@@ -43,7 +43,7 @@ export function BigraphNode({ data }: BigraphNodeProps) {
     }));
     setNumHandles(numHandles + 1);
     updateNodeInternals(nodeId);
-  }, []);
+  }, [nodeId, numHandles, updateNodeInternals]);
   
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
@@ -173,10 +173,8 @@ export function BigraphNode({ data }: BigraphNodeProps) {
               key={index}
               type="target"
               className="port-handle input-handle"
-              title={inputName}
-              position={data['inputPosition'] ?data['inputPosition'] : Position.Left}
-              id={inputName}  // {`input-${index}`}
-              
+              position={Position.Left}
+              id={inputName}
             />
           </div>
         ))}
@@ -188,10 +186,8 @@ export function BigraphNode({ data }: BigraphNodeProps) {
               key={index}
               type="source"
               className="port-handle output-handle"
-              title={outputName}
-              position={data['outputPosition'] ? data['outputPosition'] : Position.Right}
+              position={Position.Right}
               id={outputName}  // {`input-${index}`}
-              style={{ top: 3 }}
             />
           </div>
         ))}
