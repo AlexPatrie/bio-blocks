@@ -44,7 +44,7 @@ export const uploadComposition = (
 
 export type FlowRepresentation = object;  // TODO: update this!
 
-export function compileFlow(nodes: CustomNodeType[], edges: CustomEdgeType[]): FlowRepresentation {
+export function compileFlow(nodes: CustomNodeType[], edges: CustomEdgeType[]) {
   return {  // translation of process bigraph spec to bio blocks upload
     nodes: nodes.map((node: CustomNodeType) => ({
       id: node.id,
@@ -64,16 +64,21 @@ export function compileFlow(nodes: CustomNodeType[], edges: CustomEdgeType[]): F
 export function compileComposition(nodes: CustomNodeType[]): FormattedComposition {
   // convert BigraphNodeData (which has nodeId) to formatted node ingest-able by process-bigraph
   const compositionSpec: FormattedComposition = {};
-  nodes.forEach((node: CustomNodeType) => {  // CustomNodeType is the base class on which process-bigraph representation of "state" nodes are constructed
-    const nodeData = node.data as BigraphNodeData;
-    const nodeId = nodeData.nodeId as string;
-    compositionSpec[nodeId] = {
-      _type: nodeData._type,
-      address: nodeData.address,
-      config: nodeData.config,
-      inputs: nodeData.inputs,
-      outputs: nodeData.outputs
-    };
+  
+  // only include bigraph nodes
+  nodes.forEach((node: CustomNodeType) => {
+    const nodeFields = Object.keys(node.data);
+    if (!nodeFields.includes('connections')) {
+      const nodeData = node.data as BigraphNodeData;
+      const nodeId = nodeData.nodeId as string;
+      compositionSpec[nodeId] = {
+        _type: nodeData._type,
+        address: nodeData.address,
+        config: nodeData.config,
+        inputs: nodeData.inputs,
+        outputs: nodeData.outputs
+      };
+    }
   });
   
   return compositionSpec;

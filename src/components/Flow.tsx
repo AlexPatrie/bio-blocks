@@ -35,6 +35,7 @@ import {
 import { randomPosition } from "../connect";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
+// TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
 
 export default function App() {
   // hooks
@@ -237,17 +238,29 @@ export default function App() {
   };
   
   // called on export to JSON button
-  const exportComposition = (
-    nodes: CustomNodeType[],
-    edges: CustomEdgeType[],
-    projectName: string,
-  ) => {
+  // const exportComposition = (
+  //   nodes: CustomNodeType[],
+  //   edges: CustomEdgeType[],
+  //   projectName: string,
+  // ) => {
+  //   // graph exporter
+  //   const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
+  //   const compositionSpec: FormattedComposition = compileComposition(nodes);
+  //   const compositionName = projectName.split(" ").join("_").toLowerCase();
+  //   writeComposition(flowRepresentation, compositionSpec, compositionName);
+  // };
+  
+  const exportComposition = useCallback(() => {
     // graph exporter
     const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
     const compositionSpec: FormattedComposition = compileComposition(nodes);
     const compositionName = projectName.split(" ").join("_").toLowerCase();
     writeComposition(flowRepresentation, compositionSpec, compositionName);
-  };
+  }, [nodes, edges, projectName]);
+  
+  // useEffect(() => {
+  //   exportComposition(nodes, edges, projectName);
+  // }, [nodes, edges, projectName]);
   
   // called on upload spec
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
