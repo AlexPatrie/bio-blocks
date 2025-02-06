@@ -16,19 +16,28 @@ interface NodeFieldProps {
 
 export function NodeField({ data, portName }: NodeFieldProps) {
   const [editMode, setEditMode] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [currentValue, setValue] = useState(data[portName]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   
   // Auto-focus the input when edit mode is enabled
   useEffect(() => {
     if (editMode && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+      console.log("editMode", editMode);
+      console.log("currentValue", currentValue);
+      // inputRef.current.focus();
+      // inputRef.current.select();
+    } else {
+      console.log("editMode is false")
     }
-  }, [editMode]);
+  }, [editMode, inputRef, currentValue]);
   
-  // get original value
-  const originalValue = data[portName];
+  const handleFocus = useCallback(() => {
+    setIsFocused((isFocused) => {
+      return true;
+    });
+    console.log("handleFocus", isFocused);
+  }, []);
   
   const handleInputChange = useCallback((changeEvent: React.ChangeEvent<HTMLInputElement>) => {
     // data[portName] = changeEvent.target.value;
@@ -52,7 +61,7 @@ export function NodeField({ data, portName }: NodeFieldProps) {
       // }
     }
   }, [currentValue]);
-  {/*onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempValue(tempValue)} // Update local state as the user types*/}
+
   return (
     <div className="node-field">
       {editMode ? (
@@ -60,6 +69,7 @@ export function NodeField({ data, portName }: NodeFieldProps) {
           ref={inputRef}
           type="text"
           onBlur={handleBlur}
+          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           value={currentValue}
           autoFocus
