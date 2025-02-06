@@ -149,11 +149,12 @@ export class VivariumService {
         position = flowNode.position;
       }
     });
-
-    const x: number = connectionDirection === "inputs" ? position.x - position.x : position.x + position.x;
-    // const y: number = connectionDirection === "inputs" ? position.y - position.y : position.y + position.y;
     
-    return this.addFlowNodeConfig(store, x, position.y, "store-node") as CustomNodeType;
+    console.log(`Node position: (${position.x}, ${position.y})`);
+    const x: number = connectionDirection === "inputs" ? position.x - (position.x * 2) : position.x + (position.x * 3);
+    const y: number = randomInRange(-position.y, position.y * 2);
+    
+    return this.addFlowNodeConfig(store, x, y, "store-node") as CustomNodeType;
   }
   
   public addPort(nodeId: string, direction: PortDirection, value: string): void {

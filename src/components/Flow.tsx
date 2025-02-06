@@ -34,6 +34,8 @@ import {
 } from "../io";
 import { randomPosition } from "../connect";
 
+// TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
+
 export default function App() {
   // hooks
   const [projectName, setProjectName] = useState<string>('My Composition');
@@ -205,12 +207,6 @@ export default function App() {
     (newNodeId: string, value: string[], connections: string[], portType: string) => {
       // create corresponding store node parameterized by the linked bigraph node
       const newStoreData = vivarium.newStoreNodeData(newNodeId, value, connections);
-      
-      // get x and y position from bigraph node associated
-      // let position: FlowNodePosition;
-      nodes.forEach((node) => {
-        console.log(`current node: ${JSON.stringify(node)}`);
-      })
       
       vivarium.addStore(newStoreData, portType);
       const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
