@@ -22,15 +22,21 @@ export function NodeField({ data, portName }: NodeFieldProps) {
   
   // Auto-focus the input when edit mode is enabled
   useEffect(() => {
-    if (editMode && inputRef.current) {
-      console.log("editMode", editMode);
-      console.log("currentValue", currentValue);
-      // inputRef.current.focus();
-      // inputRef.current.select();
+    if (editMode) {
+      setTimeout(() => { // ⏳ Wait for the input to appear in the DOM
+        if (inputRef.current) {
+          console.log("Auto-focusing input!");
+          inputRef.current.focus();
+          inputRef.current.select(); // (Optional) Select all text
+        } else {
+          console.warn("inputRef.current is still null");
+        }
+      }, 0);
     } else {
-      console.log("editMode is false")
+      console.log("editMode is false");
     }
-  }, [editMode, inputRef, currentValue]);
+  }, [editMode]);
+
   
   const handleFocus = useCallback(() => {
     setIsFocused((isFocused) => {
