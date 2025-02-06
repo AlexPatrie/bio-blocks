@@ -15,7 +15,7 @@ import {
   BigraphNodeData,
   StoreNodeData,
   FormattedBigraphNode,
-  FormattedComposition,
+  FormattedComposition, FlowNodePosition, FlowNodeConfig,
 } from "../datamodel";
 
 import { nodeTypes, type CustomNodeType } from "./nodes";
@@ -37,14 +37,15 @@ import { randomPosition } from "../connect";
 export default function App() {
   // hooks
   const [projectName, setProjectName] = useState<string>('My Composition');
-  const [stores, setStores] = useState<StoreNodeData[]>([]);
-  const [bigraphNodes, setBigraphNodes] = useState<BigraphNodeData[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
+  const [bigraphFlowNodes, setBigraphFlowNodes] = useState<Record<string, CustomNodeType>>({});
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   let numNodes = nodes.length;
   let numObjects = 0;
+  
+  // const bigraphFlowNodes: Record<string, FlowNodeConfig> = {};
   
   // vivarium builder (stateful)
   const vivarium = new VivariumService();
@@ -62,10 +63,12 @@ export default function App() {
   // called when user adds new input/output ports in BigraphNode child(parameterized by the child)
   const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
     // store id should be linked to the port name
-    const storeNodeId = portName;
+    const storeNodeId: string = portName;
+    const storeValue: string[] = [portName];
+    const connections: string[] = [nodeId];
     
     // generate, register, and render new store node
-    addStoreNode(storeNodeId, [portName], [nodeId]);
+    addLinkedStore(storeNodeId, storeValue, connections, portType);
     
     // add an edge between the new store node and its corresponding bigraph node
     if (portType === "inputs") {
@@ -79,6 +82,8 @@ export default function App() {
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
       console.log(`Connection event: ${JSON.stringify(connection)}`);
+      
+      // HERE: add connection verification logic
   
       if (!connection.source || !connection.target) {
         console.error("Invalid connection: missing source or target");
@@ -102,60 +107,21 @@ export default function App() {
     [setEdges]
   );
   
-  // called on export to JSON button
-  const exportComposition = (
-    nodes: CustomNodeType[],
-    edges: CustomEdgeType[],
-    projectName: string,
-  ) => {
-    // graph exporter
-    const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
-    const compositionSpec: FormattedComposition = compileComposition(nodes);
-    const compositionName = projectName.split(" ").join("_").toLowerCase();
-    writeComposition(flowRepresentation, compositionSpec, compositionName);
-  };
-  
-  // called on upload spec
-  const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
-    uploadComposition(event, (data: FormattedComposition) => {
-      console.log("Imported data:", data);
-      Object.keys(data).forEach(key => {
-        // uploaded json file will be a formatted node(without nodeID, ingest-able by process-bigraph
-        const uploadedNode: FormattedBigraphNode = data[key];
-        
-        // convert formatted node to bigraph node data (nodeID)
-        const bigraphNode: BigraphNodeData = {
-          nodeId: key,
-          _type: uploadedNode._type,
-          address: uploadedNode.address,
-          config: uploadedNode.config,
-          inputs: uploadedNode.config,
-          outputs: uploadedNode.outputs
-        };
-        
-        // convert bigraph node data node to flow node
-        const nodePosition = randomPosition();
-        vivarium.addFlowNodeConfig(bigraphNode, nodePosition.x, nodePosition.y, "bigraph-node");
-        const newFlowNode = vivarium.getFlowNodeConfig(bigraphNode.nodeId) as CustomNodeType;
-        
-        // here run set nodes
-        setNodes((existingNodes) => {
-          const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
-          return updatedNodes;
-        });
-      });
-      
-    });
-  };
-  
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
-  const setNewNode = (newFlowNode: CustomNodeType, newNodeId: string) => {
+  const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
     // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
     setNodes((existingNodes) => {
       const updatedNodes = [...existingNodes, newFlowNode];
       console.log("Updated Nodes:", updatedNodes);
       return updatedNodes;
     });
+    
+    setBigraphFlowNodes((existingNodes) => ({
+        ...existingNodes,
+        [newFlowNode.id]: newFlowNode,
+    }));
+    
+    console.log(`Bigraph flow nodes: ${JSON.stringify(bigraphFlowNodes)}`)
     
     // link this node id to the port callback listener within the child BigraphNode
     registerPortCallback(newNodeId);
@@ -165,7 +131,7 @@ export default function App() {
       if (nodeRefs.current[newNodeId]) {
         nodeRefs.current[newNodeId]?.focus();
       }}, 50);
-  }
+  }, [bigraphFlowNodes, setBigraphFlowNodes]);
   
   // new empty node constructor
   const addEmptyNode = (nodeType: string) => {
@@ -235,15 +201,19 @@ export default function App() {
   }, [setEdges]);
   
   // function for automatically adding a new store node whenever an individual node's port is added or changed
-  const addStoreNode = useCallback(
-    (newNodeId: string, value: string[], connections: string[]) => {
+  const addLinkedStore = useCallback(
+    (newNodeId: string, value: string[], connections: string[], portType: string) => {
+      // create corresponding store node parameterized by the linked bigraph node
+      const newStoreData = vivarium.newStoreNodeData(newNodeId, value, connections);
+      
       // get x and y position from bigraph node associated
+      // let position: FlowNodePosition;
+      nodes.forEach((node) => {
+        console.log(`current node: ${JSON.stringify(node)}`);
+      })
       
-      // vivarium.addFlowNodeConfig(scaledBigraphNodeX, scaledBigraphNodeY)
-      
-      const emptyStoreNode = vivarium.newStoreNodeData(newNodeId, value, connections);
-      const newFlowNode: CustomNodeType = vivarium.addStore(emptyStoreNode);
-      // const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+      vivarium.addStore(newStoreData, portType);
+      const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
       
       if (newFlowNode) {
         // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
@@ -269,16 +239,61 @@ export default function App() {
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setProjectName(event.target.value); // Update state with input value
   };
+  
+  // called on export to JSON button
+  const exportComposition = (
+    nodes: CustomNodeType[],
+    edges: CustomEdgeType[],
+    projectName: string,
+  ) => {
+    // graph exporter
+    const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
+    const compositionSpec: FormattedComposition = compileComposition(nodes);
+    const compositionName = projectName.split(" ").join("_").toLowerCase();
+    writeComposition(flowRepresentation, compositionSpec, compositionName);
+  };
+  
+  // called on upload spec
+  const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
+    uploadComposition(event, (data: FormattedComposition) => {
+      console.log("Imported data:", data);
+      Object.keys(data).forEach(key => {
+        // uploaded json file will be a formatted node(without nodeID, ingest-able by process-bigraph
+        const uploadedNode: FormattedBigraphNode = data[key];
+        
+        // convert formatted node to bigraph node data (nodeID)
+        const bigraphNode: BigraphNodeData = {
+          nodeId: key,
+          _type: uploadedNode._type,
+          address: uploadedNode.address,
+          config: uploadedNode.config,
+          inputs: uploadedNode.config,
+          outputs: uploadedNode.outputs
+        };
+        
+        // convert bigraph node data node to flow node
+        const nodePosition = randomPosition();
+        vivarium.addFlowNodeConfig(bigraphNode, nodePosition.x, nodePosition.y, "bigraph-node");
+        const newFlowNode = vivarium.getFlowNodeConfig(bigraphNode.nodeId) as CustomNodeType;
+        
+        // here run set nodes
+        setNodes((existingNodes) => {
+          const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
+          return updatedNodes;
+        });
+      });
+      
+    });
+  };
 
   return (
-    <div className="reactflow-wrapper" style={{ height: "100vh", width: "100vw" }}>
+    <div className="reactflow-wrapper">
       <div className="project-name">
           <input
             id="inputField"
             type="text"
             value={projectName}
             onChange={handleProjectNameChange}
-            className="border rounded p-2 mt-1 w-full"
             placeholder="Enter project name..."
           />
       </div>
@@ -300,7 +315,7 @@ export default function App() {
         </ReactFlow>
       </PortCallbackContext.Provider>
       
-      <div className="buttons-container">
+      <div className="page-header">
         <UploadSpec onLoadGraph={importComposition}/>
         <button
           onClick={exportComposition}

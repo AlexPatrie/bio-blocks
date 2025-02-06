@@ -26,6 +26,12 @@ a {
   width: 100% !important;
 }
 
+.reactflow-wrapper {
+  height: 100vh;
+  width: 100vw;
+  background-color: #141414;
+}
+
 .node-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -48,7 +54,7 @@ a {
   align-items: center;
   padding-left: 1rem;
   justify-content: space-between; /* Space out elements */
-  border-radius: 4px;
+  border-radius: 4px 4px 0px 0px;
   height: 50px;
   width: 100%;
   font-size: large;
@@ -74,13 +80,12 @@ a {
   justify-content: space-between;
 }
 
-
 .process-table-display {
   border: 2px solid rebeccapurple !important;
   /*display: block;*/
   width: 100% !important;
   height: fit-content !important;
-  border-radius: 3px;
+
 }
 
 .node-attribute-name {

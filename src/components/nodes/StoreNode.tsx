@@ -47,6 +47,7 @@ export function StoreNode({
         position={nodeData['inputPosition'] ? nodeData['inputPosition'] as Position : Position.Left}
         className="port-handle input-handle"
       />
+      
       {/* Output Handle */}
       <Handle
         type="source"

@@ -1,6 +1,6 @@
 import type {
   Edge, Node,
-  Node as XyzFlowNode,
+  Node as BaseFlowNode,
   NodeProps,
   NodeTypes
 } from "@xyflow/react";
@@ -31,7 +31,7 @@ export type BigraphNodeData =  NodeData & {
 // data stores (input and output ports)
 export type StoreNodeData = NodeData & {
   value: string[],
-  connections?: string[] | any[]  // this field is used to keep track of node-store connection-state
+  connections?: string[] | any[] // this field is used to keep track of node-store connection-state
 }
 
 // overall composition type representing the "document" that is given to Composite(config={'state': ...})
@@ -50,9 +50,9 @@ export type NodeKey = BigraphNodeKey | StoreNodeKey | string;
 /* react-flow-specific interface fulfillment */
 
 // react flow-specific interface fulfillment for process and step nodes as well as stores
-export type BigraphNode = XyzFlowNode<BigraphNodeData>;
+export type BigraphNode = BaseFlowNode<BigraphNodeData>;
 
-export type StoreNode = XyzFlowNode<StoreNodeData>;
+export type StoreNode = BaseFlowNode<StoreNodeData>;
 
 // high-level type for easily/iteratively getting react flow-specific data
 export type FlowNodeConfig = {

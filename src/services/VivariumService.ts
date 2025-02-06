@@ -101,7 +101,12 @@ export class VivariumService {
     return this.flowEdges.find(edge => edge.id === edgeId);
   }
   
-  public addFlowNodeConfig(node: BigraphNodeData | StoreNodeData, x: number, y: number, nodeType: "bigraph-node" | "store-node", callback?: any): FlowNodeConfig {
+  public addFlowNodeConfig(
+    node: BigraphNodeData | StoreNodeData,
+    x: number,
+    y: number,
+    nodeType: "bigraph-node" | "store-node"
+  ): FlowNodeConfig {
     const flowNode: FlowNodeConfig = {
       id: node.nodeId,
       type: nodeType,
@@ -134,11 +139,21 @@ export class VivariumService {
     return this.addFlowNodeConfig(node, position.x, position.y, "bigraph-node") as CustomNodeType;
   };
   
-  public addStore(store: StoreNodeData): CustomNodeType {
+  public addStore(store: StoreNodeData, connectionDirection?: string): CustomNodeType {
     this.objectData.push(store);
+    
+    let position = this.newPosition();
+    this.flowNodes.forEach((flowNode) => {
+      const connectedNodeId = store.connections ? store.connections.pop() as string : '';
+      if (flowNode.id === connectedNodeId) {
+        position = flowNode.position;
+      }
+    });
 
-    const position = this.newPosition();
-    return this.addFlowNodeConfig(store, position.x, position.y, "store-node") as CustomNodeType;
+    const x: number = connectionDirection === "inputs" ? position.x - position.x : position.x + position.x;
+    // const y: number = connectionDirection === "inputs" ? position.y - position.y : position.y + position.y;
+    
+    return this.addFlowNodeConfig(store, x, position.y, "store-node") as CustomNodeType;
   }
   
   public addPort(nodeId: string, direction: PortDirection, value: string): void {

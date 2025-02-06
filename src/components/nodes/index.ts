@@ -1,4 +1,4 @@
-import type { BuiltInNode, NodeTypes } from "@xyflow/react";
+import type { BuiltInNode, NodeTypes, Node as BaseFlowNode } from "@xyflow/react";
 
 import { BigraphNode } from "./BigraphNode";
 import {StoreNode} from "./StoreNode";
@@ -16,4 +16,4 @@ export const nodeTypes = {
 } satisfies NodeTypes;
 
 // append the types of your custom edges to the BuiltInNode type
-export type CustomNodeType = BuiltInNode | PositionLoggerNodeType | BigraphFlowNode | StoreFlowNode;
+export type CustomNodeType = BaseFlowNode | BuiltInNode | PositionLoggerNodeType | BigraphFlowNode | StoreFlowNode;
