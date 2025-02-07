@@ -304,6 +304,37 @@ export default function App() {
         return node;
       })
     );
+    
+    // then set edges with updated ids
+    setEdges((prevEdges) =>
+      prevEdges.map((edge) => {
+        console.log(`Prev edge source: ${edge.source}, prev edge target: ${edge.target}`)
+        
+        if (edge.source === nodeId) {
+          const source = edge.source;
+          const target = newValue;
+          const newId = `${source}-${target}`;
+          // new edge with source=edge.source, target=newValue, id: newId
+          return {
+            ...edge,
+            source: source,
+            target: target,
+            id: newId
+          }
+        } else if (edge.target === nodeId) {
+          const source = newValue;
+          const target = edge.target;
+          const newId = `${source}-${target}`;
+          return {
+            ...edge,
+            source: source,
+            target: target,
+            id: newId,
+          }
+        }
+        return edge;
+      })
+    )
   }, [setNodes]);
   
   // uncomment and implement below for persistent logic listening on nodes and edges
