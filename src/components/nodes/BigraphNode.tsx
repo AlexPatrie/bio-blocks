@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Handle, NodeProps, Position, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
+import {Handle, NodeProps, Position, useNodesData, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
 
 import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
@@ -7,7 +7,7 @@ import type {CustomNodeType} from "./index";
 import {VivariumService} from "../../services/VivariumService";
 import {node} from "prop-types";
 import {StoreNode} from "./StoreNode";
-import {PortCallbackContext} from "../../PortCallbackContext";
+import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
 import {randomInRange} from "../../connect";
 
 
@@ -17,76 +17,76 @@ export type BigraphNodeProps = {
 }
 
 export function BigraphNode({ data, id }: BigraphNodeProps) {
-  const portCallbackMap = useContext(PortCallbackContext);
-  const onPortAdded = portCallbackMap?.get(id);
-  
-  // editing toggle hook
   const [editMode, setEditMode] = useState(false);
-  
-  // node attribute hooks
   const [nodeId, setNodeId] = useState<string>(data.nodeId);
   const [type, setType] = useState<string>(data._type);
   const [address, setAddress] = useState<string>(data.address);
   const [inputData, setInputData] = useState(data.inputs);
   const [outputData, setOutputData] = useState(data.outputs);
-  
-  // dynamic num handles for ports
   const [numInputHandles, setNumInputHandles] = useState<number>(0);
   const [numOutputHandles, setNumOutputHandles] = useState<number>(0);
   
+  const flowNodeData = useNodesData(id);
+  useEffect(() => {
+    console.log(`The flow node: ${JSON.stringify(flowNodeData)}`);
+  }, [flowNodeData]);
+  
+  const newPortCallbackMap = useContext(NewPortCallbackContext);
+  const onPortAdded = newPortCallbackMap?.get(id);
+  const onPortChanged = useContext(PortChangeCallbackContext);
+  
   const updateNodeInternals = useUpdateNodeInternals();
+  
+  const handlePortValueChange = (portType: string, portName: string, newValue: string) => {
+    onPortChanged(id, portType, portName, newValue);
+  };
+  
+  const handleInputChange = (portName: string, newValue: string) => {
+    handlePortValueChange("inputs", portName, newValue);
+  };
+  
+  const handleOutputChange = (portName: string, newValue: string) => {
+    handlePortValueChange("outputs", portName, newValue);
+  };
   
   const addInputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
     const portName = `new_input_${uuid.slice(uuid.length - 3, uuid.length)}`;
     const portValue = [`${portName}_store`];
     
-    // set the input data state
     setInputData((previousInputData: Record<string, string[]>) => ({
       ...previousInputData,
       [portName]: portValue
     }));
-    
     setNumInputHandles((prevNumHandles) => {
       return prevNumHandles + 1;
     });
-
     updateNodeInternals(id);
     
-    // here, onPortAdded is a function within the parent (Flow) which is parameterized by content within this component.
     if (onPortAdded) {
       onPortAdded(nodeId, "inputs", portName);
     } else {
       console.log('no callback!')
     }
   }, [numInputHandles, nodeId, id, onPortAdded, updateNodeInternals]);
-  
-  // IMPORTANT: if you need to query any component prop AFTER it has been mutated by a hook, use useEffect and include that prop in the dep array
-  useEffect(() => {
-    console.log(`There are now ${numInputHandles} input handles`);
-    }, [numInputHandles]);
     
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
     const portName = `new_output_${uuid.slice(uuid.length - 3, uuid.length)}`;
     const portValue = [`${portName}_store`];
     
-    // set the input data state
     setOutputData((previousOutputData: Record<string, string[]>) => ({
       ...previousOutputData,
       [portName]: portValue
     }));
-    
     setNumInputHandles(numOutputHandles + 1);
     updateNodeInternals(id);
     
-    // here, onPortAdded is a function within the parent (Flow) which is parameterized by content within this component.
     if (onPortAdded) {
       onPortAdded(id, "outputs", portName);
     } else {
       console.log('no callback!')
     }
-    console.log(`There are now ${numOutputHandles} output handles`);
   }, [numOutputHandles, nodeId, updateNodeInternals, onPortAdded]);
 
   return (
@@ -163,6 +163,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
                     <NodeField
                       data={inputData}
                       portName={inputName}
+                      onPortValueChange={handleInputChange}
                     />
                   </div>
                 ))}
@@ -189,6 +190,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
                     <NodeField
                       data={outputData}
                       portName={outputName}
+                      onPortValueChange={handleOutputChange}
                     />
                   </div>
                 ))}

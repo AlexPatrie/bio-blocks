@@ -5,7 +5,8 @@ import {
   FormattedStoreNode,
   FlowNodeConfig,
   FlowEdgeConfig,
-  FlowNodePosition, FormattedComposition
+  FlowNodePosition,
+  FormattedComposition
 } from "../datamodel";
 import {randomInRange, randomPosition} from "../connect";
 import {CustomNodeType} from "../components/nodes";
@@ -150,7 +151,6 @@ export class VivariumService {
       }
     });
     
-    console.log(`Node position: (${position.x}, ${position.y})`);
     const x: number = connectionDirection === "inputs" ? position.x - (position.x * 2) : position.x + (position.x * 3);
     const y: number = randomInRange(-position.y, position.y * 2);
     
@@ -205,7 +205,6 @@ export class VivariumService {
   };
   
   public compile(): void {
-    console.log(`Node data length: ${this.nodeData.length}`)
     this.nodeData.forEach(node => {
       this.composite[node.nodeId] = {
         _type: node._type,
@@ -215,7 +214,6 @@ export class VivariumService {
         outputs: node.outputs
       };
     });
-    console.log(`The composite: ${JSON.stringify(this.composite)}`);
   };
   
   public flush(): void {

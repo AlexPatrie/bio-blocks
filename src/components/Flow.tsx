@@ -8,6 +8,7 @@ import {
   useEdgesState,
   type OnConnect,
   Connection,
+  useNodesData,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -23,7 +24,7 @@ import { edgeTypes, type CustomEdgeType } from "./edges";
 
 import UploadSpec from "./UploadSpec";
 import { VivariumService } from "../services/VivariumService";
-import { PortCallbackContext } from "../PortCallbackContext";
+import { NewPortCallbackContext, PortChangeCallbackContext } from "../PortCallbackContext";
 import {
   validateUpload,
   uploadComposition,
@@ -81,12 +82,20 @@ export default function App() {
     }
   };
   
+  useEffect(() => {
+    edges.forEach(edge => {
+      console.log(`Existing edge: ${JSON.stringify(edge)}`);
+    })
+  }, [edges]);
+  
   // called when users manually connect edges
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
       console.log(`Connection event: ${JSON.stringify(connection)}`);
+      console.log(`Connection source: ${connection.source}, connection target: ${connection.target}`);
+      console.log(`Connection source handle: ${connection.sourceHandle} Connection target handle: ${connection.targetHandle}`)
       
-      // HERE: add connection verification logic
+      // HERE: automatically populate the inputs/outputs of an existing bigraph node if user drags a connection between node port and store port
   
       if (!connection.source || !connection.target) {
         console.error("Invalid connection: missing source or target");
@@ -109,6 +118,10 @@ export default function App() {
     },
     [setEdges]
   );
+  
+  const getNodeData = useCallback((nodeId: string) =>{
+    return useNodesData(nodeId);
+  }, []);
   
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
   const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
@@ -138,17 +151,12 @@ export default function App() {
   
   // new empty node constructor
   const addEmptyNode = (nodeType: string) => {
-    // placeholder nodeId based on existing num nodes
     numNodes += 1;
     const newNodeId = `${nodeType}_${numNodes}`;
     const placeholderAddress = `local:${newNodeId}`;
+    
     const emptyNode: BigraphNodeData = vivarium.newEmptyBigraphNodeData(newNodeId, placeholderAddress, numNodes, nodeType);
-    
-    // add node to vivarium builder nodes (this also adds the corresponding React-flow node config)
     const newFlowNode = vivarium.addProcess(emptyNode);
-    
-    // use flow node indexer to lookup the flow node config for the new node we just created, compat with CustomNodeType (react-flow specific)
-    // const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
     
     if (newFlowNode) {
       // register this node, thereby propagating changes to all children and set with react-flow
@@ -175,19 +183,13 @@ export default function App() {
     const newFlowNode: CustomNodeType = vivarium.addStore(emptyStore);
     
     if (newFlowNode) {
-      // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
       setNodes((existingNodes) => {
         const updatedNodes = [...existingNodes, newFlowNode];
         console.log("Updated Nodes with stores:", updatedNodes);
         return updatedNodes;
       });
       
-      // set timeout for blur render TODO: possibly remove this!
-      setTimeout(() => {
-        if (nodeRefs.current[newNodeId]) {
-          nodeRefs.current[newNodeId]?.focus();
-        }
-      }, 50);
+      renderTimeout(newNodeId);
     } else {
       console.log("Could not parse a flow node config from this store.")
     }
@@ -220,35 +222,24 @@ export default function App() {
           return updatedNodes;
         });
         
-        // set timeout for blur render TODO: possibly remove this!
-        setTimeout(() => {
-          if (nodeRefs.current[newNodeId]) {
-            nodeRefs.current[newNodeId]?.focus();
-          }
-        }, 50);
+        renderTimeout(newNodeId);
       } else {
         // TODO: change this
         alert("Could not parse a flow node config from this store.")
       }
   }, [setNodes]);
   
+  const renderTimeout = useCallback((newNodeId: string) => {
+    setTimeout(() => {
+      if (nodeRefs.current[newNodeId]) {
+        nodeRefs.current[newNodeId]?.focus();
+      }}, 50);
+  }, [nodeRefs]);
+  
   // project name setter
   const handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setProjectName(event.target.value); // Update state with input value
   };
-  
-  // called on export to JSON button
-  // const exportComposition = (
-  //   nodes: CustomNodeType[],
-  //   edges: CustomEdgeType[],
-  //   projectName: string,
-  // ) => {
-  //   // graph exporter
-  //   const flowRepresentation: FlowRepresentation = compileFlow(nodes, edges);
-  //   const compositionSpec: FormattedComposition = compileComposition(nodes);
-  //   const compositionName = projectName.split(" ").join("_").toLowerCase();
-  //   writeComposition(flowRepresentation, compositionSpec, compositionName);
-  // };
   
   const exportComposition = useCallback(() => {
     // graph exporter
@@ -257,11 +248,7 @@ export default function App() {
     const compositionName = projectName.split(" ").join("_").toLowerCase();
     writeComposition(flowRepresentation, compositionSpec, compositionName);
   }, [nodes, edges, projectName]);
-  
-  // useEffect(() => {
-  //   exportComposition(nodes, edges, projectName);
-  // }, [nodes, edges, projectName]);
-  
+
   // called on upload spec
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
     uploadComposition(event, (data: FormattedComposition) => {
@@ -294,7 +281,38 @@ export default function App() {
       
     });
   };
-
+  
+  const onPortValueChanged = useCallback((nodeId: string, portType: string, portName: string, newValue: string) => {
+    console.log(`In onPortValueChanged. Connected node: ${nodeId}, Store: ${portName}, port type: ${portType}, newValue: ${newValue}`);
+    
+    // first sync the node values
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id === portName) {
+          console.log(`Existing node with matching store id: ${JSON.stringify(node)}`);
+          return {
+            ...node,
+            id: newValue,
+            data: {
+              ...node.data,
+              nodeId: newValue,
+              value: [newValue],
+              connections: [nodeId]
+            },
+          };
+        }
+        return node;
+      })
+    );
+  }, [setNodes]);
+  
+  // uncomment and implement below for persistent logic listening on nodes and edges
+  // useEffect(() => {
+  //   nodes.forEach((node) => {
+  //     console.log(`Current node: ${JSON.stringify(node)}`);
+  //   })
+  // }, [nodes, edges]);
+  
   return (
     <div className="reactflow-wrapper">
       <div className="project-name">
@@ -306,23 +324,25 @@ export default function App() {
             placeholder="Enter project name..."
           />
       </div>
-      <PortCallbackContext.Provider value={portCallbackMap.current}>
-        <ReactFlow<CustomNodeType, CustomEdgeType>
-          nodes={nodes}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          edges={edges}
-          edgeTypes={edgeTypes}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          defaultViewport={{ zoom: 1, x: 200, y: 200}}
-          // fitView
-        >
-          <Background />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
-      </PortCallbackContext.Provider>
+      <PortChangeCallbackContext.Provider value={onPortValueChanged}>
+        <NewPortCallbackContext.Provider value={portCallbackMap.current}>
+          <ReactFlow<CustomNodeType, CustomEdgeType>
+            nodes={nodes}
+            nodeTypes={nodeTypes}
+            onNodesChange={onNodesChange}
+            edges={edges}
+            edgeTypes={edgeTypes}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            defaultViewport={{ zoom: 1, x: 200, y: 200}}
+            // fitView
+          >
+            <Background />
+            <MiniMap />
+            <Controls />
+          </ReactFlow>
+        </NewPortCallbackContext.Provider>
+      </PortChangeCallbackContext.Provider>
       
       <div className="page-header">
         <UploadSpec onLoadGraph={importComposition}/>

@@ -7,14 +7,10 @@ import {BigraphNodeData, StoreNodeData, NodeKey} from "../../datamodel";
 interface NodeFieldProps {
   data: BigraphNodeData | StoreNodeData | Record<string, string[]>;
   portName: string;
-  // onChange: (changeEvent: React.ChangeEvent<HTMLInputElement>) => void;
-  // changeInput: (
-  //   keyEvent: React.KeyboardEvent<HTMLInputElement> | null,
-  //   changeEvent: React.ChangeEvent<HTMLInputElement> | null,
-  // ) => void;
+  onPortValueChange?: (portName: string, newValue: string) => void;
 }
 
-export function NodeField({ data, portName }: NodeFieldProps) {
+export function NodeField({ data, portName, onPortValueChange }: NodeFieldProps) {
   const [editMode, setEditMode] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [currentValue, setValue] = useState(data[portName]);
@@ -23,17 +19,17 @@ export function NodeField({ data, portName }: NodeFieldProps) {
   // Auto-focus the input when edit mode is enabled
   useEffect(() => {
     if (editMode) {
-      setTimeout(() => { // ⏳ Wait for the input to appear in the DOM
+      setTimeout(() => {
         if (inputRef.current) {
-          console.log("Auto-focusing input!");
           inputRef.current.focus();
           inputRef.current.select(); // (Optional) Select all text
         } else {
-          console.warn("inputRef.current is still null");
+          return;
         }
       }, 0);
     } else {
-      console.log("editMode is false");
+      // console.log("editMode is false");
+      return;
     }
   }, [editMode]);
 
@@ -46,7 +42,6 @@ export function NodeField({ data, portName }: NodeFieldProps) {
   }, []);
   
   const handleInputChange = useCallback((changeEvent: React.ChangeEvent<HTMLInputElement>) => {
-    // data[portName] = changeEvent.target.value;
     setValue(changeEvent.target.value);
   }, []);
   
@@ -58,15 +53,19 @@ export function NodeField({ data, portName }: NodeFieldProps) {
   const handleKeyDown = useCallback((keyEvent: React.KeyboardEvent<HTMLInputElement>) => {
      // this is the ONLY method by which users can confirm new fields
     if (keyEvent.key === "Enter") {
+      console.log(`Setting value to : ${currentValue}`);
+      
       // turn off editing mode
       setEditMode(false);
-      setValue(currentValue);
-      // check if new value is different from original and set if so
-      // if (originalValue !== currentValue) {
-      //   data[portName] = currentValue;
-      // }
+      
+      if (onPortValueChange) {
+        // notify parent of value change if input or output
+        onPortValueChange(portName, currentValue);
+      } else {
+        setValue(currentValue);
+      }
     }
-  }, [currentValue]);
+  }, [currentValue, onPortValueChange, portName]);
 
   return (
     <div className="node-field">
@@ -80,7 +79,8 @@ export function NodeField({ data, portName }: NodeFieldProps) {
           value={currentValue}
           autoFocus
           placeholder="Enter field"
-          onChange={(changeEvent: React.ChangeEvent<HTMLInputElement>) => handleInputChange(changeEvent)}
+          onChange={handleInputChange}
+          // onChange={(changeEvent: React.ChangeEvent<HTMLInputElement>) => handleInputChange(changeEvent)}
         />
       ) : (
         <h3 onClick={() => setEditMode(true)} style={{ cursor: "pointer" }}>
