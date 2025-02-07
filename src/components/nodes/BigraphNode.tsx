@@ -38,7 +38,9 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   const updateNodeInternals = useUpdateNodeInternals();
   
   const handlePortValueChange = (portType: string, portName: string, newValue: string) => {
+    /* portType: inputs | outputs, portName: existing port name of input/output that will be changed, newValue: new value to sync to port name */
     onPortChanged(id, portType, portName, newValue);
+    console.log(`Detected change on port type; ${portType} with portName: ${portName} and newValue: ${newValue}`);
   };
   
   const handleInputChange = (portName: string, newValue: string) => {
@@ -87,7 +89,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
     } else {
       console.log('no callback!')
     }
-  }, [numOutputHandles, nodeId, updateNodeInternals, onPortAdded]);
+  }, [numOutputHandles, nodeId, onPortAdded, updateNodeInternals]);
 
   return (
     <div className="react-flow__node bigraph-node">

@@ -53,7 +53,7 @@ export function NodeField({ data, portName, onPortValueChange }: NodeFieldProps)
   const handleKeyDown = useCallback((keyEvent: React.KeyboardEvent<HTMLInputElement>) => {
      // this is the ONLY method by which users can confirm new fields
     if (keyEvent.key === "Enter") {
-      console.log(`Setting value to : ${currentValue}`);
+      console.log(`Setting value to : ${currentValue} for portName: ${portName}`);
       
       // turn off editing mode
       setEditMode(false);

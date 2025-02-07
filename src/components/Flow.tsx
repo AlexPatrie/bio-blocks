@@ -48,21 +48,13 @@ export default function App() {
   
   let numNodes = nodes.length;
   let numObjects = 0;
-  
-  // const bigraphFlowNodes: Record<string, FlowNodeConfig> = {};
-  
-  // vivarium builder (stateful)
   const vivarium = new VivariumService();
   
-  //const portCallbackMap = new Map<string, (nodeId: string, portType: string, portName: string) => void>();
   const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
   
-  // called when a new port is added in the bigraph node child which links components
   const registerPortCallback = (nodeId: string) => {
     portCallbackMap.current.set(nodeId, handlePortAdded);
   };
-  
-  // TODO: use useEffect to sync stores to processes
   
   // called when user adds new input/output ports in BigraphNode child(parameterized by the child)
   const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
@@ -75,18 +67,15 @@ export default function App() {
     addLinkedStore(storeNodeId, storeValue, connections, portType);
     
     // add an edge between the new store node and its corresponding bigraph node
+    
     if (portType === "inputs") {
+      console.log(`source: ${storeNodeId}, target: ${nodeId} Port name: ${portName}(${portType}), `);
       addEdge(storeNodeId, nodeId);
     } else {
+      console.log(`source: ${nodeId}, target: ${storeNodeId} Port name: ${portName}(${portType})`);
       addEdge(nodeId, storeNodeId);
     }
   };
-  
-  useEffect(() => {
-    edges.forEach(edge => {
-      console.log(`Existing edge: ${JSON.stringify(edge)}`);
-    })
-  }, [edges]);
   
   // called when users manually connect edges
   const onConnect: OnConnect = useCallback(
@@ -119,13 +108,8 @@ export default function App() {
     [setEdges]
   );
   
-  const getNodeData = useCallback((nodeId: string) =>{
-    return useNodesData(nodeId);
-  }, []);
-  
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
   const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
-    // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
     setNodes((existingNodes) => {
       const updatedNodes = [...existingNodes, newFlowNode];
       console.log("Updated Nodes:", updatedNodes);
@@ -137,8 +121,6 @@ export default function App() {
         [newFlowNode.id]: newFlowNode,
     }));
     
-    console.log(`Bigraph flow nodes: ${JSON.stringify(bigraphFlowNodes)}`)
-    
     // link this node id to the port callback listener within the child BigraphNode
     registerPortCallback(newNodeId);
     
@@ -149,7 +131,9 @@ export default function App() {
       }}, 50);
   }, [bigraphFlowNodes, setBigraphFlowNodes]);
   
-  // new empty node constructor
+  
+  // -- funcs used when Add new ... buttons are clicked --
+  
   const addEmptyNode = (nodeType: string) => {
     numNodes += 1;
     const newNodeId = `${nodeType}_${numNodes}`;
@@ -166,7 +150,6 @@ export default function App() {
     }
   };
   
-  // used on buttons:
   const addEmptyProcessNode = () => {
     return addEmptyNode("process");
   }
@@ -185,7 +168,6 @@ export default function App() {
     if (newFlowNode) {
       setNodes((existingNodes) => {
         const updatedNodes = [...existingNodes, newFlowNode];
-        console.log("Updated Nodes with stores:", updatedNodes);
         return updatedNodes;
       });
       
@@ -195,17 +177,17 @@ export default function App() {
     }
   };
   
-  const addEdge = useCallback(
-    (sourceId: string, targetId: string) => {
+  const addEdge = useCallback((sourceId: string, targetId: string) => {
     const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
-    console.log(`New edge: ${JSON.stringify(newEdge)}`);
     setEdges((existingEdges) => {
       const updatedEdges = [...existingEdges, newEdge];
       return updatedEdges;
     });
   }, [setEdges]);
   
-  // function for automatically adding a new store node whenever an individual node's port is added or changed
+  
+  // -- function for automatically adding a new store node whenever an individual node's port is added or changed --
+  
   const addLinkedStore = useCallback(
     (newNodeId: string, value: string[], connections: string[], portType: string) => {
       // create corresponding store node parameterized by the linked bigraph node
@@ -283,13 +265,10 @@ export default function App() {
   };
   
   const onPortValueChanged = useCallback((nodeId: string, portType: string, portName: string, newValue: string) => {
-    console.log(`In onPortValueChanged. Connected node: ${nodeId}, Store: ${portName}, port type: ${portType}, newValue: ${newValue}`);
-    
     // first sync the node values
     setNodes((prevNodes) =>
       prevNodes.map((node) => {
         if (node.id === portName) {
-          console.log(`Existing node with matching store id: ${JSON.stringify(node)}`);
           return {
             ...node,
             id: newValue,
@@ -305,37 +284,13 @@ export default function App() {
       })
     );
     
+    renderTimeout(nodeId);
+    
     // then set edges with updated ids
-    setEdges((prevEdges) =>
-      prevEdges.map((edge) => {
-        console.log(`Prev edge source: ${edge.source}, prev edge target: ${edge.target}`)
-        
-        if (edge.source === nodeId) {
-          const source = edge.source;
-          const target = newValue;
-          const newId = `${source}-${target}`;
-          // new edge with source=edge.source, target=newValue, id: newId
-          return {
-            ...edge,
-            source: source,
-            target: target,
-            id: newId
-          }
-        } else if (edge.target === nodeId) {
-          const source = newValue;
-          const target = edge.target;
-          const newId = `${source}-${target}`;
-          return {
-            ...edge,
-            source: source,
-            target: target,
-            id: newId,
-          }
-        }
-        return edge;
-      })
-    )
-  }, [setNodes]);
+    const source = portType === "inputs" ? newValue : nodeId;
+    const target = portType === "inputs" ? nodeId : newValue;
+    addEdge(source, target);
+  }, [setNodes, addEdge]);
   
   // uncomment and implement below for persistent logic listening on nodes and edges
   // useEffect(() => {
@@ -448,16 +403,3 @@ export default function App() {
     </div>
   );
 }
-
-
-// const store: StoreNodeData = {
-//   nodeId: newNodeId,
-//   value: ["empty_store"],
-//   connections: ["None"] as string[]
-// }
-// const newNode: StoreNode = {
-//   id: newNodeId, // Unique ID
-//   type: "store-node", // Match the type used in `nodeTypes`
-//   position: { x: Math.random() * 400, y: Math.random() * 400 }, // Random position
-//   data: store
-// };
