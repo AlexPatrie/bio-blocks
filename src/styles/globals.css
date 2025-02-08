@@ -138,5 +138,26 @@ a {
   }
 }
 
+.object-node__content {
+  align-items: center;
+  justify-content: center;
+  display: block;
+}
+
+.object-node {
+  border-radius: 50% !important;
+  height: 200px;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-leaf-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 

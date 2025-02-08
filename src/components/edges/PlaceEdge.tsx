@@ -59,9 +59,9 @@ export default function ConstructPlaceEdge({
           }}
           className="nodrag nopan"
         >
-          <button style={buttonStyle} onClick={onEdgeClick}>
+          {/*<button style={buttonStyle} onClick={onEdgeClick}>
             ×
-          </button>
+          </button>*/}
         </div>
       </EdgeLabelRenderer>
     </>

@@ -216,7 +216,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
      
         
         {/* Hardcoded handles */}
-        {Object.keys(inputData).map((inputName: string, index: number) => (
+        {Object.keys(inputData).length ? Object.keys(inputData).map((inputName: string, index: number) => (
           <div>
             <Handle
               key={index}
@@ -226,19 +226,37 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
               id={inputName}
             />
           </div>
-        ))}
+        ))
+        :
+        <div>
+          <Handle
+            type="target"
+            className="port-handle input-handle"
+            position={Position.Left}
+            id="inputs"
+          />
+        </div>}
         
-        {Object.keys(outputData).map((outputName: string, index: number) => (
+        {Object.keys(outputData).length ? Object.keys(outputData).map((outputName: string, index: number) => (
           <div>
             <Handle
               key={index}
-              type="source"
+              type="target"
               className="port-handle output-handle"
               position={Position.Right}
               id={outputName}
             />
           </div>
-        ))}
+        ))
+        :
+        <div>
+          <Handle
+            type="target"
+            className="port-handle output-handle"
+            position={Position.Right}
+            id="outputs"
+          />
+        </div>}
         
       </div>
     </div>

@@ -25,7 +25,7 @@ export function ObjectNode({
   
   // called when user clicks to add a leaf
   const addLeaf = useCallback(() => {
-    const newLeafId = `new_leaf_${randomInRange(0, numLeaves + 3)}`
+    const newLeafId = `${id}_leaf_${numLeaves + 1}`
     const newLeafData: ObjectNodeData = {
       value: [newLeafId],
       connections: [id],
@@ -55,9 +55,17 @@ export function ObjectNode({
         animated: false
       };
       return [...existingEdges, newFlowEdge];
+    });
+    
+    setNumLeaves((existingNumLeaves) => {
+      return existingNumLeaves + 1;
     })
     
-  }, [setNodes, setEdges])
+  }, [setNodes, setEdges, setNumLeaves, numLeaves]);
+  
+  const onRemoveClick = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+  };
   
   // this is the method that should add and verify the ports on user "Enter" event
   const handleInputChange = useCallback((
@@ -79,27 +87,46 @@ export function ObjectNode({
   }
   
   return (
-    <div className="react-flow__node store-node">
-      
-      {/* Node Id/Name */}
-      <div className="store-node-header">
-        <StoreNodeField data={data} />
+    <div className="react-flow__node object-node">
+      <div className="object-node__content">
+        <button className="remove-process-button" onClick={onRemoveClick}>X</button>
+        
+        <div className="store-node-header">
+          <StoreNodeField data={data} />
+        </div>
+        
+        <div className="add-leaf-button">
+          <button onClick={addLeaf}>Add leaf</button>
+        </div>
       </div>
       
-      {/* Input Handle */}
+      {/* Place edge input handle */}
       <Handle
         type="target"
         position={Position.Top}
         className="port-handle input-handle"
       />
       
-      {/* Output Handle */}
+      {/* Place edge output handle */}
       <Handle
         type="source"
         position={Position.Bottom}
         className="port-handle output-handle"
       />
-      <button onClick={addLeaf}>Add leaf</button>
+      
+      {/* Hyper edge input handle */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="port-handle input-handle"
+      />
+      
+      {/* Hyper edge output handle */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="port-handle output-handle"
+      />
     </div>
   );
 }
