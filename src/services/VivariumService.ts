@@ -6,7 +6,7 @@ import {
   FlowNodeConfig,
   FlowEdgeConfig,
   FlowNodePosition,
-  FormattedComposition
+  FormattedComposition, ObjectNodeData
 } from "../datamodel";
 import {randomInRange, randomPosition} from "../connect";
 import {CustomNodeType} from "../components/nodes";
@@ -79,6 +79,14 @@ export class VivariumService {
     }
   }
   
+  public newObjectNodeData(nodeId: string, value: string[], connections?: string[] | undefined): StoreNodeData {
+    return {
+      nodeId: nodeId,
+      value: value,
+      connections: connections ? connections : []
+    }
+  }
+  
   // factories for empty nodes(button-generated)
   public newEmptyBigraphNodeData(name?: string | null, address?: string | null, nodeIndex?: number | null, nodeType?: "process" | "step" | undefined | string): BigraphNodeData {
     const newId: string = `new-process-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
@@ -94,6 +102,13 @@ export class VivariumService {
     return this.newStoreNodeData(nodeId, value);
   }
   
+  public newEmptyObjectNodeData(name?: string | undefined, nodeIndex?: number | undefined): ObjectNodeData {
+    const newId: string = `new-object-${!nodeIndex ? crypto.randomUUID() : nodeIndex}`;
+    const nodeId = !name ? newId : name as string;
+    const value = [`${nodeId}`];
+    return this.newObjectNodeData(nodeId, value);
+  }
+  
   public getFlowNodeConfig(nodeId: string): FlowNodeConfig | undefined {
     return this.flowNodes.find(node => node.data.nodeId === nodeId);
   }
@@ -106,7 +121,7 @@ export class VivariumService {
     node: BigraphNodeData | StoreNodeData,
     x: number,
     y: number,
-    nodeType: "bigraph-node" | "store-node"
+    nodeType: "bigraph-node" | "store-node" | "object-node"
   ): FlowNodeConfig {
     const flowNode: FlowNodeConfig = {
       id: node.nodeId,
@@ -155,6 +170,23 @@ export class VivariumService {
     const y: number = randomInRange(-position.y, position.y * 2);
     
     return this.addFlowNodeConfig(store, x, y, "store-node") as CustomNodeType;
+  }
+  
+  public addObject(objectData: ObjectNodeData, connectionDirection?: string): CustomNodeType {
+    this.objectData.push(objectData);
+    
+    let position = this.newPosition();
+    this.flowNodes.forEach((flowNode) => {
+      const connectedNodeId = objectData.connections ? objectData.connections.pop() as string : '';
+      if (flowNode.id === connectedNodeId) {
+        position = flowNode.position;
+      }
+    });
+    
+    const x: number = connectionDirection === "inputs" ? position.x - (position.x * 2) : position.x + (position.x * 3);
+    const y: number = randomInRange(-position.y, position.y * 2);
+    
+    return this.addFlowNodeConfig(objectData, x, y, "object-node") as CustomNodeType;
   }
   
   public addPort(nodeId: string, direction: PortDirection, value: string): void {

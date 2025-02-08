@@ -1,5 +1,13 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Handle, NodeProps, Position, useNodesData, useNodesState, useUpdateNodeInternals} from "@xyflow/react";
+import {
+  Handle,
+  NodeProps,
+  Position,
+  useNodesData,
+  useNodesState,
+  useReactFlow,
+  useUpdateNodeInternals
+} from "@xyflow/react";
 
 import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
@@ -25,6 +33,11 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   const [outputData, setOutputData] = useState(data.outputs);
   const [numInputHandles, setNumInputHandles] = useState<number>(0);
   const [numOutputHandles, setNumOutputHandles] = useState<number>(0);
+  
+  const { setNodes } = useReactFlow();
+  const onRemoveClick = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+  };
   
   const flowNodeData = useNodesData(id);
   useEffect(() => {
@@ -93,7 +106,6 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
 
   return (
     <div className="react-flow__node bigraph-node">
-      
       {/* Node Id/Name */}
       <div className="node-header">
         <h3>
@@ -102,7 +114,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
             portName={"nodeId"}
           />
         </h3>
-        <div className="separate"></div>
+        <button className="remove-process-button" onClick={onRemoveClick}>X</button>
       </div>
       
       

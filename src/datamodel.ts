@@ -34,6 +34,10 @@ export type StoreNodeData = NodeData & {
   connections?: string[] | any[] // this field is used to keep track of node-store connection-state
 }
 
+export type ObjectNodeData = StoreNodeData & {
+  valueType?: string,
+};
+
 // overall composition type representing the "document" that is given to Composite(config={'state': ...})
 export type Composition = {
   [key: string]: BigraphNodeData;
@@ -54,12 +58,14 @@ export type BigraphNode = BaseFlowNode<BigraphNodeData>;
 
 export type StoreNode = BaseFlowNode<StoreNodeData>;
 
+export type ObjectNode = BaseFlowNode<ObjectNodeData>;
+
 // high-level type for easily/iteratively getting react flow-specific data
 export type FlowNodeConfig = {
   id: string,
   type: string,
   position: FlowNodePosition,
-  data: StoreNodeData | BigraphNodeData;
+  data: StoreNodeData | BigraphNodeData | ObjectNodeData;
 }
 
 export type FlowNodePosition = {
@@ -86,7 +92,11 @@ export type FormattedComposition = {
 /*** bigraph edges (mostly cosmetic) ***/
 type ButtonEdgeData = {};
 
+type PlaceEdgeData = {};
+
 export type ButtonEdge = Edge<ButtonEdgeData>;
+
+export type PlaceEdge = Edge<PlaceEdgeData>;
 
 export type DataEdge<T extends Node = Node> = Edge<{
   /**

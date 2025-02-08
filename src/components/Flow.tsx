@@ -111,9 +111,7 @@ export default function App() {
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
   const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
     setNodes((existingNodes) => {
-      const updatedNodes = [...existingNodes, newFlowNode];
-      console.log("Updated Nodes:", updatedNodes);
-      return updatedNodes;
+      return [...existingNodes, newFlowNode];
     });
     
     setBigraphFlowNodes((existingNodes) => ({
@@ -177,6 +175,25 @@ export default function App() {
     }
   };
   
+  const addEmptyObjectNode = () => {
+    const uuid = crypto.randomUUID();
+    const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
+    
+    const emptyStore = vivarium.newEmptyObjectNodeData(newNodeId, numObjects);
+    const newFlowNode: CustomNodeType = vivarium.addObject(emptyStore);
+    
+    if (newFlowNode) {
+      setNodes((existingNodes) => {
+        const updatedNodes = [...existingNodes, newFlowNode];
+        return updatedNodes;
+      });
+      
+      renderTimeout(newNodeId);
+    } else {
+      console.log("Could not parse a flow node config from this store.")
+    }
+  };
+  
   const addEdge = useCallback((sourceId: string, targetId: string) => {
     const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
     setEdges((existingEdges) => {
@@ -197,13 +214,7 @@ export default function App() {
       const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
       
       if (newFlowNode) {
-        // the parameter consumed by setNodes is this component's 'nodes' attribute aka: CustomNodeType[] aka BigraphFlowNode[] | StoreFlowNode[]
-        setNodes((existingNodes) => {
-          const updatedNodes = [...existingNodes, newFlowNode];
-          console.log("Updated Nodes with stores:", updatedNodes);
-          return updatedNodes;
-        });
-        
+        setNewNode(newFlowNode, newNodeId);
         renderTimeout(newNodeId);
       } else {
         // TODO: change this
@@ -234,7 +245,6 @@ export default function App() {
   // called on upload spec
   const importComposition = (event: React.ChangeEvent<HTMLInputElement>) => {
     uploadComposition(event, (data: FormattedComposition) => {
-      console.log("Imported data:", data);
       Object.keys(data).forEach(key => {
         // uploaded json file will be a formatted node(without nodeID, ingest-able by process-bigraph
         const uploadedNode: FormattedBigraphNode = data[key];
@@ -245,20 +255,27 @@ export default function App() {
           _type: uploadedNode._type,
           address: uploadedNode.address,
           config: uploadedNode.config,
-          inputs: uploadedNode.config,
+          inputs: uploadedNode.inputs,
           outputs: uploadedNode.outputs
         };
         
-        // convert bigraph node data node to flow node
+        // convert bigraph node to flow node
         const nodePosition = randomPosition();
         vivarium.addFlowNodeConfig(bigraphNode, nodePosition.x, nodePosition.y, "bigraph-node");
         const newFlowNode = vivarium.getFlowNodeConfig(bigraphNode.nodeId) as CustomNodeType;
         
-        // here run set nodes
-        setNodes((existingNodes) => {
-          const updatedNodes = [...existingNodes, newFlowNode]; // represents the latest state
-          return updatedNodes;
-        });
+        // set process node
+        setNewNode(newFlowNode, newFlowNode.id);
+        
+        // add store and wire for each input port
+        Object.keys(bigraphNode.inputs).forEach(key => {
+          handlePortAdded(bigraphNode.nodeId, "inputs", key);
+        })
+        
+        // add store and wire for each output port
+        Object.keys(bigraphNode.outputs).forEach(key => {
+          handlePortAdded(bigraphNode.nodeId, "outputs", key);
+        })
       });
       
     });
@@ -398,6 +415,23 @@ export default function App() {
           }}
         >
           Add new store
+        </button>
+        <button
+          onClick={addEmptyObjectNode}
+          style={{
+            position: "absolute",
+            top: 0,
+            //right: 10,
+            left: 700,
+            padding: "10.5px 16px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Add new object
         </button>
       </div>
     </div>

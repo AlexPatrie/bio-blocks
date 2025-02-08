@@ -48,12 +48,53 @@
       "model_file": "/some/path/to/a/file"
     }
   },
+  "membrane": {
+    "_type": "process",
+    "address": "local:membrane-process",
+    "inputs": {
+      "geometry": [
+        "geometry_store"
+      ],
+      "preferred_volume": [
+        "preferred_volume_store"
+      ]
+    },
+    "outputs": {
+      "velocities": [
+        "velocities_store"
+      ],
+      "net_forces": [
+        "net_forces_store"
+      ],
+      "geometry": [
+        "geometry_store"
+      ]
+    },
+    "config": {
+      "geometry": {
+        "type": "icosphere",
+        "parameters": {
+          "radius": 0.5,
+          "subdivision": 3
+        }
+      }
+    }
+  },
   "particle": {
     "_type": "process",
     "address": "local:smoldyn-process",
     "inputs": {
       "fluxes": [
         "fluxes_store"
+      ],
+      "velocities": [
+        "velocities_store"
+      ],
+      "net_forces": [
+        "net_forces_store"
+      ],
+      "geometry": [
+        "geometry_store"
       ]
     },
     "outputs": {
