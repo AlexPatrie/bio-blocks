@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {Handle, NodeProps, Position, useReactFlow} from "@xyflow/react";
+import {Connection, Handle, NodeProps, OnConnect, Position, useReactFlow} from "@xyflow/react";
 
 import {
   BigraphNodeData, FlowEdgeConfig,
@@ -19,13 +19,13 @@ export function ObjectNode({
 }: NodeProps<_ObjectNode>) {
   
   // parse node data and port names (for checking) TODO: use this to run validation on export!
-  const nodeData = data as ObjectNodeData;
+  const [nodeData, setNodeData] = useState(data);
   const [numLeaves, setNumLeaves] = useState<number>(0);
   const { setNodes, setEdges } = useReactFlow();
   
   // called when user clicks to add a leaf
   const addLeaf = useCallback(() => {
-    const newLeafId = `${id}_leaf_${numLeaves + 1}`
+    const newLeafId = `${data.value}:leaf_${numLeaves + 1}`
     const newLeafData: ObjectNodeData = {
       value: [newLeafId],
       connections: [id],
@@ -82,9 +82,35 @@ export function ObjectNode({
     [data, id]
   );
   
-  const handleConnectionChange = (value: any) => {
-    // TODO: add new connections on edge change
-  }
+  const onConnect: OnConnect = useCallback(
+    (connection: Connection) => {
+      console.log(`Connection event: ${JSON.stringify(connection)}`);
+      console.log(`Connection source: ${connection.source}, connection target: ${connection.target}`);
+      console.log(`Connection source handle: ${connection.sourceHandle} Connection target handle: ${connection.targetHandle}`)
+      
+      // HERE: automatically populate the inputs/outputs of an existing bigraph node if user drags a connection between node port and store port
+  
+      if (!connection.source || !connection.target) {
+        console.error("Invalid connection: missing source or target");
+        return;
+      }
+      
+      // Add edge to state
+      setEdges((prevEdges) => {
+        const newEdge = {
+          id: `${connection.source}-${connection.target}`,
+          source: connection.source,
+          target: connection.target,
+          type: connection.source === id ? "place-edge" : "button-edge",
+          animated: true
+        };
+  
+        console.log("Adding edge:", newEdge);
+        return [...prevEdges, newEdge];
+      });
+    },
+    [setEdges]
+  );
   
   return (
     <div className="react-flow__node object-node">
@@ -98,35 +124,23 @@ export function ObjectNode({
         <div className="add-leaf-button">
           <button onClick={addLeaf}>Add leaf</button>
         </div>
+        
+        {/* Place edge input handle */}
+        <Handle
+          type="target"
+          id="place-input-handle"
+          position={Position.Top}
+          onConnect={onConnect}
+          className="port-handle input-handle"
+        />
+        <Handle
+          type="source"
+          id="place-output-handle"
+          position={Position.Bottom}
+          onConnect={onConnect}
+          className="port-handle output-handle"
+        />
       </div>
-      
-      {/* Place edge input handle */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="port-handle input-handle"
-      />
-      
-      {/* Place edge output handle */}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="port-handle output-handle"
-      />
-      
-      {/* Hyper edge input handle */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="port-handle input-handle"
-      />
-      
-      {/* Hyper edge output handle */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="port-handle output-handle"
-      />
     </div>
   );
 }

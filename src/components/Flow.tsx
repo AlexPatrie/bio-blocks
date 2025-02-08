@@ -44,9 +44,9 @@ export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   const [bigraphFlowNodes, setBigraphFlowNodes] = useState<Record<string, CustomNodeType>>({});
+  const [numNodes, setNumNodes] = useState<number>(0);
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
-  let numNodes = nodes.length;
   let numObjects = 0;
   const vivarium = new VivariumService();
   
@@ -119,21 +119,21 @@ export default function App() {
         [newFlowNode.id]: newFlowNode,
     }));
     
+    setNumNodes((existingNumNodes) => {
+      return existingNumNodes + 1;
+    })
+    
     // link this node id to the port callback listener within the child BigraphNode
     registerPortCallback(newNodeId);
     
     // buffer on blur (possibly remove)
-    setTimeout(() => {
-      if (nodeRefs.current[newNodeId]) {
-        nodeRefs.current[newNodeId]?.focus();
-      }}, 50);
-  }, [bigraphFlowNodes, setBigraphFlowNodes]);
+    renderTimeout(newNodeId);
+  }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
   
   
   // -- funcs used when Add new ... buttons are clicked --
   
   const addEmptyNode = (nodeType: string) => {
-    numNodes += 1;
     const newNodeId = `${nodeType}_${numNodes}`;
     const placeholderAddress = `local:${newNodeId}`;
     
@@ -177,18 +177,18 @@ export default function App() {
   
   const addEmptyObjectNode = () => {
     const uuid = crypto.randomUUID();
-    const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
+    // const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
+    const newNodeId = `object_${numNodes}`
     
     const emptyStore = vivarium.newEmptyObjectNodeData(newNodeId, numObjects);
     const newFlowNode: CustomNodeType = vivarium.addObject(emptyStore);
     
     if (newFlowNode) {
-      setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newFlowNode];
-        return updatedNodes;
-      });
-      
-      renderTimeout(newNodeId);
+      setNewNode(newFlowNode, newNodeId);
+      // setNodes((existingNodes) => {
+      //   const updatedNodes = [...existingNodes, newFlowNode];
+      //   return updatedNodes;
+      // });
     } else {
       console.log("Could not parse a flow node config from this store.")
     }

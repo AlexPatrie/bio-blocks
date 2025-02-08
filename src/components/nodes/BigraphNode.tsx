@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {
+  Connection,
   Handle,
   NodeProps,
   Position,
@@ -84,6 +85,25 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
       console.log('no callback!')
     }
   }, [numInputHandles, nodeId, id, onPortAdded, updateNodeInternals]);
+  
+  const connectInputPort = useCallback((portName: string) => {
+    const portValue = [`${portName}_store`];
+    
+    setInputData((previousInputData: Record<string, string[]>) => ({
+      ...previousInputData,
+      [portName]: portValue
+    }));
+    setNumInputHandles((prevNumHandles) => {
+      return prevNumHandles + 1;
+    });
+    updateNodeInternals(id);
+    
+    if (onPortChanged) {
+      onPortChanged(nodeId, "inputs", portName, portName);
+    } else {
+      console.log('no callback!')
+    }
+  }, [numInputHandles, nodeId, id, onPortChanged, updateNodeInternals]);
     
   const addOutputPort = useCallback(() => {
     const uuid = crypto.randomUUID();
@@ -103,6 +123,35 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
       console.log('no callback!')
     }
   }, [numOutputHandles, nodeId, onPortAdded, updateNodeInternals]);
+  
+  const connectOutputPort = useCallback((portName: string) => {
+    const portValue = [`${portName}_store`];
+    
+    setOutputData((previousOutputData: Record<string, string[]>) => ({
+      ...previousOutputData,
+      [portName]: portValue
+    }));
+    setNumOutputHandles((prevNumHandles) => {
+      return prevNumHandles + 1;
+    });
+    updateNodeInternals(id);
+    
+    if (onPortChanged) {
+      onPortChanged(nodeId, "outputs", portName, portName);
+    } else {
+      console.log('no callback!')
+    }
+  }, [numOutputHandles, nodeId, id, onPortChanged, updateNodeInternals]);
+  
+  const onConnect = useCallback((connection: Connection) => {
+    console.log(`There was a connection with connection: ${JSON.stringify(connection)}`);
+    if (connection.source === id) {
+      connectOutputPort(connection.target);
+    } else {
+      const objectId = connection.source;
+      connectInputPort(objectId);
+    }
+  }, [connectOutputPort, connectInputPort]);
 
   return (
     <div className="react-flow__node bigraph-node">
@@ -221,6 +270,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
             <Handle
               key={index}
               type="target"
+              onConnect={onConnect}
               className="port-handle input-handle"
               position={Position.Left}
               id={inputName}
@@ -231,6 +281,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
         <div>
           <Handle
             type="target"
+            onConnect={onConnect}
             className="port-handle input-handle"
             position={Position.Left}
             id="inputs"
@@ -241,7 +292,8 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
           <div>
             <Handle
               key={index}
-              type="target"
+              type="source"
+              onConnect={onConnect}
               className="port-handle output-handle"
               position={Position.Right}
               id={outputName}
@@ -251,7 +303,8 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
         :
         <div>
           <Handle
-            type="target"
+            type="source"
+            onConnect={onConnect}
             className="port-handle output-handle"
             position={Position.Right}
             id="outputs"
