@@ -25,7 +25,7 @@ export function ObjectNode({
   
   // called when user clicks to add a leaf
   const addLeaf = useCallback(() => {
-    const newLeafId = `${data.value}:leaf_${numLeaves + 1}`
+    const newLeafId = `${nodeData.value}:leaf_${numLeaves + 1}`
     const newLeafData: ObjectNodeData = {
       value: [newLeafId],
       connections: [id],
@@ -61,7 +61,7 @@ export function ObjectNode({
       return existingNumLeaves + 1;
     })
     
-  }, [setNodes, setEdges, setNumLeaves, numLeaves]);
+  }, [setNodes, setEdges, setNumLeaves, numLeaves, nodeData]);
   
   const onRemoveClick = () => {
     setNodes((nodes) => nodes.filter((node) => node.id !== id));
