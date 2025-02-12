@@ -80,9 +80,7 @@ export default function App() {
   // called when users manually connect edges
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      console.log(`Connection event: ${JSON.stringify(connection)}`);
-      console.log(`Connection source: ${connection.source}, connection target: ${connection.target}`);
-      console.log(`Connection source handle: ${connection.sourceHandle} Connection target handle: ${connection.targetHandle}`)
+      console.log("On connect called in flow!")
       
       // HERE: automatically populate the inputs/outputs of an existing bigraph node if user drags a connection between node port and store port
   
@@ -97,7 +95,7 @@ export default function App() {
           id: `${connection.source}-${connection.target}`,
           source: connection.source,
           target: connection.target,
-          type: "button-edge",
+          type: "place-edge",
           animated: true
         };
   
@@ -336,7 +334,7 @@ export default function App() {
             edges={edges}
             edgeTypes={edgeTypes}
             onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
+            // onConnect={onConnect}
             defaultViewport={{ zoom: 1, x: 200, y: 200}}
             // fitView
           >

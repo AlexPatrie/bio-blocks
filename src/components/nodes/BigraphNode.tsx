@@ -144,7 +144,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   }, [numOutputHandles, nodeId, id, onPortChanged, updateNodeInternals]);
   
   const onConnect = useCallback((connection: Connection) => {
-    console.log(`There was a connection with connection: ${JSON.stringify(connection)}`);
+    console.log("On connect called in bigraph node")
     if (connection.source === id) {
       connectOutputPort(connection.target);
     } else {

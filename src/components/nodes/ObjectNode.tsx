@@ -25,13 +25,16 @@ export function ObjectNode({
   
   // called when user clicks to add a leaf
   const addLeaf = useCallback(() => {
+    setNodeData((prevData) => {
+      console.log(`In object node, the prev data is: ${JSON.stringify(prevData)}`);
+      return prevData;
+    });
     const newLeafId = `${nodeData.value}:leaf_${numLeaves + 1}`
     const newLeafData: ObjectNodeData = {
       value: [newLeafId],
       connections: [id],
       nodeId: newLeafId,
     };
-    
     const newFlowLeaf = {
       id: newLeafId,
       type: "object-node",
@@ -41,11 +44,9 @@ export function ObjectNode({
       },
       data: newLeafData,
     }
-    
     setNodes((existingNodes) => {
       return [...existingNodes, newFlowLeaf];
     });
-    
     setEdges((existingEdges) => {
       const newFlowEdge: FlowEdgeConfig = {
         id: `${id}->${newLeafId}`,
@@ -56,11 +57,44 @@ export function ObjectNode({
       };
       return [...existingEdges, newFlowEdge];
     });
-    
     setNumLeaves((existingNumLeaves) => {
       return existingNumLeaves + 1;
     })
-    
+  }, [setNodes, setEdges, setNumLeaves, numLeaves, nodeData]);
+  
+  // called when user clicks to add a leaf
+  const _addLeaf = useCallback(() => {
+    const newLeafId = `${nodeData.value}:leaf_${numLeaves + 1}`
+    const newLeafData: ObjectNodeData = {
+      value: [newLeafId],
+      connections: [id],
+      nodeId: newLeafId,
+    };
+    const newFlowLeaf = {
+      id: newLeafId,
+      type: "object-node",
+      position: {
+        x: randomInRange(0, numLeaves + 3),
+        y: randomInRange(0, numLeaves + 3),
+      },
+      data: newLeafData,
+    }
+    setNodes((existingNodes) => {
+      return [...existingNodes, newFlowLeaf];
+    });
+    setEdges((existingEdges) => {
+      const newFlowEdge: FlowEdgeConfig = {
+        id: `${id}->${newLeafId}`,
+        source: id,
+        target: newLeafId,
+        type: "place-edge",
+        animated: false
+      };
+      return [...existingEdges, newFlowEdge];
+    });
+    setNumLeaves((existingNumLeaves) => {
+      return existingNumLeaves + 1;
+    })
   }, [setNodes, setEdges, setNumLeaves, numLeaves, nodeData]);
   
   const onRemoveClick = () => {
@@ -84,9 +118,7 @@ export function ObjectNode({
   
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      console.log(`Connection event: ${JSON.stringify(connection)}`);
-      console.log(`Connection source: ${connection.source}, connection target: ${connection.target}`);
-      console.log(`Connection source handle: ${connection.sourceHandle} Connection target handle: ${connection.targetHandle}`)
+      console.log("On connect called in object node!")
       
       // HERE: automatically populate the inputs/outputs of an existing bigraph node if user drags a connection between node port and store port
   
@@ -102,7 +134,7 @@ export function ObjectNode({
           source: connection.source,
           target: connection.target,
           type: connection.source === id ? "place-edge" : "button-edge",
-          animated: true
+          animated: false
         };
   
         console.log("Adding edge:", newEdge);
@@ -118,7 +150,7 @@ export function ObjectNode({
         <button className="remove-process-button" onClick={onRemoveClick}>X</button>
         
         <div className="store-node-header">
-          <StoreNodeField data={data} />
+          <StoreNodeField data={data} setNodeData={setNodeData} />
         </div>
         
         <div className="add-leaf-button">
