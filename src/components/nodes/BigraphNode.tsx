@@ -13,11 +13,8 @@ import {
 import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
-import {VivariumService} from "../../services/VivariumService";
-import {node} from "prop-types";
-import {StoreNode} from "./StoreNode";
 import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
-import {randomInRange, validateConnection} from "../../connect";
+import {validateConnection} from "../../connect";
 
 
 export type BigraphNodeProps = {
@@ -41,9 +38,6 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   };
   
   const flowNodeData = useNodesData(id);
-  useEffect(() => {
-    console.log(`The flow node: ${JSON.stringify(flowNodeData)}`);
-  }, [flowNodeData]);
   
   const newPortCallbackMap = useContext(NewPortCallbackContext);
   const onPortAdded = newPortCallbackMap?.get(id);
@@ -156,7 +150,9 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
           connectInputPort(objectId);
         }
       } else {
-        alert(`A connection between ${connection.source} and ${connection.target} is not possible.`)
+        alert(
+          `You cannot directly connect two processes. Please connect process ports to objects.`
+        )
       }
       return nodes;
     });
