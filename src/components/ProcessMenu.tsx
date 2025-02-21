@@ -3,14 +3,14 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import React, {useCallback, useEffect, useRef, useState} from "react";
 
 
-export type DropdownProcessMenuProps = {
+export type ProcessMenuProps = {
   processId: string;
   processType: string;
   processAddress: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function DropdownProcessMenu({ processId, processType, processAddress, handleChange }: DropdownProcessMenuProps) {
+export default function ProcessMenu({ processId, processType, processAddress, handleChange }: ProcessMenuProps) {
   // TODO: add name changer
   
   const [id, setId] = useState<string>(processId);
@@ -32,7 +32,7 @@ function DropdownProcessMenu({ processId, processType, processAddress, handleCha
         }
       }, 0);
     } else {
-      // console.log("editMode is false");
+      console.log("editMode is false in dropdown menu");
       return;
     }
   }, [editMode]);
@@ -113,8 +113,6 @@ function DropdownProcessMenu({ processId, processType, processAddress, handleCha
     </DropdownButton>
   );
 }
-
-export default DropdownProcessMenu;
 
 
 // return (

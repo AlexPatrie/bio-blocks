@@ -1,22 +1,32 @@
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import React, {useCallback} from "react";
+import React, {useCallback, useState} from "react";
 
-type DropdownItem = {
-  href: string;
-  text: string;
-};
-
-export type DropdownButtonProps = {
-  title: string;
-  items: DropdownItem[];
+export type ToyProps = {
+  x: number;
 }
 
-function BasicDropdownButton({ title, items }: DropdownButtonProps) {
-  // TODO: add name changer
-  const onClick = useCallback(() => {
+function Child({ x }: ToyProps) {
+  const [xVal, setXval] = useState<number>(0);
+
+  const handleChange = useCallback(() => {
     alert('DropdownButton button item clicked');
-  }, []);
+  }, [setXval]);
+  
+  return (
+    <div>
+      Hi
+      <input value={xVal} onChange={handleChange}></input>
+    </div>
+  );
+}
+
+function Parent() {
+  const [values, setValues] = useState<string[]>([]);
+
+  const handleChange = useCallback(() => {
+    alert('DropdownButton button item clicked');
+  }, [setXval]);
   
   const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -26,17 +36,14 @@ function BasicDropdownButton({ title, items }: DropdownButtonProps) {
   }, [])
   
   return (
-    <DropdownButton id="dropdown-basic-button" title={title}>
-      {items.map((item) => (
-        <Dropdown.Item onClick={onClick} href={item.href}>
-          <input value={item.text} onKeyDown={onKeyDown}></input>
-        </Dropdown.Item>
-      ))}
-    </DropdownButton>
+    <div>
+      Hi
+      <input value={xVal} onChange={handleChange}></input>
+    </div>
   );
 }
 
-export default BasicDropdownButton;
+export default Parent;
 
 
 // return (

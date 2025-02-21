@@ -34,8 +34,7 @@ import {
   writeComposition
 } from "../io";
 import { randomPosition } from "../connect";
-import BasicDropdownButton from "./DropdownButton";
-import BasicExample from "./Dropdown";
+import ProcessMetadataUploader from "./ProcessMetadataUploader";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -347,6 +346,7 @@ export default function App() {
   
   return (
     <div className="reactflow-wrapper">
+      <ProcessMetadataUploader />
       <div className="project-name">
           <input
             id="inputField"

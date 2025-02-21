@@ -15,8 +15,7 @@ import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
 import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
 import {validateConnection} from "../../connect";
-import BasicDropdownButton from "../DropdownButton";
-import DropdownProcessMenu from "../DropdownMenu";
+import ProcessMenu from "../ProcessMenu";
 
 
 export type BigraphNodeProps = {
@@ -173,7 +172,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
             data={data}
             portName={"nodeId"}
           />*/}
-          <DropdownProcessMenu processId={id} processType={type} processAddress={address} handleChange={handleChange}/>
+          <ProcessMenu processId={id} processType={type} processAddress={address} handleChange={handleChange}/>
         </h3>
         <button className="remove-process-button" onClick={onRemoveClick}>X</button>
       </div>
