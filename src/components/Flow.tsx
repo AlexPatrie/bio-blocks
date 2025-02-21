@@ -34,7 +34,8 @@ import {
   writeComposition
 } from "../io";
 import { randomPosition } from "../connect";
-import {warn} from "next/dist/build/output/log";
+import BasicDropdownButton from "./DropdownButton";
+import BasicExample from "./Dropdown";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!

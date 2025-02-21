@@ -41,13 +41,13 @@ export function NodeField({ data, portName, onPortValueChange }: NodeFieldProps)
     console.log("handleFocus", isFocused);
   }, []);
   
-  const handleInputChange = useCallback((changeEvent: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(changeEvent.target.value);
-  }, []);
-  
   const handleBlur = useCallback(() => {
     // exit edit mode when losing focus and DO NOT accept input change
     setEditMode(false);
+  }, []);
+  
+  const handleInputChange = useCallback((changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(changeEvent.target.value);
   }, []);
   
   const handleKeyDown = useCallback((keyEvent: React.KeyboardEvent<HTMLInputElement>) => {

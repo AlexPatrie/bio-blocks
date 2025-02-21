@@ -15,6 +15,8 @@ import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
 import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
 import {validateConnection} from "../../connect";
+import BasicDropdownButton from "../DropdownButton";
+import DropdownProcessMenu from "../DropdownMenu";
 
 
 export type BigraphNodeProps = {
@@ -137,6 +139,10 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
     }
   }, [numOutputHandles, nodeId, id, onPortChanged, updateNodeInternals]);
   
+  const handleChange = useCallback(() => {
+    console.log('Detected change on port type');
+  }, []);
+  
   const onConnect = useCallback((connection: Connection) => {
     // perform verification in hook
     setNodes((nodes: CustomNodeType[]) => {
@@ -163,16 +169,18 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
       {/* Node Id/Name */}
       <div className="node-header">
         <h3>
-          <NodeField
+          {/*<NodeField
             data={data}
             portName={"nodeId"}
-          />
+          />*/}
+          <DropdownProcessMenu processId={id} processType={type} processAddress={address} handleChange={handleChange}/>
         </h3>
         <button className="remove-process-button" onClick={onRemoveClick}>X</button>
       </div>
       
-      
       <div className="node-grid">
+        
+        {/*
         <div className="grid-item">
           <table className="process-table-display type">
             <thead>
@@ -192,7 +200,6 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
             </tbody>
           </table>
         </div>
-        
         <div className="grid-item">
           <table className="process-table-display address">
             <thead>
@@ -212,6 +219,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
             </tbody>
           </table>
         </div>
+        */}
        
         <div className="grid-item">
           <table className="process-table-display inputs">
