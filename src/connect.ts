@@ -3,7 +3,44 @@ import {
   StoreNodeData as StoreNode,
   FlowEdgeConfig, FlowNodeConfig, BigraphNodeData as BigraphNode, NodeKey, FlowNodePosition
 } from "./datamodel";
+import type {CustomNodeType} from "./components/nodes";
 
+
+/* getters for nodes and stores */
+
+export type ConnectedNodes = {
+  source: CustomNodeType;
+  target: CustomNodeType;
+}
+
+function isProcessNode(nodeKeys: string[]): boolean {
+  const inputField: string | undefined = nodeKeys.find((key: string) => key === "inputs");
+  return typeof inputField === "string";
+}
+
+function isValidConnection(sourceNode: CustomNodeType, targetNode: CustomNodeType): boolean {
+  const sourceNodeKeys: string[] = Object.keys(sourceNode.data);
+  const sourceAsProcess: boolean = isProcessNode(sourceNodeKeys);
+  
+  const targetNodeKeys: string[] = Object.keys(targetNode.data);
+  const targetAsProcess: boolean = isProcessNode(targetNodeKeys);
+  
+  return !(sourceAsProcess && targetAsProcess)
+}
+  
+function getConnectedNodes(nodes: CustomNodeType[], connection: Connection): ConnectedNodes {
+  const sourceNode = nodes.find((node) => node.id === connection.source) as CustomNodeType;
+  const targetNode = nodes.find((node) => node.id === connection.target) as CustomNodeType;
+  return {
+    source: sourceNode,
+    target: targetNode
+  }
+}
+
+export function validateConnection(nodes: CustomNodeType[], connection: Connection): boolean {
+  const connectedNodes: ConnectedNodes = getConnectedNodes(nodes, connection);
+  return isValidConnection(connectedNodes.source, connectedNodes.target);
+}
 
 /* setters for stores and nodes */
 

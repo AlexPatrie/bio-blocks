@@ -34,9 +34,11 @@ import {
   writeComposition
 } from "../io";
 import { randomPosition } from "../connect";
+import {warn} from "next/dist/build/output/log";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
+
 
 export default function App() {
   // hooks
@@ -77,33 +79,61 @@ export default function App() {
     }
   };
   
+  const isProcessNode = (nodeKeys: string[]): boolean  => {
+    const inputField: string | undefined = nodeKeys.find((key: string) => key === "inputs");
+    return typeof inputField === "string";
+  };
+  
+  const isValidConnection = (sourceNode: CustomNodeType, targetNode: CustomNodeType): boolean => {
+    const sourceNodeKeys: string[] = Object.keys(sourceNode.data);
+    const sourceAsProcess: boolean = isProcessNode(sourceNodeKeys);
+    
+    const targetNodeKeys: string[] = Object.keys(targetNode.data);
+    const targetAsProcess: boolean = isProcessNode(targetNodeKeys);
+    
+    return !sourceAsProcess && !targetAsProcess;
+  }
+  
+  const getConnectionNodes = (nodes: CustomNodeType[], connection: Connection) => {
+    const sourceNode = nodes.find((node) => node.id === connection.source) as CustomNodeType;
+    const targetNode = nodes.find((node) => node.id === connection.target) as CustomNodeType;
+    return [sourceNode, targetNode];
+  }
+  
   // called when users manually connect edges
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      console.log("On connect called in flow!")
+      const sourceNode = nodes.find((node) => node.id === connection.source) as CustomNodeType;
+      const targetNode = nodes.find((node) => node.id === connection.target) as CustomNodeType;
       
-      // HERE: automatically populate the inputs/outputs of an existing bigraph node if user drags a connection between node port and store port
-  
-      if (!connection.source || !connection.target) {
-        console.error("Invalid connection: missing source or target");
+      const validConnection: boolean = isValidConnection(sourceNode, targetNode);
+      console.log(`Is a valid connection: ${validConnection}`)
+      if (!validConnection) {
+        console.log("You cannot connect two processes together: they must be connected to an object.");
         return;
       }
       
-      // Add edge to state
-      setEdges((prevEdges) => {
-        const newEdge = {
-          id: `${connection.source}-${connection.target}`,
-          source: connection.source,
-          target: connection.target,
-          type: "place-edge",
-          animated: true
-        };
-  
-        console.log("Adding edge:", newEdge);
-        return [...prevEdges, newEdge];
-      });
+      if (!connection.source || !connection.target) {
+        console.log("Invalid connection: missing source or target");
+        return;
+      }
+      
+      // Add edge to state if valid connection
+      if (validConnection) {
+        setEdges((prevEdges) => {
+          const newEdge = {
+            id: `${connection.source}-${connection.target}`,
+            source: connection.source,
+            target: connection.target,
+            type: "place-edge",
+            animated: true
+          };
+          console.log("Adding edge:", newEdge);
+          return [...prevEdges, newEdge];
+        });
+      }
     },
-    [setEdges]
+    [setEdges, nodes]
   );
   
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload

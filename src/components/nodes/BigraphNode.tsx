@@ -17,7 +17,7 @@ import {VivariumService} from "../../services/VivariumService";
 import {node} from "prop-types";
 import {StoreNode} from "./StoreNode";
 import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
-import {randomInRange} from "../../connect";
+import {randomInRange, validateConnection} from "../../connect";
 
 
 export type BigraphNodeProps = {
@@ -144,14 +144,23 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
   }, [numOutputHandles, nodeId, id, onPortChanged, updateNodeInternals]);
   
   const onConnect = useCallback((connection: Connection) => {
-    console.log("On connect called in bigraph node")
-    if (connection.source === id) {
-      connectOutputPort(connection.target);
-    } else {
-      const objectId = connection.source;
-      connectInputPort(objectId);
-    }
-  }, [connectOutputPort, connectInputPort]);
+    // perform verification in hook
+    setNodes((nodes: CustomNodeType[]) => {
+      const isValidConnection: boolean = validateConnection(nodes, connection);
+      
+      if (isValidConnection) {
+        if (connection.source === id) {
+          connectOutputPort(connection.target);
+        } else {
+          const objectId = connection.source;
+          connectInputPort(objectId);
+        }
+      } else {
+        alert(`A connection between ${connection.source} and ${connection.target} is not possible.`)
+      }
+      return nodes;
+    });
+  }, [connectOutputPort, connectInputPort, setNodes]);
 
   return (
     <div className="react-flow__node bigraph-node">
