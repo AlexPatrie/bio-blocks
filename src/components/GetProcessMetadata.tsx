@@ -8,13 +8,19 @@ import {ProcessMetadata} from "./datamodel/requests";
 import DataDropdown from "./DataDropdown";
 
 
-export default function GetProcessMetadata() {
+// TODO: add logic for creating a new process node parameterized by the data returned here
+
+type GetProcessMetadataProps = {
+  processFromMetadata: () => any | void;
+}
+
+export default function GetProcessMetadata({ processFromMetadata }: GetProcessMetadataProps) {
   const [render, setRender] = useState(true);
   const [processId, setProcessId] = useState<string>("simple-membrane-process");
   const [returnCompositeState, setReturnCompositeState] = useState<boolean>(true);
   const [configFile, setConfigFile] = useState<File | null>(null);
   const [genericFile, setGenericFile] = useState<File | null>(null);
-  const [responseData, setResponseData] = useState<ProcessMetadata | Record<string, any>>({});
+  const [responseData, setResponseData] = useState<ProcessMetadata | Record<string, any> | null>(null);
   const [buttonItems, setButtonItems] = useState<DropdownItem[]>([]);
   
   const service = new ComposeService();
@@ -23,12 +29,12 @@ export default function GetProcessMetadata() {
     setRender((prev) => !prev);
   }, [setRender])
   
-  const onFileChange = useCallback((
-    event: React.ChangeEvent<HTMLInputElement>,
-    setter: (value: File | null) => void) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setter(event.target.files[0]);
-    }
+  const onFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, setter: (value: File | null) => void) => {
+      event.stopPropagation();
+      if (event.target.files && event.target.files.length > 0) {
+        setter(event.target.files[0]);
+      }
   }, []);
   
   const onConfigFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,12 +81,16 @@ export default function GetProcessMetadata() {
   if (render) {
     return (
       <div className="p-4">
-        <DropdownButton title={"Get Info"}>
-          <BootstrapDropdownItem>
+        <DropdownButton title={"Get Process Info"} data-bs-auto-close="false">
           <div className="param-items">
             <div className="my-2 param-item">
               <label className="block font-semibold">Config JSON File:</label>
-              <input type="file" accept=".json" onChange={onConfigFileChange} className="border p-2" />
+              <input
+                type="file"
+                accept=".json"
+                onChange={onConfigFileChange}
+                className="border p-2"
+              />
             </div>
             
             <div className="my-2 param-item">
@@ -107,14 +117,20 @@ export default function GetProcessMetadata() {
               />
               <label>Return Composite State</label>
             </div>
+            
+            <div className="my-2 flex items-center param-item">
+              <button onClick={onSubmit} className="mr-2 submit-metadata">Submit</button>
+            </div>
           </div>
-          </BootstrapDropdownItem>
           
-          <BootstrapDropdownItem>
+          
+          
+          <div className="process-metadata">
             {responseData && (
               <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
             )}
-          </BootstrapDropdownItem>
+            <button onClick={processFromMetadata}>Create process</button>
+          </div>
         </DropdownButton>
       </div>
     );

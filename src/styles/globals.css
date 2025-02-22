@@ -185,5 +185,26 @@ a {
   width: 100%;
 }
 
+.param-item {
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
+}
+
+.submit-metadata {
+  border-radius: 4px;
+  background-color: green;
+  color: white;
+  font-weight: bold;
+}
+
+.block {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.nav-util-bar {
+  align-items: center !important;
+  justify-content: center !important;
+}
 
 

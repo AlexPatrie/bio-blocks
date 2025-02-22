@@ -36,7 +36,7 @@ import {
 import { randomPosition } from "../connect";
 import GetProcessMetadata from "./GetProcessMetadata";
 import GetTypes from "./GetTypes";
-import NavUtilBar from "./NavUtilBar";
+import NavUtilBar, {NavUtilBarProps, SetterButtonConfig} from "./NavUtilBar";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -339,26 +339,64 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
-  // uncomment and implement below for persistent logic listening on nodes and edges
-  // useEffect(() => {
-  //   nodes.forEach((node) => {
-  //     console.log(`Current node: ${JSON.stringify(node)}`);
-  //   })
-  // }, [nodes, edges]);
+  
+  
+  const newProcessFromMetadata = useCallback(() => {
+    // TODO: implement this!
+  }, [setNodes]);
+  
+  const setterButtonConfig: SetterButtonConfig[] = [
+    {
+      title: "Add new object",
+      onClick: addEmptyObjectNode,
+      style: {
+        position: "absolute",
+        top: 25,
+        //right: 10,
+        left: 700,
+        padding: "10.5px 16px",
+        backgroundColor: "#4CAF50",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    },
+    {
+      title: "Add new process",
+      onClick: addEmptyProcessNode,
+      style: {
+        position: "absolute",
+        top: 25,
+        //right: 10,
+        left: 475,
+        padding: "10.5px 16px",
+        backgroundColor: "#4CAF50",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    }
+  ]
   
   return (
     <div className="reactflow-wrapper">
-      <div className="nav-util-bar">
-        <NavUtilBar brand="Tools" />
-      </div>
       <div className="project-name">
-          <input
-            id="inputField"
-            type="text"
-            value={projectName}
-            onChange={handleProjectNameChange}
-            placeholder="Enter project name..."
-          />
+        <input
+          id="inputField"
+          type="text"
+          value={projectName}
+          onChange={handleProjectNameChange}
+          placeholder="Enter project name..."
+        />
+      </div>
+      <div className="nav-util-bar">
+        <NavUtilBar
+          brand="Tools"
+          setterButtonConfig={setterButtonConfig}
+          processFromMetadata={newProcessFromMetadata}
+        />
       </div>
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
         <NewPortCallbackContext.Provider value={portCallbackMap.current}>
@@ -394,28 +432,12 @@ export default function App() {
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
+            height: "30px",
           }}
         >
           Export to JSON
         </button>
-        <button
-          onClick={addEmptyProcessNode}
-          style={{
-            position: "absolute",
-            top: 0,
-            //right: 10,
-            left: 190,
-            padding: "10.5px 16px",
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Add new process
-        </button>
-        <button
+        {/*<button
           onClick={addEmptyStepNode}
           style={{
             position: "absolute",
@@ -431,8 +453,8 @@ export default function App() {
           }}
         >
           Add new step
-        </button>
-        <button
+        </button>*/}
+        {/*<button
           onClick={addEmptyStoreNode}
           style={{
             position: "absolute",
@@ -448,24 +470,7 @@ export default function App() {
           }}
         >
           Add new store
-        </button>
-        <button
-          onClick={addEmptyObjectNode}
-          style={{
-            position: "absolute",
-            top: 0,
-            //right: 10,
-            left: 700,
-            padding: "10.5px 16px",
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Add new object
-        </button>
+        </button>*/}
       </div>
     </div>
   );

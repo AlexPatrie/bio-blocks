@@ -11,16 +11,24 @@ export type NavItem = {
   data: any;
 }
 
-export type NavUtilBarProps = {
-  brand: string
+export type SetterButtonConfig = {
+  onClick: () => void,
+  style: {},
+  title: string
 }
 
-function NavUtilBar({ brand }: NavUtilBarProps) {
+export type NavUtilBarProps = {
+  brand: string,
+  setterButtonConfig: SetterButtonConfig[],
+  processFromMetadata: () => any,
+}
+
+function NavUtilBar({ brand, setterButtonConfig, processFromMetadata }: NavUtilBarProps) {
   const [currentItems, setCurrentItems] = useState<NavItem[]>([]);
   const [renderMetadata, setRenderMetadata] = useState<boolean>(false);
   
   return (
-    <Navbar variant="dark" bg="dark" expand="lg">
+    <Navbar variant="dark" bg="dark" expand="sm">
       <Container fluid>
         <Navbar.Brand href="#home">{ brand }</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
@@ -28,13 +36,13 @@ function NavUtilBar({ brand }: NavUtilBarProps) {
           <Nav>
             <GetTypes />
             <NavDropdown.Divider />
-            <GetProcessMetadata />
-            {/*<NavDropdown
-              id="nav-dropdown-dark-example"
-              title="Dropdown"
-              menuVariant="dark"
-            >
-            </NavDropdown>*/}
+            <GetProcessMetadata processFromMetadata={processFromMetadata} />
+            
+            {setterButtonConfig.map((item, index) => (
+              <button onClick={item.onClick} style={item.style}>
+                { item.title }
+              </button>
+            ))}
           </Nav>
         </Navbar.Collapse>
       </Container>
