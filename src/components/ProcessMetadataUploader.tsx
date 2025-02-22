@@ -5,7 +5,7 @@ import { Dropdown } from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import {ProcessMetadata} from "./datamodel/requests";
 
-const ProcessMetadataUploader = () => {
+export default function ProcessMetadataUploader() {
   const [processId, setProcessId] = useState<string>("simple-membrane-process");
   const [returnCompositeState, setReturnCompositeState] = useState<boolean>(true);
   const [configFile, setConfigFile] = useState<File | null>(null);
@@ -67,7 +67,7 @@ const ProcessMetadataUploader = () => {
   
   
   return (
-    <div className="p-4">
+    <div className="p-4" style={{ border: "1px solid red" }}>
       <div className="param-buttons">
         <DropdownButton id="dropdown-basic-button file-uploads-button" title="Get Process Info">
           <Dropdown.Item>
@@ -125,8 +125,6 @@ const ProcessMetadataUploader = () => {
     </div>
   );
 };
-
-export default ProcessMetadataUploader;
 
 
 // const ProcessMetadataUploader = () => {
