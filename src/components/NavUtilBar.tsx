@@ -5,6 +5,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import React, {useState} from "react";
 import GetTypes from "./GetTypes";
 import GetProcessMetadata from "./GetProcessMetadata";
+import DropdownButton from "react-bootstrap/DropdownButton";
 
 export type NavItem = {
   title: string;
@@ -23,6 +24,8 @@ export type NavUtilBarProps = {
   processFromMetadata: () => any,
 }
 
+const variant = "Primary";
+
 function NavUtilBar({ brand, setterButtonConfig, processFromMetadata }: NavUtilBarProps) {
   const [currentItems, setCurrentItems] = useState<NavItem[]>([]);
   const [renderMetadata, setRenderMetadata] = useState<boolean>(false);
@@ -39,9 +42,16 @@ function NavUtilBar({ brand, setterButtonConfig, processFromMetadata }: NavUtilB
             <GetProcessMetadata processFromMetadata={processFromMetadata} />
             
             {setterButtonConfig.map((item, index) => (
-              <button onClick={item.onClick} style={item.style}>
-                { item.title }
-              </button>
+              <DropdownButton
+                onClick={item.onClick}
+                title={item.title}
+                key={variant}
+                id={`dropdown-variants-${variant}`}
+                variant={variant.toLowerCase()}
+                style={item.style}
+              >
+                <div style={{ display: "none" }}></div>
+              </DropdownButton>
             ))}
           </Nav>
         </Navbar.Collapse>

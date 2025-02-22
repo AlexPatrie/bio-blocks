@@ -78,10 +78,17 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
       })
   }, [configFile, genericFile, processId, setResponseData, returnCompositeState]);
   
+  const variant = "Success"
+  
   if (render) {
     return (
       <div className="p-4">
-        <DropdownButton title={"Get Process Info"} data-bs-auto-close="false">
+        <DropdownButton
+          title={"Get Process Info"}
+          key={variant}
+          id={`dropdown-variants-${variant}`}
+          variant={variant.toLowerCase()}
+        >
           <div className="param-items">
             <div className="my-2 param-item">
               <label className="block font-semibold">Config JSON File:</label>

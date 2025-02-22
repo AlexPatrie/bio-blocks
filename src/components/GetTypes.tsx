@@ -67,9 +67,17 @@ export default function GetTypes({ composeService }: GetTypesProps) {
       alert(`Item copied to clipboard`);
   }, [handleCopy]);
   
+  const variant = "Primary"
+  
   return (
     <div className="p-4">
-      <DropdownButton onClick={getTypesData} id="dropdown-basic-button" title="Get Types">
+      <DropdownButton
+        onClick={getTypesData}
+        title="Get Types"
+        key={variant}
+        id={`dropdown-variants-${variant}`}
+        variant={variant.toLowerCase()}
+      >
         {types.map((schemaType: BigraphSchemaType, index) => (
           <DropdownItem onClick={((e: React.MouseEvent<HTMLButtonElement>) => handleClick(e, schemaType))} className="types-grid-item">
             {schemaType["type_id"]}: {JSON.stringify(schemaType['default_value'])}
