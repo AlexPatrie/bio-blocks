@@ -1,6 +1,7 @@
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import React, {useCallback, useState} from "react";
+import {ProcessMetadata} from "./datamodel/requests";
 
 export type DropdownItem = {
   href?: string;
@@ -14,6 +15,7 @@ export type DropdownButtonProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClick?: () => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  responseData?: ProcessMetadata;
 }
 
 function GenericDropdownButton({ title, items, editable, onChange, onClick, onKeyDown }: DropdownButtonProps) {

@@ -10,7 +10,7 @@ export type QueryParams = Record<string, number | string | any>;
 
 // return data types //
 
-export type BigraphSchemaType = {
+export type BigraphSchemaType = Record<string, any> & {
   typeId: string,
   defaultValue: string | {} | [] | number,
   description: string | null

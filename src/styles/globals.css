@@ -172,5 +172,18 @@ a {
   border-radius: 4px;
 }
 
+.get-data-container {
+  background-color: transparent;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.param-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  height: 100%;
+  width: 100%;
+}
+
 
 

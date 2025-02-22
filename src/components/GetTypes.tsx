@@ -68,11 +68,11 @@ export default function GetTypes({ composeService }: GetTypesProps) {
   }, [handleCopy]);
   
   return (
-    <div className="types-data-container">
+    <div className="p-4">
       <DropdownButton onClick={getTypesData} id="dropdown-basic-button" title="Get Types">
         {types.map((schemaType: BigraphSchemaType, index) => (
           <DropdownItem onClick={((e: React.MouseEvent<HTMLButtonElement>) => handleClick(e, schemaType))} className="types-grid-item">
-            { JSON.stringify(schemaType) }
+            {schemaType["type_id"]}: {JSON.stringify(schemaType['default_value'])}
           </DropdownItem>
         ))}
       </DropdownButton>

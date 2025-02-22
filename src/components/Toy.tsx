@@ -10,7 +10,7 @@ function Child({ x }: ToyProps) {
   const [xVal, setXval] = useState<number>(0);
 
   const handleChange = useCallback(() => {
-    alert('DropdownButton button item clicked');
+    console.log('DropdownButton button item clicked');
   }, [setXval]);
   
   return (
@@ -23,22 +23,19 @@ function Child({ x }: ToyProps) {
 
 function Parent() {
   const [values, setValues] = useState<string[]>([]);
-
-  const handleChange = useCallback(() => {
-    alert('DropdownButton button item clicked');
-  }, [setXval]);
   
-  const onKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      alert(`DropdownButton button item clicked with value: ${Object.keys(event.target)}`);
-    }
-    
-  }, [])
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  
+  }, [setValues]);
+  
+  
   
   return (
     <div>
       Hi
-      <input value={xVal} onChange={handleChange}></input>
+      {values.map((value, index) => (
+        <input value={value} onChange={handleChange}></input>
+      ))}
     </div>
   );
 }
