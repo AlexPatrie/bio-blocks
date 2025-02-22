@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {BigraphSchemaType, QueryParams} from "../components/datamodel/requests";
+import {BigraphSchemaType, ProcessMetadata, QueryParams} from "../components/datamodel/requests";
 
 
 export enum ComposePaths {
@@ -49,11 +49,11 @@ class ComposeService {
     method: "POST" | "GET",
     formData?: FormData,
     queryParams?: QueryParams,
-    setter?: (data: any) => any,
-  ): Promise<void> => {
+    // setter?: (data: any) => any,
+  ): Promise<void | any | undefined> => {
     try {
       // parse query params and body form data
-      const requestUrl = this.formatUrl(path, queryParams);
+      const requestUrl = this.formatRequestUrl(path, queryParams);
       const requestInit: RequestInit = { method: method };
       
       if (formData) {
@@ -67,48 +67,32 @@ class ComposeService {
       }
       
       // get data and possibly set it
-      const data = await response.json();
-      if (setter) {
-        setter(data);
-      }
-      
-      return data;
-      
+      // if (setter) {
+      //   setter(data);
+      // }
+      // return data;
+      return await response.json();
     } catch (error) {
       console.error("There was an error in the request:", error);
       throw error;
     }
   }
   
-  private formatUrl(path: string, queryParams?: QueryParams): string {
-    const endpoint = this.getEndpoint(path);
-    let url = `${endpoint}`;
-  
-    if (queryParams && Object.keys(queryParams).length > 0) {
-      const paramSection = new URLSearchParams(
-        Object.entries(queryParams).reduce((acc, [key, value]) => {
-          acc[key] = String(value);
-          return acc;
-        }, {} as Record<string, string>)
-      ).toString();
-      
-      url += `?${paramSection}`;
-    }
-  
-    return url;
-  }
-  
   public getBigraphSchemaTypes = async (): Promise<BigraphSchemaType[]> => {
-  
+    try {
+      return await this.submitRequest(this.paths.Types, "GET");
+    } catch (error) {
+      throw error;
+    }
   }
   
   public submitProcessMetadata = async (
     configFile: File | null,
     genericFile: File | null,
     processId: string,
-    setResponse: (data: any) => any,
+    // setResponse: (data: any) => any,
     returnCompositeState: boolean = true
-  ): Promise<void> => {
+  ): Promise<ProcessMetadata | undefined> => {
     if (!configFile || !genericFile) {
       alert("Please select both files before uploading!");
       return;
@@ -124,15 +108,34 @@ class ComposeService {
     formData.append("model_files", genericFile);
 
     try {
-      const response = await this.submitRequest(this.paths.Metadata, "POST", formData, queryParams, setResponse);
+      return await this.submitRequest(this.paths.Metadata, "POST", formData, queryParams); // setResponse);
     } catch (error) {
       console.error("Error uploading files:", error);
+      throw error;
     }
   };
   
-  public getEndpoint(path: string): string {
+  private getPath(path: string): string {
     return this.apiUrlRoot + path;
   };
+  
+  private formatRequestUrl(path: string, queryParams?: QueryParams): string {
+    const endpoint = this.getPath(path);
+    let url = `${endpoint}`;
+  
+    if (queryParams && Object.keys(queryParams).length > 0) {
+      const paramSection = new URLSearchParams(
+        Object.entries(queryParams).reduce((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString();
+      
+      url += `?${paramSection}`;
+    }
+  
+    return url;
+  }
 }
 
 export default ComposeService;

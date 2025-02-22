@@ -159,5 +159,18 @@ a {
   justify-content: center;
 }
 
+.types-data-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  height: 100%;
+  width: 100%;
+}
+
+.types-grid-item {
+  text-align: center; /* Center content within grid items */
+  border-radius: 4px;
+}
+
 
 

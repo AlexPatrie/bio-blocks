@@ -15,3 +15,19 @@ export type BigraphSchemaType = {
   defaultValue: string | {} | [] | number,
   description: string | null
 }
+
+type PortSchema = Record<string, any>;
+
+export type InputPortSchema = PortSchema;
+
+export type OutputPortSchema = PortSchema;
+
+export type StateData = Record<string, any>;  // TODO: align this with the flow models
+
+export type ProcessMetadata = Record<string, any> & {
+  process_address: string,
+  input_schema: InputPortSchema,
+  output_schema: OutputPortSchema,
+  initial_state: Record<string, any>,
+  state?: StateData
+}
