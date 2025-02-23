@@ -12,7 +12,7 @@ import {NewPortCallbackContext} from "../PortCallbackContext";
 // TODO: add logic for creating a new process node parameterized by the data returned here
 
 type GetProcessMetadataProps = {
-  processFromMetadata: () => any | void;
+  processFromMetadata: (processMetadata: ProcessMetadata) => void;
 }
 
 export default function GetProcessMetadata({ processFromMetadata }: GetProcessMetadataProps) {
@@ -70,6 +70,7 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
             const item: DropdownItem = { data: response }
             newData.push(item);
           });
+          processFromMetadata(response);
           setButtonItems((prevItems: DropdownItem[]) => {
             return newData;
           });
@@ -137,8 +138,11 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
           <div className="process-metadata">
             {responseData && (
               <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
+              
             )}
-            <button onClick={processFromMetadata}>Create process</button>
+            {responseData && (
+              <button onClick={(e) => processFromMetadata(responseData as ProcessMetadata)}>Create process</button>
+            )}
           </div>
         </DropdownButton>
       </div>

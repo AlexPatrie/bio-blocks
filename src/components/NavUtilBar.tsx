@@ -8,6 +8,7 @@ import GetProcessMetadata from "./GetProcessMetadata";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import {FromMetadataContext} from "../FromMetadataContext";
 import {NewPortCallbackContext} from "../PortCallbackContext";
+import {ProcessMetadata} from "./datamodel/requests";
 
 export type NavItem = {
   title: string;
@@ -23,7 +24,7 @@ export type SetterButtonConfig = {
 export type NavUtilBarProps = {
   brand: string,
   setterButtonConfig: SetterButtonConfig[],
-  processFromMetadata: () => any,
+  processFromMetadata: (processMetadata: ProcessMetadata) => void,
 }
 
 const variant = "Primary";
