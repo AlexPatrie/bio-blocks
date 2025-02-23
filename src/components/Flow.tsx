@@ -24,7 +24,7 @@ import { edgeTypes, type CustomEdgeType } from "./edges";
 
 import UploadSpec from "./UploadSpec";
 import { VivariumService } from "../services/VivariumService";
-import { NewPortCallbackContext, PortChangeCallbackContext } from "../PortCallbackContext";
+import { NewPortCallbackContext, PortChangeCallbackContext } from "../contexts/PortCallbackContext";
 import {
   validateUpload,
   uploadComposition,
@@ -38,7 +38,7 @@ import GetProcessMetadata from "./GetProcessMetadata";
 import GetTypes from "./GetTypes";
 import NavUtilBar, {NavUtilBarProps, SetterButtonConfig} from "./NavUtilBar";
 import {ProcessMetadata} from "./datamodel/requests";
-import {FromMetadataContext} from "../FromMetadataContext";
+import {FromMetadataContext} from "../contexts/FromMetadataContext";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -91,6 +91,7 @@ export default function App() {
   }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
   
   const newProcessFromMetadata = useCallback((processMetadata: ProcessMetadata) => {
+    console.log(`Got the process metdata id: ${processMetadata.process_address}`)
     const nodeId = processMetadata.process_address.split(':')[-1];
     
     const nodeData: BigraphNodeData = {
@@ -413,13 +414,9 @@ export default function App() {
           placeholder="Enter project name..."
         />
       </div>
-      <FromMetadataContext.Provider value={processFromMetadataMap.current}>
+      <FromMetadataContext.Provider value={newProcessFromMetadata}>
       <div className="nav-util-bar">
-        <NavUtilBar
-          brand="Tools"
-          setterButtonConfig={setterButtonConfig}
-          processFromMetadata={newProcessFromMetadata}
-        />
+        <NavUtilBar brand="Tools" setterButtonConfig={setterButtonConfig} />
       </div>
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
         <NewPortCallbackContext.Provider value={portCallbackMap.current}>

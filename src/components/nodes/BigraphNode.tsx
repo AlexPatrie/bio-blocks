@@ -13,7 +13,7 @@ import {
 import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
-import {NewPortCallbackContext, PortChangeCallbackContext} from "../../PortCallbackContext";
+import {NewPortCallbackContext, PortChangeCallbackContext} from "../../contexts/PortCallbackContext";
 import {validateConnection} from "../../connect";
 import ProcessMenu from "../ProcessMenu";
 
@@ -236,7 +236,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
                 {Object.keys(inputData).map((inputName: string, index: number) => (
                   <div>
                     <NodeField
-                      data={inputData}
+                      data={inputData as Record<string, any>}
                       portName={inputName}
                       onPortValueChange={handleInputChange}
                     />
@@ -263,7 +263,7 @@ export function BigraphNode({ data, id }: BigraphNodeProps) {
                 {Object.keys(outputData).map((outputName: string, index: number) => (
                   <div>
                     <NodeField
-                      data={outputData}
+                      data={outputData as Record<string, any>}
                       portName={outputName}
                       onPortValueChange={handleOutputChange}
                     />

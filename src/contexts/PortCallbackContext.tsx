@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import {CustomNodeType} from "./components/nodes";
+import {CustomNodeType} from "../components/nodes";
 
 export const NewPortCallbackContext = createContext<Map<
   string,

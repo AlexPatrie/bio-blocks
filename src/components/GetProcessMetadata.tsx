@@ -4,15 +4,22 @@ import GenericDropdownButton, {DropdownItem} from "./GenericDropdownButton";
 import { Dropdown } from "react-bootstrap";
 import {DropdownItem as BootstrapDropdownItem} from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
-import {ProcessMetadata} from "./datamodel/requests";
+import {InputPortSchema, OutputPortSchema, ProcessMetadata, StateData} from "./datamodel/requests";
 import DataDropdown from "./DataDropdown";
-import {NewPortCallbackContext} from "../PortCallbackContext";
+import { FromMetadataContext } from "../contexts/FromMetadataContext";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here
 
 type GetProcessMetadataProps = {
-  processFromMetadata: (processMetadata: ProcessMetadata) => void;
+  processFromMetadata: (processMetadata: Record<string, string> | (Record<string, any> & {
+    process_address: string;
+    input_schema: InputPortSchema;
+    output_schema: OutputPortSchema;
+    initial_state: Record<string, any>;
+    id?: string;
+    state?: StateData
+  }) | Record<string, any> | null) => void;
 }
 
 export default function GetProcessMetadata({ processFromMetadata }: GetProcessMetadataProps) {
@@ -25,6 +32,17 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
   const [buttonItems, setButtonItems] = useState<DropdownItem[]>([]);
   
   const service = new ComposeService();
+  
+  const onCreateProcess = useContext(FromMetadataContext);
+  
+  const createProcess = useCallback(() => {
+    if (responseData) {
+      console.log("Calling create process in getmetadata")
+      onCreateProcess(responseData);
+    } else {
+      console.log("response data not available")
+    }
+  }, [onCreateProcess]);
   
   const toggleRender = useCallback((event: React.MouseEvent) => {
     setRender((prev) => !prev);
@@ -70,10 +88,10 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
             const item: DropdownItem = { data: response }
             newData.push(item);
           });
-          processFromMetadata(response);
           setButtonItems((prevItems: DropdownItem[]) => {
             return newData;
           });
+          console.log(`Now items: ${buttonItems}`)
         }
       })
       .catch((error: Error) => {
@@ -131,6 +149,10 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
             <div className="my-2 flex items-center param-item">
               <button onClick={onSubmit} className="mr-2 submit-metadata">Submit</button>
             </div>
+            
+            {responseData && (
+              <button onClick={createProcess}>Create process</button>
+            )}
           </div>
           
           
@@ -138,10 +160,6 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
           <div className="process-metadata">
             {responseData && (
               <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
-              
-            )}
-            {responseData && (
-              <button onClick={(e) => processFromMetadata(responseData as ProcessMetadata)}>Create process</button>
             )}
           </div>
         </DropdownButton>

@@ -24,8 +24,8 @@ export type BigraphNodeData =  NodeData & {
   _type: "process" | "step" | string;
   address: string;
   config: Record<string, any>;
-  inputs: Record<string, string[]> | Record<string, string>;
-  outputs: Record<string, string[]> | Record<string, string>;
+  inputs: Record<string, string[]> | Record<string, string> | Record<string, any>;
+  outputs: Record<string, string[]> | Record<string, string> | Record<string, any>;
 }
 
 // data stores (input and output ports)
