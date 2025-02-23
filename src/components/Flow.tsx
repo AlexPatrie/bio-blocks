@@ -37,6 +37,8 @@ import { randomPosition } from "../connect";
 import GetProcessMetadata from "./GetProcessMetadata";
 import GetTypes from "./GetTypes";
 import NavUtilBar, {NavUtilBarProps, SetterButtonConfig} from "./NavUtilBar";
+import {ProcessMetadata} from "./datamodel/requests";
+import {FromMetadataContext} from "../FromMetadataContext";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -55,10 +57,61 @@ export default function App() {
   const vivarium = new VivariumService();
   
   const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
+  const processFromMetadataMap = useRef(new Map<string, (processMetadata: ProcessMetadata) => void>());
+  
+  const registerMetadataCallback = (nodeId: string) => {
+    processFromMetadataMap.current.set(nodeId, newProcessFromMetadata)
+  };
   
   const registerPortCallback = (nodeId: string) => {
     portCallbackMap.current.set(nodeId, handlePortAdded);
   };
+  
+  // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
+  const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
+    setNodes((existingNodes) => {
+      return [...existingNodes, newFlowNode];
+    });
+    
+    setBigraphFlowNodes((existingNodes) => ({
+        ...existingNodes,
+        [newFlowNode.id]: newFlowNode,
+    }));
+    
+    setNumNodes((existingNumNodes) => {
+      return existingNumNodes + 1;
+    })
+    
+    // link this node id to the port callback listener within the child BigraphNode
+    registerPortCallback(newNodeId);
+    registerMetadataCallback(newNodeId);
+    
+    // buffer on blur (possibly remove)
+    renderTimeout(newNodeId);
+  }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
+  
+  const newProcessFromMetadata = useCallback((processMetadata: ProcessMetadata) => {
+    const nodeId = processMetadata.process_address.split(':')[-1];
+    
+    const nodeData: BigraphNodeData = {
+      _type: "process",
+      config: {},
+      address: processMetadata.process_address,
+      inputs: processMetadata.input_schema,
+      outputs: processMetadata.output_schema,
+      nodeId: nodeId,
+    };
+    const newFlowNode: CustomNodeType = {
+      id: nodeId,
+      type: 'bigraph-node',
+      position: {
+        x: 4,
+        y: 2
+      },
+      data: nodeData
+    };
+    setNewNode(newFlowNode, nodeId);
+  }, [setNewNode]);
   
   // called when user adds new input/output ports in BigraphNode child(parameterized by the child)
   const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
@@ -137,29 +190,6 @@ export default function App() {
     },
     [setEdges, nodes]
   );
-  
-  // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
-  const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
-    setNodes((existingNodes) => {
-      return [...existingNodes, newFlowNode];
-    });
-    
-    setBigraphFlowNodes((existingNodes) => ({
-        ...existingNodes,
-        [newFlowNode.id]: newFlowNode,
-    }));
-    
-    setNumNodes((existingNumNodes) => {
-      return existingNumNodes + 1;
-    })
-    
-    // link this node id to the port callback listener within the child BigraphNode
-    registerPortCallback(newNodeId);
-    
-    // buffer on blur (possibly remove)
-    renderTimeout(newNodeId);
-  }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
-  
   
   // -- funcs used when Add new ... buttons are clicked --
   
@@ -339,12 +369,6 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
-  
-  
-  const newProcessFromMetadata = useCallback(() => {
-    // TODO: implement this!
-  }, [setNodes]);
-  
   const setterButtonConfig: SetterButtonConfig[] = [
     {
       title: "Add new object",
@@ -389,6 +413,7 @@ export default function App() {
           placeholder="Enter project name..."
         />
       </div>
+      <FromMetadataContext.Provider value={processFromMetadataMap.current}>
       <div className="nav-util-bar">
         <NavUtilBar
           brand="Tools"
@@ -415,6 +440,7 @@ export default function App() {
           </ReactFlow>
         </NewPortCallbackContext.Provider>
       </PortChangeCallbackContext.Provider>
+      </FromMetadataContext.Provider>
       
       <div className="page-header">
         <UploadSpec onLoadGraph={importComposition}/>

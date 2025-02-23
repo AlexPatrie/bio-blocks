@@ -16,7 +16,7 @@ export type BigraphSchemaType = Record<string, any> & {
   description: string | null
 }
 
-type PortSchema = Record<string, any>;
+type PortSchema = Record<string, string>;
 
 export type InputPortSchema = PortSchema;
 
@@ -29,5 +29,6 @@ export type ProcessMetadata = Record<string, any> & {
   input_schema: InputPortSchema,
   output_schema: OutputPortSchema,
   initial_state: Record<string, any>,
+  id?: string,
   state?: StateData
 }

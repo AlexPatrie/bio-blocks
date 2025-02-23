@@ -2,10 +2,12 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import GetTypes from "./GetTypes";
 import GetProcessMetadata from "./GetProcessMetadata";
 import DropdownButton from "react-bootstrap/DropdownButton";
+import {FromMetadataContext} from "../FromMetadataContext";
+import {NewPortCallbackContext} from "../PortCallbackContext";
 
 export type NavItem = {
   title: string;
@@ -43,6 +45,7 @@ function NavUtilBar({ brand, setterButtonConfig, processFromMetadata }: NavUtilB
             
             {setterButtonConfig.map((item, index) => (
               <DropdownButton
+                show={false}
                 onClick={item.onClick}
                 title={item.title}
                 key={variant}

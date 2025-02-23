@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useContext, useState} from "react";
 import ComposeService from "../services/ComposeService";
 import GenericDropdownButton, {DropdownItem} from "./GenericDropdownButton";
 import { Dropdown } from "react-bootstrap";
@@ -6,6 +6,7 @@ import {DropdownItem as BootstrapDropdownItem} from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import {ProcessMetadata} from "./datamodel/requests";
 import DataDropdown from "./DataDropdown";
+import {NewPortCallbackContext} from "../PortCallbackContext";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here
@@ -55,6 +56,7 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
       .then((response) => {
         if (response) {
           // set response data
+          console.log(`Got the response for metadata: ${Object.keys(response)}`)
           setResponseData((prevData: any) => {
             return {
               ...prevData,
