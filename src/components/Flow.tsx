@@ -17,12 +17,12 @@ import {
   StoreNodeData,
   FormattedBigraphNode,
   FormattedComposition, FlowNodePosition, FlowNodeConfig,
-} from "../datamodel";
+} from "./datamodel/flow";
 
 import { nodeTypes, type CustomNodeType } from "./nodes";
 import { edgeTypes, type CustomEdgeType } from "./edges";
 
-import UploadSpec from "./UploadSpec";
+import UploadSpec from "./buttons/UploadSpec";
 import { VivariumService } from "../services/VivariumService";
 import { NewPortCallbackContext, PortChangeCallbackContext } from "../contexts/PortCallbackContext";
 import {
@@ -34,18 +34,19 @@ import {
   writeComposition
 } from "../io";
 import { randomPosition } from "../connect";
-import GetProcessMetadata from "./GetProcessMetadata";
-import GetTypes from "./GetTypes";
+import GetProcessMetadata from "./buttons/GetProcessMetadata";
+import GetTypes from "./buttons/GetTypes";
 import NavUtilBar, {NavUtilBarProps, SetterButtonConfig} from "./NavUtilBar";
 import {ProcessMetadata} from "./datamodel/requests";
 import {FromMetadataContext} from "../contexts/FromMetadataContext";
 import ComposeService from "../services/ComposeService";
+import DataCard from "./DataCard";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
 // TODO: add toy process to biosimulator processes
 // TODO: on both importComposition and GetProcessData, create parser for place edges in object
-
+// TODO: add search of existing compositions and load (cache data)
 
 
 export default function App() {
@@ -354,6 +355,7 @@ export default function App() {
               setNewNode={setNewNode}
               handlePortAdded={handlePortAdded}
             />
+            <DataCard title="MyCard"></DataCard>
           </div>
           <ReactFlow<CustomNodeType, CustomEdgeType>
             nodes={nodes}

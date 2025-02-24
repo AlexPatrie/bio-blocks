@@ -13,7 +13,7 @@ import {
   useStore,
 } from "@xyflow/react";
 import { useMemo } from "react";
-import {DataEdgeType} from "../../datamodel";
+import {DataEdgeType} from "../datamodel/flow";
 
 
 

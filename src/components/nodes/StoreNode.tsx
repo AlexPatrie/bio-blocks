@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 
-import {StoreNode as _StoreNode, StoreNodeData} from "../../datamodel";
+import {StoreNode as _StoreNode, StoreNodeData} from "../datamodel/flow";
 import {NodeField} from "./NodeField";
 import {StoreNodeField} from "./StoreNodeField";
 

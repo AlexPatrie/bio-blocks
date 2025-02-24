@@ -10,12 +10,12 @@ import {
   useUpdateNodeInternals
 } from "@xyflow/react";
 
-import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../../datamodel";
+import {BigraphNode as _BigraphNode, BigraphNodeData, FlowNodePosition, StoreNodeData} from "../datamodel/flow";
 import {NodeField} from "./NodeField";
 import type {CustomNodeType} from "./index";
 import {NewPortCallbackContext, PortChangeCallbackContext} from "../../contexts/PortCallbackContext";
 import {validateConnection} from "../../connect";
-import ProcessMenu from "../ProcessMenu";
+import ProcessMenu from "../menus/ProcessMenu";
 
 
 export type BigraphNodeProps = {

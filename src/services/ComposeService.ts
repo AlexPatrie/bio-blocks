@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import {BigraphSchemaType, ProcessMetadata, QueryParams, RegisteredAddresses} from "../components/datamodel/requests";
+import {
+  BigraphSchemaType,
+  ProcessMetadata,
+  QueryParams,
+  RegisteredAddresses,
+  ValidatedComposition
+} from "../components/datamodel/requests";
+import {Params} from "next/dist/shared/lib/router/utils/route-matcher";
 
 
 export enum ComposePaths {
@@ -94,6 +101,22 @@ class ComposeService {
     }
   }
   
+  public validateComposition = async (
+    specFile: File | null
+  ): Promise<ValidatedComposition | null> => {
+    if (!specFile) {
+      alert("Please select a composition JSON file.");
+      return null;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("spec_file", specFile);
+      return await this.submitRequest(this.paths.Validate, `POST`);
+    } catch (error) {
+      throw error;
+    }
+  }
+  
   public submitProcessMetadata = async (
     configFile: File | null,
     genericFile: File | null,
@@ -104,7 +127,7 @@ class ComposeService {
     if (!configFile || !genericFile) {
       alert("Please select both files before uploading!");
       return;
-    };
+    }
     
     const queryParams: QueryParams = {
       process_id: processId,

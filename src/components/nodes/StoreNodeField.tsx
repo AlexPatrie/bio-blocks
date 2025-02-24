@@ -1,7 +1,7 @@
 /* generic field component that can be used by either node type */
 
 import React, {useCallback, useState} from "react";
-import {BigraphNodeData, StoreNodeData, NodeKey, ObjectNodeData, ObjectNode} from "../../datamodel";
+import {BigraphNodeData, StoreNodeData, NodeKey, ObjectNodeData, ObjectNode} from "../datamodel/flow";
 
 
 interface StoreNodeFieldProps {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Composition, FormattedComposition} from "../datamodel";
+import {Composition, FormattedComposition} from "../datamodel/flow";
 
 interface  UploadSpecProps {
   onLoadGraph: (event: React.ChangeEvent<HTMLInputElement>) => void;

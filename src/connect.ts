@@ -2,7 +2,7 @@ import { Connection } from "@xyflow/react";
 import {
   StoreNodeData as StoreNode,
   FlowEdgeConfig, FlowNodeConfig, BigraphNodeData as BigraphNode, NodeKey, FlowNodePosition
-} from "./datamodel";
+} from "./components/datamodel/flow";
 import type {CustomNodeType} from "./components/nodes";
 
 

@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from "react";
-import ComposeService from "../services/ComposeService";
-import {BigraphSchemaType} from "./datamodel/requests";
+import ComposeService from "../../services/ComposeService";
+import {BigraphSchemaType, RegisteredAddresses} from "../datamodel/requests";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import {DropdownItem} from "react-bootstrap";
 
@@ -23,25 +23,29 @@ export const CopyToClipboardButton: React.FC = () => {
   );
 };
 
-export default function GetTypes({ composeService }: GetTypesProps) {
+export default function GetAddresses({ composeService }: GetTypesProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [types, setTypes] = useState<BigraphSchemaType[]>([]);
-  const service: ComposeService = !composeService ? new ComposeService() : composeService;
+  const [addresses, setAddresses] = useState<RegisteredAddresses>();
+  const [version, setVersion] = useState<string>("");
+  const service = new ComposeService();
   
-  const setTypesData = useCallback((typesData: BigraphSchemaType[]) => {
-    setTypes((existingTypes: BigraphSchemaType[]) => {
-      if (typesData !== existingTypes) {
-        return typesData;
-      } else {
-        return existingTypes;
-      }
-    })
-  }, [setTypes]);
-  
-  const getTypesData = async () => {
-    await service.getBigraphSchemaTypes()
-      .then((typesData: BigraphSchemaType[]) => {
-        setTypesData(typesData);
+  const getAddressesData = async () => {
+    await service.getBigraphSchemaAddresses()
+      .then((addressesData: RegisteredAddresses) => {
+        setAddresses((prevAddresses: RegisteredAddresses | undefined) => {
+          if (prevAddresses) {
+            return {
+              ...prevAddresses,
+              ...addressesData,
+            }
+          } else {
+            return addressesData;
+          }
+        });
+        
+        setVersion((prevVersion: string) => {
+          return addressesData.version;
+        });
       })
       .catch((error: Error) => {
         alert(`Error while processing your data: ${ error }`);
@@ -62,8 +66,8 @@ export default function GetTypes({ composeService }: GetTypesProps) {
   };
   
   const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>, schemaType: BigraphSchemaType) => {
-      handleCopy(event, JSON.stringify(schemaType));
+    (event: React.MouseEvent<HTMLButtonElement>, address: string) => {
+      handleCopy(event, JSON.stringify(address));
       alert(`Item copied to clipboard`);
   }, [handleCopy]);
   
@@ -72,17 +76,28 @@ export default function GetTypes({ composeService }: GetTypesProps) {
   return (
     <div className="p-4">
       <DropdownButton
-        onClick={getTypesData}
-        title="Get Types"
+        onClick={getAddressesData}
+        title="Get Process Addresses"
         key={variant}
         id={`dropdown-variants-${variant}`}
         variant={variant.toLowerCase()}
       >
-        {types.map((schemaType: BigraphSchemaType, index) => (
-          <DropdownItem onClick={((e: React.MouseEvent<HTMLButtonElement>) => handleClick(e, schemaType))} className="types-grid-item">
-            {schemaType["type_id"]}: {JSON.stringify(schemaType['default_value'])}
+        {addresses && (
+          <DropdownItem>
+            <span style={{ fontWeight: "700" }}>Version: { version }</span>
           </DropdownItem>
-        ))}
+        )}
+        {addresses && addresses.registered_addresses.map ((address) => (
+          <div>
+            <DropdownItem
+              onClick={((e: React.MouseEvent<HTMLButtonElement>) => handleClick(e, address))}
+            >
+              {address}
+            </DropdownItem>
+          </div>
+          )
+          
+        )}
       </DropdownButton>
     </div>
     

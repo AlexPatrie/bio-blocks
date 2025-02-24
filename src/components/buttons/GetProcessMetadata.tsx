@@ -1,17 +1,17 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import ComposeService from "../services/ComposeService";
+import ComposeService from "../../services/ComposeService";
 import GenericDropdownButton, {DropdownItem} from "./GenericDropdownButton";
 import { Dropdown } from "react-bootstrap";
 import {DropdownItem as BootstrapDropdownItem} from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
-import {InputPortSchema, OutputPortSchema, ProcessMetadata, StateData} from "./datamodel/requests";
-import DataDropdown from "./DataDropdown";
-import { FromMetadataContext } from "../contexts/FromMetadataContext";
-import { NewProcessContext } from "../contexts/FromMetadataContext";
-import {BigraphNodeData} from "../datamodel";
-import type {CustomNodeType} from "./nodes";
+import {InputPortSchema, OutputPortSchema, ProcessMetadata, StateData} from "../datamodel/requests";
+import DataDropdown from "../menus/DataDropdown";
+import { FromMetadataContext } from "../../contexts/FromMetadataContext";
+import { NewProcessContext } from "../../contexts/FromMetadataContext";
+import {BigraphNodeData} from "../datamodel/flow";
+import type {CustomNodeType} from "../nodes";
 import {useReactFlow} from "@xyflow/react";
-import {randomPosition} from "../connect";
+import {randomPosition} from "../../connect";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here

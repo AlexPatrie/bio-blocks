@@ -5,7 +5,7 @@ import {
   type ButtonEdge as ButtonEdgeType,
   type DataEdge as DataEdgeType,
   type PlaceEdge as PlaceEdgeType,
-} from "../../datamodel";
+} from "../datamodel/flow";
 import ConstructPlaceEdge from "./PlaceEdge";
 
 export const edgeTypes = {

@@ -7,7 +7,7 @@ import {
   FlowEdgeConfig,
   FlowNodePosition,
   FormattedComposition, ObjectNodeData
-} from "../datamodel";
+} from "../components/datamodel/flow";
 import {randomInRange, randomPosition} from "../connect";
 import {CustomNodeType} from "../components/nodes";
 

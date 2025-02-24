@@ -1,5 +1,5 @@
 import type {Edge, Node} from "@xyflow/react";
-import {BigraphNode, FormattedBigraphNode, FormattedComposition} from "./datamodel";
+import {BigraphNode, FormattedBigraphNode, FormattedComposition} from "./components/datamodel/flow";
 import {CustomNodeType} from "./components/nodes";
 import {randomPosition} from "./connect";
 

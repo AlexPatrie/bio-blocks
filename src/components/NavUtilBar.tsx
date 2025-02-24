@@ -3,13 +3,12 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import React, {useContext, useRef, useState} from "react";
-import GetTypes from "./GetTypes";
-import GetProcessMetadata from "./GetProcessMetadata";
+import GetTypes from "./buttons/GetTypes";
 import DropdownButton from "react-bootstrap/DropdownButton";
-import {FromMetadataContext} from "../contexts/FromMetadataContext";
-import {NewPortCallbackContext} from "../contexts/PortCallbackContext";
-import {ProcessMetadata} from "./datamodel/requests";
-import GetAddresses from "./GetAddresses";
+import GetAddresses from "./buttons/GetAddresses";
+import ActionButton from "./buttons/ActionButton";
+import {Data} from "./datamodel/flow";
+import {StyleConfig} from "./datamodel/elements";
 
 export type NavItem = {
   title: string;
@@ -28,6 +27,14 @@ export type NavUtilBarProps = {
   addEmptyProcessNode: () => void
 }
 
+// export type ActionButtonProps = {
+//   variant: "primary" | "secondary" | "success" | "info" | "warning" | "danger" | "light" | "dark" | "link";
+//   title: string;
+//   onClick: (data?: Data) => void | null;
+//   data: any | null;
+//   style: StyleConfig | null;
+// };
+
 const variant = "Primary";
 
 function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilBarProps) {
@@ -40,7 +47,6 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
       onClick: addEmptyObjectNode,
       style: {
         position: "absolute",
-        top: 20,
         //right: 10,
         left: 700,
         padding: "10.5px 16px",
@@ -55,7 +61,6 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
       onClick: addEmptyProcessNode,
       style: {
         position: "absolute",
-        top: 20,
         //right: 10,
         left: 475,
         padding: "10.5px 16px",
@@ -76,10 +81,19 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
           <Nav>
             <GetTypes />
             <GetAddresses />
-            
             <NavDropdown.Divider />
             
-            {setterButtonConfig.map((item, index) => (
+            <div className="action-buttons-container">
+              {setterButtonConfig.map((item, index) => (
+                <div className="action-button">
+                  <ActionButton variant="secondary" title={item.title} />
+                </div>
+              ))}
+            </div>
+            
+            
+            
+            {/*{setterButtonConfig.map((item, index) => (
               <DropdownButton
                 show={false}
                 onClick={item.onClick}
@@ -91,7 +105,7 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
               >
                 <div style={{ display: "none" }}></div>
               </DropdownButton>
-            ))}
+            ))}*/}
           </Nav>
         </Navbar.Collapse>
       </Container>

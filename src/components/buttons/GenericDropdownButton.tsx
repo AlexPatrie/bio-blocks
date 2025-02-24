@@ -1,7 +1,7 @@
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import React, {useCallback, useState} from "react";
-import {ProcessMetadata} from "./datamodel/requests";
+import {ProcessMetadata} from "../datamodel/requests";
 
 export type DropdownItem = {
   href?: string;

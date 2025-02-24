@@ -7,7 +7,7 @@ import {
   BigraphNode as BigraphFlowNode,
   StoreNode as StoreFlowNode,
   ObjectNode as ObjectFlowNode,
-} from "../../datamodel";
+} from "../datamodel/flow";
 import PositionLoggerNode, {
   type PositionLoggerNode as PositionLoggerNodeType,
 } from "./PositionLoggerNode";

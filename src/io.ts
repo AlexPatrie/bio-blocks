@@ -1,5 +1,5 @@
 import React from "react";
-import {BigraphNodeData, FormattedComposition} from "./datamodel";
+import {BigraphNodeData, FormattedComposition} from "./components/datamodel/flow";
 import {CustomNodeType} from "./components/nodes";
 import {CustomEdgeType} from "./components/edges";
 import JSZip from "jszip";

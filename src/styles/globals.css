@@ -207,4 +207,21 @@ a {
   justify-content: center !important;
 }
 
+.action-buttons-container {
+  border: 3px solid rebeccapurple;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-button {
+  border: 3px solid red;
+}
+
+.bigraph-schema-type {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
 

@@ -6,7 +6,7 @@ import {
   type EdgeProps,
   type Edge,
 } from "@xyflow/react";
-import { type ButtonEdge } from "../../datamodel";
+import { type ButtonEdge } from "../datamodel/flow";
 
 const buttonStyle = {
   width: 20,

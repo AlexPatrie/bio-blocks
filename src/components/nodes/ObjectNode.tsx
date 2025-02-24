@@ -7,7 +7,7 @@ import {
   ObjectNode as _ObjectNode,
   ObjectNodeData, PlaceEdge,
   StoreNodeData
-} from "../../datamodel";
+} from "../datamodel/flow";
 import {NodeField} from "./NodeField";
 import {StoreNodeField} from "./StoreNodeField";
 import {randomInRange} from "../../connect";
