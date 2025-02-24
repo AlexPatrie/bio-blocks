@@ -364,8 +364,8 @@ export default function App() {
               <Card className="data-buttons-card">
                 <Card.Header>Add new data</Card.Header>
                 <Card.Body className="card-body">
-                  <ActionButton variant="primary" title="Add new process" onClick={addEmptyProcessNode} />
-                  <ActionButton variant="primary" title="Add new object" onClick={addEmptyObjectNode} />
+                  <ActionButton style={{border: "6px solid rebeccapurple"}} variant="primary" title="Add new process" onClick={addEmptyProcessNode} />
+                  <ActionButton style={{border: "6px solid rebeccapurple"}} variant="primary" title="Add new object" onClick={addEmptyObjectNode} />
                   <GetProcessMetadata
                     setNewNode={setNewNode}
                     handlePortAdded={handlePortAdded}

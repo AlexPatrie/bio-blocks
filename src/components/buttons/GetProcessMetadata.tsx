@@ -189,7 +189,6 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
         <DropdownButton
           title={"Get Process Info"}
           key={variant}
-          id={`dropdown-variants-${variant}`}
           variant={variant.toLowerCase()}
         >
           <div className="param-items">
