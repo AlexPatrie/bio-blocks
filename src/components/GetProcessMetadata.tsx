@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import ComposeService from "../services/ComposeService";
 import GenericDropdownButton, {DropdownItem} from "./GenericDropdownButton";
 import { Dropdown } from "react-bootstrap";
@@ -11,20 +11,10 @@ import { NewProcessContext } from "../contexts/FromMetadataContext";
 import {BigraphNodeData} from "../datamodel";
 import type {CustomNodeType} from "./nodes";
 import {useReactFlow} from "@xyflow/react";
+import {randomPosition} from "../connect";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here
-
-// type GetProcessMetadataProps = {
-//   processFromMetadata: (processMetadata: Record<string, string> | (Record<string, any> & {
-//     process_address: string;
-//     input_schema: InputPortSchema;
-//     output_schema: OutputPortSchema;
-//     initial_state: Record<string, any>;
-//     id?: string;
-//     state?: StateData
-//   }) | Record<string, any> | null) => void;
-// }
 
 export type GetProcessMetadataProps = {
   setNewNode: (flowNode: CustomNodeType, nodeId: string) => void;
@@ -39,12 +29,25 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
   const [genericFile, setGenericFile] = useState<File | null>(null);
   const [responseData, setResponseData] = useState<ProcessMetadata | null>(null);
   const [buttonItems, setButtonItems] = useState<DropdownItem[]>([]);
+  const [createProcessClicked, setCreateProcessClicked] = useState<boolean>(false);
+  const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   const service = new ComposeService();
   
-  const toggleRender = useCallback((event: React.MouseEvent) => {
-    setRender((prev) => !prev);
-  }, [setRender])
+  const resetProcessData = useCallback(() => {
+    setCreateProcessClicked((prev: boolean) => {
+      return false;
+    });
+    setResponseData((prevData: ProcessMetadata | null) => {
+      return null;
+    });
+    setButtonItems((prevButtonItems: DropdownItem[]) => {
+      return [];
+    });
+    setProcessId((prevProcessId: string) => {
+      return "";
+    })
+  }, [setCreateProcessClicked, setResponseData, setButtonItems, setProcessId]);
   
   const onFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, setter: (value: File | null) => void) => {
@@ -72,32 +75,52 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
       .then((response) => {
         if (response) {
           // set response data
-          console.log(`Got the response for metadata: ${Object.keys(response)}`)
           setResponseData((prevData: ProcessMetadata | null) => {
-            return response;
+            return {
+              ...prevData,
+              ...response
+            }
           });
           
           // set button data
           let newData: DropdownItem[] = [];
           Object.keys(response).forEach((key: string) => {
-            const item: DropdownItem = { data: response }
+            const item: DropdownItem = { data: response[key] }
             newData.push(item);
           });
           setButtonItems((prevItems: DropdownItem[]) => {
-            return newData;
+            console.log(`Now items: ${newData}`);
+            return [...prevItems, ...newData];
           });
-          console.log(`Now items: ${buttonItems}`)
+          
+          // set process id
+          setProcessId((prevId: string) => {
+            return getNodeId(response);
+          })
         }
       })
       .catch((error: Error) => {
         onError(error);
       })
-  }, [configFile, genericFile, processId, setResponseData, returnCompositeState, onError]);
+  }, [configFile, genericFile, processId, setResponseData, returnCompositeState, onError, setButtonItems]);
   
-  const createProcess = useCallback(
-    (processMetadata: ProcessMetadata) => {
-      console.log(`Got the process metdata id: ${responseData?.process_address}`);
-      const nodeId = processMetadata.process_address.split(':')[-1];
+  const renderTimeout = useCallback((newNodeId: string) => {
+    setTimeout(() => {
+      if (nodeRefs.current[newNodeId]) {
+        nodeRefs.current[newNodeId]?.focus();
+      }}, 50);
+  }, [nodeRefs]);
+  
+  const getNodeId = (processMetadata: ProcessMetadata) => {
+    return processMetadata.process_address
+      .split(':')
+      .filter((item) => item !== "local")[0];
+  }
+  
+  const createProcess = useCallback((processMetadata: ProcessMetadata) => {
+      console.log(`Create process called with process metadata: ${ JSON.stringify(processMetadata) }`);
+      
+      const nodeId = getNodeId(processMetadata);
       const inputs = processMetadata.input_schema;
       const outputs = processMetadata.output_schema;
       
@@ -112,14 +135,12 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
       const newFlowNode: CustomNodeType = {
         id: nodeId,
         type: 'bigraph-node',
-        position: {
-          x: 4,
-          y: 2
-        },
+        position: randomPosition(),
         data: nodeData
       };
       
       setNewNode(newFlowNode, nodeId);
+      renderTimeout(nodeId);
       
       // TODO: now, handle port added for each input and output port
       Object.keys(inputs).forEach((key: string) => {
@@ -129,17 +150,36 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
       Object.keys(outputs).forEach((key: string) => {
         handlePortAdded(nodeId, "outputs", key);
       });
-  }, [setNewNode, handlePortAdded]);
+  }, [responseData, setNewNode, handlePortAdded, renderTimeout]);
   
   const onCreateProcess = useCallback(() => {
-    console.log(`get process metadata on create process clicked!.`);
-    if (responseData) {
-      console.log(`Response data exists: ${JSON.stringify(responseData)}`);
-      createProcess(responseData);
-    } else {
-      console.log("response data not available")
+    setResponseData((prevData: ProcessMetadata | null) => {
+      if (prevData) {
+        setCreateProcessClicked((prev) => {
+          return true;
+        });
+      }
+      return prevData;
+    })
+  }, [setCreateProcessClicked, setResponseData]);
+  
+  useEffect(() => {
+    console.log(`The response data is: ${JSON.stringify(responseData)}`);
+    if (createProcessClicked) {
+      setResponseData((existingData: ProcessMetadata | null) => {
+        if (existingData) {
+          createProcess(existingData);
+          renderTimeout(
+            getNodeId(existingData)
+          );
+        } else {
+          alert("The response data is not yet ready.");
+        }
+        return existingData;
+      });
+      resetProcessData();
     }
-  }, [responseData, createProcess]);
+  }, [responseData, setResponseData, createProcessClicked, createProcess, resetProcessData]);
   
   const variant = "Success"
   
@@ -191,15 +231,17 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
             <div className="my-2 flex items-center param-item">
               <button onClick={onSubmit} className="mr-2 submit-metadata">Submit</button>
             </div>
-            
-            {responseData && (
-              <button onClick={onCreateProcess}>Create process</button>
-            )}
           </div>
           
           {responseData && (
             <div className="process-metadata">
-              <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
+              <button onClick={onCreateProcess}>
+                Create process
+              </button>
+              
+              <DropdownButton title="Show data" variant="Success">
+                <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
+              </DropdownButton>
             </div>
           )}
         </DropdownButton>

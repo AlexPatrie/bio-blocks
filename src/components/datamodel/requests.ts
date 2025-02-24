@@ -25,11 +25,12 @@ export type OutputPortSchema = PortSchema;
 export type StateData = Record<string, string | number | string[] | number[] | object>;  // TODO: align this with the flow models
 
 export type ProcessMetadata = {
+  [key: string]: string | InputPortSchema | OutputPortSchema | StateData | undefined,
   process_address: string,
   input_schema: InputPortSchema,
   output_schema: OutputPortSchema,
   initial_state: StateData,
-  state: StateData | null
+  state?: StateData,
 }
 
 // export type ProcessMetadata = Record<string, string> | Record<string, any> & {

@@ -65,7 +65,12 @@ export default function App() {
   // called whenever a new node needs to be added either as a store or process and either from manual creation or upload
   const setNewNode = useCallback((newFlowNode: CustomNodeType, newNodeId: string) => {
     setNodes((existingNodes) => {
-      return [...existingNodes, newFlowNode];
+      const updatedNodes = [...existingNodes, newFlowNode];
+      if (newFlowNode.type === "bigraph-node") {
+        console.log(`Calling Flow.setNewNode for nodeID: ${newFlowNode.id}`);
+        console.log(`Existing nodes: ${updatedNodes.length}`);
+      }
+      return updatedNodes;
     });
     
     setBigraphFlowNodes((existingNodes) => ({
@@ -82,7 +87,7 @@ export default function App() {
     
     // buffer on blur (possibly remove)
     renderTimeout(newNodeId);
-  }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
+  }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes, setNodes, registerPortCallback]);
   
   const addEdge = useCallback((sourceId: string, targetId: string) => {
     const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
@@ -125,10 +130,8 @@ export default function App() {
     // add an edge between the new store node and its corresponding bigraph node
     
     if (portType === "inputs") {
-      console.log(`source: ${storeNodeId}, target: ${nodeId} Port name: ${portName}(${portType}), `);
       addEdge(storeNodeId, nodeId);
     } else {
-      console.log(`source: ${nodeId}, target: ${storeNodeId} Port name: ${portName}(${portType})`);
       addEdge(nodeId, storeNodeId);
     }
   }, [addLinkedStore, addEdge]);
@@ -321,39 +324,6 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
-  // const setterButtonConfig: SetterButtonConfig[] = [
-  //   {
-  //     title: "Add new object",
-  //     onClick: addEmptyObjectNode,
-  //     style: {
-  //       position: "absolute",
-  //       top: 20,
-  //       //right: 10,
-  //       left: 700,
-  //       padding: "10.5px 16px",
-  //       color: "#fff",
-  //       border: "none",
-  //       borderRadius: "4px",
-  //       cursor: "pointer",
-  //     }
-  //   },
-  //   {
-  //     title: "Add new process",
-  //     onClick: addEmptyProcessNode,
-  //     style: {
-  //       position: "absolute",
-  //       top: 20,
-  //       //right: 10,
-  //       left: 475,
-  //       padding: "10.5px 16px",
-  //       color: "#fff",
-  //       border: "none",
-  //       borderRadius: "4px",
-  //       cursor: "pointer",
-  //     }
-  //   }
-  // ]
-  
   return (
     <div className="reactflow-wrapper">
       <div className="project-name">
@@ -374,7 +344,10 @@ export default function App() {
               addEmptyProcessNode={addEmptyProcessNode}
             />
             
-            <GetProcessMetadata setNewNode={setNewNode} handlePortAdded={handlePortAdded} />
+            <GetProcessMetadata
+              setNewNode={setNewNode}
+              handlePortAdded={handlePortAdded}
+            />
           </div>
           <ReactFlow<CustomNodeType, CustomEdgeType>
             nodes={nodes}
@@ -385,7 +358,7 @@ export default function App() {
             onEdgesChange={onEdgesChange}
             // onConnect={onConnect}
             defaultViewport={{ zoom: 1, x: 200, y: 200}}
-            // fitView
+            fitView
           >
             <Background />
             <MiniMap />
@@ -413,40 +386,6 @@ export default function App() {
         >
           Export to JSON
         </button>
-        {/*<button
-          onClick={addEmptyStepNode}
-          style={{
-            position: "absolute",
-            top: 0,
-            //right: 10,
-            left: 350,
-            padding: "10.5px 16px",
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Add new step
-        </button>*/}
-        {/*<button
-          onClick={addEmptyStoreNode}
-          style={{
-            position: "absolute",
-            top: 0,
-            //right: 10,
-            left: 500,
-            padding: "10.5px 16px",
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Add new store
-        </button>*/}
       </div>
     </div>
   );
