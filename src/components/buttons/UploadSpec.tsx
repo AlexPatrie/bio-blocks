@@ -9,7 +9,7 @@ const UploadSpec: React.FC<UploadSpecProps> = ({ onLoadGraph }: UploadSpecProps)
   const [jsonData, setJsonData] = useState<FormattedComposition | null | any>(null);
 
   return (
-    <div style={{ position: "absolute", top: 0, right: 200 }}>
+    <div>
       <input
         type="file"
         accept=".json"

@@ -333,29 +333,22 @@ export default function App() {
   
   return (
     <div className="reactflow-wrapper">
-      <div className="project-name">
-        <input
-          id="inputField"
-          type="text"
-          value={projectName}
-          onChange={handleProjectNameChange}
-          placeholder="Enter project name..."
-        />
-      </div>
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
         <NewPortCallbackContext.Provider value={portCallbackMap.current}>
           <div className="nav-util-bar">
             <NavUtilBar
-              brand="Tools"
+              brand={projectName}
               addEmptyObjectNode={addEmptyObjectNode}
               addEmptyProcessNode={addEmptyProcessNode}
+              handleProjectNameChange={handleProjectNameChange}
+              importComposition={importComposition}
+              exportComposition={exportComposition}
             />
             
             <GetProcessMetadata
               setNewNode={setNewNode}
               handlePortAdded={handlePortAdded}
             />
-            <DataCard title="MyCard"></DataCard>
           </div>
           <ReactFlow<CustomNodeType, CustomEdgeType>
             nodes={nodes}
@@ -375,7 +368,7 @@ export default function App() {
         </NewPortCallbackContext.Provider>
       </PortChangeCallbackContext.Provider>
       
-      <div className="page-header">
+      {/*<div className="page-header">
         <UploadSpec onLoadGraph={importComposition}/>
         <button
           onClick={exportComposition}
@@ -394,7 +387,7 @@ export default function App() {
         >
           Export to JSON
         </button>
-      </div>
+      </div>*/}
     </div>
   );
 }

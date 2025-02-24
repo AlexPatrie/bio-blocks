@@ -9,6 +9,8 @@ import GetAddresses from "./buttons/GetAddresses";
 import ActionButton from "./buttons/ActionButton";
 import {Data} from "./datamodel/flow";
 import {StyleConfig} from "./datamodel/elements";
+import UploadSpec from "./buttons/UploadSpec";
+import UploadButtons from "./buttons/UploadButtons";
 
 export type NavItem = {
   title: string;
@@ -25,6 +27,9 @@ export type NavUtilBarProps = {
   brand: string,
   addEmptyObjectNode: () => void,
   addEmptyProcessNode: () => void
+  handleProjectNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  importComposition: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  exportComposition: () => void;
 }
 
 // export type ActionButtonProps = {
@@ -37,7 +42,9 @@ export type NavUtilBarProps = {
 
 const variant = "Primary";
 
-function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilBarProps) {
+function NavUtilBar(
+  { brand, addEmptyObjectNode, addEmptyProcessNode, handleProjectNameChange, importComposition, exportComposition }: NavUtilBarProps
+) {
   const [currentItems, setCurrentItems] = useState<NavItem[]>([]);
   const [renderMetadata, setRenderMetadata] = useState<boolean>(false);
   
@@ -75,37 +82,32 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
   return (
     <Navbar variant="dark" bg="dark" expand="sm">
       <Container fluid>
-        <Navbar.Brand href="#home">{ brand }</Navbar.Brand>
+        <Navbar.Brand href="#home">{ <div className="project-name">
+        <input
+          id="inputField"
+          type="text"
+          value={brand}
+          onChange={handleProjectNameChange}
+          placeholder="Enter project name..."
+        />
+      </div> }</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
           <Nav>
-            <GetTypes />
-            <GetAddresses />
-            <NavDropdown.Divider />
             
+            <NavDropdown.Divider />
             <div className="action-buttons-container">
+              <GetTypes />
+              <GetAddresses />
               {setterButtonConfig.map((item, index) => (
                 <div className="action-button">
                   <ActionButton variant="secondary" title={item.title} />
                 </div>
               ))}
+              <UploadButtons importComposition={importComposition} exportComposition={exportComposition} />
             </div>
             
             
-            
-            {/*{setterButtonConfig.map((item, index) => (
-              <DropdownButton
-                show={false}
-                onClick={item.onClick}
-                title={item.title}
-                key={variant}
-                id={`dropdown-variants-${variant}`}
-                variant={variant.toLowerCase()}
-                style={item.style}
-              >
-                <div style={{ display: "none" }}></div>
-              </DropdownButton>
-            ))}*/}
           </Nav>
         </Navbar.Collapse>
       </Container>
