@@ -232,4 +232,21 @@ a {
   width: 2rem;
 }
 
+.data-buttons-card {
+  .card-header {
+    background-color: rebeccapurple;
+    color: white;
+  }
+}
+
+.card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+}
+
+
+
+
 

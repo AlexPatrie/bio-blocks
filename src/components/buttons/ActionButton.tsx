@@ -1,11 +1,11 @@
 import React, {useCallback, useState} from "react";
 import Button from "react-bootstrap/Button";
 import {Data} from "../datamodel/flow";
-import {StyleConfig} from "../datamodel/elements";
+import {StyleConfig, Variant} from "../datamodel/elements";
 
 
 export type ActionButtonProps = {
-  variant: "primary" | "secondary" | "success" | "info" | "warning" | "danger" | "light" | "dark" | "link";
+  variant: string | Variant;
   title: string | React.JSX.Element;
   className?: string;
   onClick?: (data?: Data) => void;

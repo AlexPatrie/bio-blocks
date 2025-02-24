@@ -13,6 +13,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import { VscSymbolMisc } from "react-icons/vsc";
 
 import {
   BigraphNodeData,
@@ -45,6 +46,7 @@ import ComposeService from "../services/ComposeService";
 import DataCard from "./DataCard";
 import ActionButton from "./buttons/ActionButton";
 import DropdownButton from "react-bootstrap/DropdownButton";
+import {Dropdown, DropdownItem} from "react-bootstrap";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -335,54 +337,8 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
-  const setterButtonConfig: SetterButtonConfig[] = [
-    {
-      title: "Add new object",
-      onClick: addEmptyObjectNode,
-      style: {
-        position: "absolute",
-        //right: 10,
-        left: 700,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    },
-    {
-      title: "Add new process",
-      onClick: addEmptyProcessNode,
-      style: {
-        position: "absolute",
-        //right: 10,
-        left: 475,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    }
-  ];
-  
-  const getSetterButtons = useCallback(() => {
-    return (
-      <div>
-        {setterButtonConfig.map((item, index) => (
-          <div className="action-button">
-            <ActionButton variant="success" title={item.title} onClick={item.onClick} />
-          </div>
-        ))}
-        <GetProcessMetadata
-              setNewNode={setNewNode}
-              handlePortAdded={handlePortAdded}
-            />
-      </div>
-    )
-  }, [setterButtonConfig, setNewNode, handlePortAdded]);
-  
   const variant = "success";
+  
   return (
     <div className="reactflow-wrapper">
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
@@ -398,20 +354,22 @@ export default function App() {
               exportComposition={exportComposition}
             />
             
-            <DropdownButton title="+" key={variant}
-          id={`dropdown-variants-${variant}`}
-          variant={variant.toLowerCase()}>
-              <Card style={{ width: 'auto' }}>
-                <Card.Body>
-                  <Card.Title>Add new data</Card.Title>
-                  <div style={{display: "flex", justifyContent: "space-between"}}>
-                    <ActionButton variant="primary" title="Add new process" onClick={addEmptyProcessNode} />
-                    <ActionButton variant="primary" title="Add new object" onClick={addEmptyObjectNode} />
-                    <GetProcessMetadata
-                      setNewNode={setNewNode}
-                      handlePortAdded={handlePortAdded}
-                    />
-                  </div>
+            <DropdownButton
+              size="lg"
+              title={(<VscSymbolMisc/>)}
+              key={variant}
+              id="dropdown-basic-button"
+              variant={variant.toLowerCase()}
+            >
+              <Card className="data-buttons-card">
+                <Card.Header>Add new data</Card.Header>
+                <Card.Body className="card-body">
+                  <ActionButton variant="primary" title="Add new process" onClick={addEmptyProcessNode} />
+                  <ActionButton variant="primary" title="Add new object" onClick={addEmptyObjectNode} />
+                  <GetProcessMetadata
+                    setNewNode={setNewNode}
+                    handlePortAdded={handlePortAdded}
+                  />
                 </Card.Body>
               </Card>
             </DropdownButton>

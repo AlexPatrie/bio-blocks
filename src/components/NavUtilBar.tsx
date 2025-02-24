@@ -39,50 +39,22 @@ function NavUtilBar(
 ) {
   const [currentItems, setCurrentItems] = useState<NavItem[]>([]);
   const [renderMetadata, setRenderMetadata] = useState<boolean>(false);
-  
-  const setterButtonConfig: SetterButtonConfig[] = [
-    {
-      title: "Add new object",
-      onClick: addEmptyObjectNode,
-      style: {
-        position: "absolute",
-        //right: 10,
-        left: 700,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    },
-    {
-      title: "Add new process",
-      onClick: addEmptyProcessNode,
-      style: {
-        position: "absolute",
-        //right: 10,
-        left: 475,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    }
-  ];
+  const [projectName, setProjectName] = useState<string>(brand);
   
   return (
-    <Navbar variant="dark" bg="dark" expand="sm">
+    <Navbar variant="dark" bg="dark" expand="lg">
       <Container fluid>
-        <Navbar.Brand href="#home">{ <div className="project-name">
-        <input
-          id="inputField"
-          type="text"
-          value={brand}
-          onChange={handleProjectNameChange}
-          placeholder="Enter project name..."
-        />
-      </div> }</Navbar.Brand>
+        <Navbar.Brand href="#home">
+          {<div className="project-name">
+            <input
+              id="inputField"
+              type="text"
+              value={projectName}
+              onChange={handleProjectNameChange}
+              placeholder="Enter project name..."
+            />
+          </div>}
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
           <Nav>
