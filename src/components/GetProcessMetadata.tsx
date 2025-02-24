@@ -212,7 +212,8 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
               <label className="block font-semibold">Process ID:</label>
               <input
                 type="text"
-                value={processId}
+                placeholder={processId}
+                // value={processId}
                 onChange={(e) => setProcessId(e.target.value)}
                 className="border p-2 w-full"
               />
@@ -239,7 +240,12 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
                 Create process
               </button>
               
-              <DropdownButton title="Show data" variant="Success">
+              <DropdownButton
+                title="Show data"
+                key={variant}
+                id={`dropdown-variants-${variant}`}
+                variant={variant.toLowerCase()}
+              >
                 <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
               </DropdownButton>
             </div>

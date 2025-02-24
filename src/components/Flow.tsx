@@ -39,9 +39,13 @@ import GetTypes from "./GetTypes";
 import NavUtilBar, {NavUtilBarProps, SetterButtonConfig} from "./NavUtilBar";
 import {ProcessMetadata} from "./datamodel/requests";
 import {FromMetadataContext} from "../contexts/FromMetadataContext";
+import ComposeService from "../services/ComposeService";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
+// TODO: add toy process to biosimulator processes
+// TODO: on both importComposition and GetProcessData, create parser for place edges in object
+
 
 
 export default function App() {
@@ -51,10 +55,12 @@ export default function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeType>([]);
   const [bigraphFlowNodes, setBigraphFlowNodes] = useState<Record<string, CustomNodeType>>({});
   const [numNodes, setNumNodes] = useState<number>(0);
+  
   const nodeRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   let numObjects = 0;
   const vivarium = new VivariumService();
+  const compose = new ComposeService();
   
   const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
   

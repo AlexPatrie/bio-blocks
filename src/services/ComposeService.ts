@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {BigraphSchemaType, ProcessMetadata, QueryParams} from "../components/datamodel/requests";
+import {BigraphSchemaType, ProcessMetadata, QueryParams, RegisteredAddresses} from "../components/datamodel/requests";
 
 
 export enum ComposePaths {
@@ -81,6 +81,14 @@ class ComposeService {
   public getBigraphSchemaTypes = async (): Promise<BigraphSchemaType[]> => {
     try {
       return await this.submitRequest(this.paths.Types, "GET");
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  public getBigraphSchemaAddresses = async (): Promise<RegisteredAddresses> => {
+    try {
+      return await this.submitRequest(this.paths.Addresses, "GET");
     } catch (error) {
       throw error;
     }

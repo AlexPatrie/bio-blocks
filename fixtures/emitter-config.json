@@ -1,0 +1,14 @@
+{
+  "_type": "step",
+  "address": "local:ram-emitter",
+  "config": {
+    "emit": {
+      "x": "integer",
+      "y": "integer"
+    }
+  },
+  "inputs": {
+    "x": 3,
+    "y": 11
+  }
+}

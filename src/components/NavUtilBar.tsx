@@ -9,6 +9,7 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import {FromMetadataContext} from "../contexts/FromMetadataContext";
 import {NewPortCallbackContext} from "../contexts/PortCallbackContext";
 import {ProcessMetadata} from "./datamodel/requests";
+import GetAddresses from "./GetAddresses";
 
 export type NavItem = {
   title: string;
@@ -74,6 +75,7 @@ function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilB
         <Navbar.Collapse id="navbar-dark-example">
           <Nav>
             <GetTypes />
+            <GetAddresses />
             
             <NavDropdown.Divider />
             

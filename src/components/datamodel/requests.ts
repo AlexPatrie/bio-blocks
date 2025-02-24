@@ -16,6 +16,11 @@ export type BigraphSchemaType = Record<string, any> & {
   description: string | null
 }
 
+export type RegisteredAddresses = {
+  version: string,
+  registered_addresses: string[]
+}
+
 type PortSchema = Record<string, string | string[]>;
 
 export type InputPortSchema = PortSchema;
