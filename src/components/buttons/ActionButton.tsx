@@ -7,12 +7,13 @@ import {StyleConfig} from "../datamodel/elements";
 export type ActionButtonProps = {
   variant: "primary" | "secondary" | "success" | "info" | "warning" | "danger" | "light" | "dark" | "link";
   title: string | React.JSX.Element;
+  className?: string;
   onClick?: (data?: Data) => void;
   data?: any;
   style?: StyleConfig;
 };
 
-export default function ActionButton({ variant, title, onClick, data, style }: ActionButtonProps) {
+export default function ActionButton({ variant, title, onClick, data, style, className }: ActionButtonProps) {
   const handleClick = useCallback(() => {
     console.log('Button clicked');
     if (onClick) {
@@ -27,6 +28,7 @@ export default function ActionButton({ variant, title, onClick, data, style }: A
         variant={variant}
         onClick={handleClick}
         style={style ? style : {}}
+        className={className ? className : "p-1"}
       >{ title }
       </Button>
     </>

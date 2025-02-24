@@ -7,13 +7,15 @@ import CopyButton from "./CopyButton";
 import {VscCopy} from "react-icons/vsc";
 import ActionButton from "./ActionButton";
 import useTimeout from "@restart/hooks/useTimeout";
+import {Variant} from "../datamodel/elements";
 
 
 type GetTypesProps = {
   composeService?: ComposeService;
+  variant?: Variant;
 }
 
-export default function GetTypes({ composeService }: GetTypesProps) {
+export default function GetTypes({ composeService, variant }: GetTypesProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const [types, setTypes] = useState<BigraphSchemaType[]>([]);
   const [isHovered, setHovered] = useState(false);
@@ -49,7 +51,7 @@ export default function GetTypes({ composeService }: GetTypesProps) {
     }
   };
   
-  const variant = "Primary"
+  const v = variant ? variant : "outline-info"
   
   return (
     <div className="p-4">
@@ -58,7 +60,7 @@ export default function GetTypes({ composeService }: GetTypesProps) {
         title="Get Types"
         key={variant}
         id={`dropdown-variants-${variant}`}
-        variant={variant.toLowerCase()}
+        variant={v.toLowerCase()}
       >
         <div className="p-4">
           <table className="w-full border-collapse">

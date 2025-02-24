@@ -3,27 +3,15 @@ import ComposeService from "../../services/ComposeService";
 import {BigraphSchemaType, RegisteredAddresses} from "../datamodel/requests";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import {DropdownItem} from "react-bootstrap";
+import {Variant} from "../datamodel/elements";
 
 
 type GetTypesProps = {
   composeService?: ComposeService;
-}
-
-export const CopyToClipboardButton: React.FC = () => {
-  const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const textToCopy = (event.target as HTMLButtonElement).textContent || "";
-    
-    navigator.clipboard.writeText(textToCopy)
-      .then(() => console.log("Copied to clipboard:", textToCopy))
-      .catch((err) => console.error("Failed to copy:", err));
-  };
-
-  return (
-    <button onClick={handleCopy}>Copy this text</button>
-  );
+  variant?: Variant;
 };
 
-export default function GetAddresses({ composeService }: GetTypesProps) {
+export default function GetAddresses({ composeService, variant }: GetTypesProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const [addresses, setAddresses] = useState<RegisteredAddresses>();
   const [version, setVersion] = useState<string>("");
@@ -71,7 +59,7 @@ export default function GetAddresses({ composeService }: GetTypesProps) {
       alert(`Item copied to clipboard`);
   }, [handleCopy]);
   
-  const variant = "Primary"
+  const v = variant ? variant : "outline-info";
   
   return (
     <div className="p-4">
@@ -80,14 +68,14 @@ export default function GetAddresses({ composeService }: GetTypesProps) {
         title="Get Process Addresses"
         key={variant}
         id={`dropdown-variants-${variant}`}
-        variant={variant.toLowerCase()}
+        variant={v.toLowerCase()}
       >
         {addresses && (
           <DropdownItem>
             <span style={{ fontWeight: "700" }}>Version: { version }</span>
           </DropdownItem>
         )}
-        {addresses && addresses.registered_addresses.map ((address) => (
+        {addresses && addresses.registered_addresses.map ((address, index: number) => (
           <div>
             <DropdownItem
               onClick={((e: React.MouseEvent<HTMLButtonElement>) => handleClick(e, address))}

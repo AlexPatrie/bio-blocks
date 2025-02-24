@@ -382,6 +382,7 @@ export default function App() {
     )
   }, [setterButtonConfig, setNewNode, handlePortAdded]);
   
+  const variant = "success";
   return (
     <div className="reactflow-wrapper">
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
@@ -397,7 +398,9 @@ export default function App() {
               exportComposition={exportComposition}
             />
             
-            <DropdownButton title="+">
+            <DropdownButton title="+" key={variant}
+          id={`dropdown-variants-${variant}`}
+          variant={variant.toLowerCase()}>
               <Card style={{ width: 'auto' }}>
                 <Card.Body>
                   <Card.Title>Add new data</Card.Title>
