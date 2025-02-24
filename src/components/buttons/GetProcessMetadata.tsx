@@ -12,6 +12,7 @@ import {BigraphNodeData} from "../datamodel/flow";
 import type {CustomNodeType} from "../nodes";
 import {useReactFlow} from "@xyflow/react";
 import {randomPosition} from "../../connect";
+import {Variant} from "../datamodel/elements";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here
@@ -181,11 +182,10 @@ export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetP
     }
   }, [responseData, setResponseData, createProcessClicked, createProcess, resetProcessData]);
   
-  const variant = "Success"
-  
+  const variant = "success";
   if (render) {
     return (
-      <div className="p-4">
+      <div>
         <DropdownButton
           title={"Get Process Info"}
           key={variant}

@@ -23,6 +23,7 @@ export default function ActionButton({ variant, title, onClick, data, style }: A
   return (
     <>
       <Button
+        key={variant}
         variant={variant}
         onClick={handleClick}
         style={style ? style : {}}

@@ -32,14 +32,6 @@ export type NavUtilBarProps = {
   exportComposition: () => void;
 }
 
-// export type ActionButtonProps = {
-//   variant: "primary" | "secondary" | "success" | "info" | "warning" | "danger" | "light" | "dark" | "link";
-//   title: string;
-//   onClick: (data?: Data) => void | null;
-//   data: any | null;
-//   style: StyleConfig | null;
-// };
-
 const variant = "Primary";
 
 function NavUtilBar(
@@ -94,20 +86,12 @@ function NavUtilBar(
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
           <Nav>
-            
             <NavDropdown.Divider />
             <div className="action-buttons-container">
               <GetTypes />
               <GetAddresses />
-              {setterButtonConfig.map((item, index) => (
-                <div className="action-button">
-                  <ActionButton variant="secondary" title={item.title} />
-                </div>
-              ))}
               <UploadButtons importComposition={importComposition} exportComposition={exportComposition} />
             </div>
-            
-            
           </Nav>
         </Navbar.Collapse>
       </Container>

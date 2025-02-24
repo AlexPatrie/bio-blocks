@@ -11,6 +11,8 @@ import {
   useNodesData,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
 
 import {
   BigraphNodeData,
@@ -41,6 +43,8 @@ import {ProcessMetadata} from "./datamodel/requests";
 import {FromMetadataContext} from "../contexts/FromMetadataContext";
 import ComposeService from "../services/ComposeService";
 import DataCard from "./DataCard";
+import ActionButton from "./buttons/ActionButton";
+import DropdownButton from "react-bootstrap/DropdownButton";
 
 // TODO: for adding input or output port, first check if such a store exists, and if so connect that one instead of making new
 // TODO: ensure that input/output port additions are actually propagated from BigraphNode child to this parent for export!
@@ -331,11 +335,59 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
+  const setterButtonConfig: SetterButtonConfig[] = [
+    {
+      title: "Add new object",
+      onClick: addEmptyObjectNode,
+      style: {
+        position: "absolute",
+        //right: 10,
+        left: 700,
+        padding: "10.5px 16px",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    },
+    {
+      title: "Add new process",
+      onClick: addEmptyProcessNode,
+      style: {
+        position: "absolute",
+        //right: 10,
+        left: 475,
+        padding: "10.5px 16px",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    }
+  ];
+  
+  const getSetterButtons = useCallback(() => {
+    return (
+      <div>
+        {setterButtonConfig.map((item, index) => (
+          <div className="action-button">
+            <ActionButton variant="success" title={item.title} onClick={item.onClick} />
+          </div>
+        ))}
+        <GetProcessMetadata
+              setNewNode={setNewNode}
+              handlePortAdded={handlePortAdded}
+            />
+      </div>
+    )
+  }, [setterButtonConfig, setNewNode, handlePortAdded]);
+  
   return (
     <div className="reactflow-wrapper">
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
         <NewPortCallbackContext.Provider value={portCallbackMap.current}>
-          <div className="nav-util-bar">
+          
+          <div className="header">
             <NavUtilBar
               brand={projectName}
               addEmptyObjectNode={addEmptyObjectNode}
@@ -345,11 +397,23 @@ export default function App() {
               exportComposition={exportComposition}
             />
             
-            <GetProcessMetadata
-              setNewNode={setNewNode}
-              handlePortAdded={handlePortAdded}
-            />
+            <DropdownButton title="+">
+              <Card style={{ width: 'auto' }}>
+                <Card.Body>
+                  <Card.Title>Add new data</Card.Title>
+                  <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <ActionButton variant="primary" title="Add new process" onClick={addEmptyProcessNode} />
+                    <ActionButton variant="primary" title="Add new object" onClick={addEmptyObjectNode} />
+                    <GetProcessMetadata
+                      setNewNode={setNewNode}
+                      handlePortAdded={handlePortAdded}
+                    />
+                  </div>
+                </Card.Body>
+              </Card>
+            </DropdownButton>
           </div>
+          
           <ReactFlow<CustomNodeType, CustomEdgeType>
             nodes={nodes}
             nodeTypes={nodeTypes}
@@ -367,27 +431,6 @@ export default function App() {
           </ReactFlow>
         </NewPortCallbackContext.Provider>
       </PortChangeCallbackContext.Provider>
-      
-      {/*<div className="page-header">
-        <UploadSpec onLoadGraph={importComposition}/>
-        <button
-          onClick={exportComposition}
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            padding: "10px 16px",
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            height: "30px",
-          }}
-        >
-          Export to JSON
-        </button>
-      </div>*/}
     </div>
   );
 }

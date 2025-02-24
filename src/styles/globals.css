@@ -202,7 +202,7 @@ a {
   font-size: 16px;
 }
 
-.nav-util-bar {
+.header {
   align-items: center !important;
   justify-content: center !important;
 }
@@ -211,6 +211,7 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 .action-button {
