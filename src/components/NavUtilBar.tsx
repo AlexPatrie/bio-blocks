@@ -2,7 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import React, {useContext, useState} from "react";
+import React, {useContext, useRef, useState} from "react";
 import GetTypes from "./GetTypes";
 import GetProcessMetadata from "./GetProcessMetadata";
 import DropdownButton from "react-bootstrap/DropdownButton";
@@ -23,20 +23,50 @@ export type SetterButtonConfig = {
 
 export type NavUtilBarProps = {
   brand: string,
-  setterButtonConfig: SetterButtonConfig[],
-  // processFromMetadata: (processMetadata: ProcessMetadata | any) => void,
+  addEmptyObjectNode: () => void,
+  addEmptyProcessNode: () => void
 }
 
 const variant = "Primary";
 
-function NavUtilBar({ brand, setterButtonConfig }: NavUtilBarProps) {
+function NavUtilBar({ brand, addEmptyObjectNode, addEmptyProcessNode }: NavUtilBarProps) {
   const [currentItems, setCurrentItems] = useState<NavItem[]>([]);
   const [renderMetadata, setRenderMetadata] = useState<boolean>(false);
   
-  const processFromMetadata = useContext(FromMetadataContext);
+  const setterButtonConfig: SetterButtonConfig[] = [
+    {
+      title: "Add new object",
+      onClick: addEmptyObjectNode,
+      style: {
+        position: "absolute",
+        top: 20,
+        //right: 10,
+        left: 700,
+        padding: "10.5px 16px",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    },
+    {
+      title: "Add new process",
+      onClick: addEmptyProcessNode,
+      style: {
+        position: "absolute",
+        top: 20,
+        //right: 10,
+        left: 475,
+        padding: "10.5px 16px",
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }
+    }
+  ];
   
   return (
-    <FromMetadataContext.Provider value={processFromMetadata}>
     <Navbar variant="dark" bg="dark" expand="sm">
       <Container fluid>
         <Navbar.Brand href="#home">{ brand }</Navbar.Brand>
@@ -44,8 +74,8 @@ function NavUtilBar({ brand, setterButtonConfig }: NavUtilBarProps) {
         <Navbar.Collapse id="navbar-dark-example">
           <Nav>
             <GetTypes />
+            
             <NavDropdown.Divider />
-            <GetProcessMetadata processFromMetadata={processFromMetadata} />
             
             {setterButtonConfig.map((item, index) => (
               <DropdownButton
@@ -64,7 +94,6 @@ function NavUtilBar({ brand, setterButtonConfig }: NavUtilBarProps) {
         </Navbar.Collapse>
       </Container>
     </Navbar>
-    </FromMetadataContext.Provider>
   );
 }
 

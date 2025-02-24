@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import ComposeService from "../services/ComposeService";
 import GenericDropdownButton, {DropdownItem} from "./GenericDropdownButton";
 import { Dropdown } from "react-bootstrap";
@@ -7,42 +7,40 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import {InputPortSchema, OutputPortSchema, ProcessMetadata, StateData} from "./datamodel/requests";
 import DataDropdown from "./DataDropdown";
 import { FromMetadataContext } from "../contexts/FromMetadataContext";
+import { NewProcessContext } from "../contexts/FromMetadataContext";
+import {BigraphNodeData} from "../datamodel";
+import type {CustomNodeType} from "./nodes";
+import {useReactFlow} from "@xyflow/react";
 
 
 // TODO: add logic for creating a new process node parameterized by the data returned here
 
-type GetProcessMetadataProps = {
-  processFromMetadata: (processMetadata: Record<string, string> | (Record<string, any> & {
-    process_address: string;
-    input_schema: InputPortSchema;
-    output_schema: OutputPortSchema;
-    initial_state: Record<string, any>;
-    id?: string;
-    state?: StateData
-  }) | Record<string, any> | null) => void;
-}
+// type GetProcessMetadataProps = {
+//   processFromMetadata: (processMetadata: Record<string, string> | (Record<string, any> & {
+//     process_address: string;
+//     input_schema: InputPortSchema;
+//     output_schema: OutputPortSchema;
+//     initial_state: Record<string, any>;
+//     id?: string;
+//     state?: StateData
+//   }) | Record<string, any> | null) => void;
+// }
 
-export default function GetProcessMetadata({ processFromMetadata }: GetProcessMetadataProps) {
+export type GetProcessMetadataProps = {
+  setNewNode: (flowNode: CustomNodeType, nodeId: string) => void;
+  handlePortAdded: (nodeId: string, portType: string, portName: string) => void;
+};
+
+export default function GetProcessMetadata({ setNewNode, handlePortAdded }: GetProcessMetadataProps) {
   const [render, setRender] = useState(true);
   const [processId, setProcessId] = useState<string>("simple-membrane-process");
   const [returnCompositeState, setReturnCompositeState] = useState<boolean>(true);
   const [configFile, setConfigFile] = useState<File | null>(null);
   const [genericFile, setGenericFile] = useState<File | null>(null);
-  const [responseData, setResponseData] = useState<ProcessMetadata | Record<string, any> | null>(null);
+  const [responseData, setResponseData] = useState<ProcessMetadata | null>(null);
   const [buttonItems, setButtonItems] = useState<DropdownItem[]>([]);
   
   const service = new ComposeService();
-  
-  const onCreateProcess = useContext(FromMetadataContext);
-  
-  const createProcess = useCallback(() => {
-    if (responseData) {
-      console.log("Calling create process in getmetadata")
-      onCreateProcess(responseData);
-    } else {
-      console.log("response data not available")
-    }
-  }, [onCreateProcess]);
   
   const toggleRender = useCallback((event: React.MouseEvent) => {
     setRender((prev) => !prev);
@@ -64,7 +62,7 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
     onFileChange(event, setGenericFile);
   }, [setGenericFile, onFileChange]);
   
-  const onError = (error: string) => {
+  const onError = (error: Error) => {
     console.error(error);
     alert(`The following error occurred while processing your data: ${ error }`);
   }
@@ -75,11 +73,8 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
         if (response) {
           // set response data
           console.log(`Got the response for metadata: ${Object.keys(response)}`)
-          setResponseData((prevData: any) => {
-            return {
-              ...prevData,
-              response
-            }
+          setResponseData((prevData: ProcessMetadata | null) => {
+            return response;
           });
           
           // set button data
@@ -95,9 +90,56 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
         }
       })
       .catch((error: Error) => {
-        console.error(error);
+        onError(error);
       })
-  }, [configFile, genericFile, processId, setResponseData, returnCompositeState]);
+  }, [configFile, genericFile, processId, setResponseData, returnCompositeState, onError]);
+  
+  const createProcess = useCallback(
+    (processMetadata: ProcessMetadata) => {
+      console.log(`Got the process metdata id: ${responseData?.process_address}`);
+      const nodeId = processMetadata.process_address.split(':')[-1];
+      const inputs = processMetadata.input_schema;
+      const outputs = processMetadata.output_schema;
+      
+      const nodeData: BigraphNodeData = {
+        _type: "process",
+        config: {},
+        address: processMetadata.process_address,
+        inputs: inputs,
+        outputs: outputs,
+        nodeId: nodeId,
+      };
+      const newFlowNode: CustomNodeType = {
+        id: nodeId,
+        type: 'bigraph-node',
+        position: {
+          x: 4,
+          y: 2
+        },
+        data: nodeData
+      };
+      
+      setNewNode(newFlowNode, nodeId);
+      
+      // TODO: now, handle port added for each input and output port
+      Object.keys(inputs).forEach((key: string) => {
+        handlePortAdded(nodeId, "inputs", key)
+      });
+      
+      Object.keys(outputs).forEach((key: string) => {
+        handlePortAdded(nodeId, "outputs", key);
+      });
+  }, [setNewNode, handlePortAdded]);
+  
+  const onCreateProcess = useCallback(() => {
+    console.log(`get process metadata on create process clicked!.`);
+    if (responseData) {
+      console.log(`Response data exists: ${JSON.stringify(responseData)}`);
+      createProcess(responseData);
+    } else {
+      console.log("response data not available")
+    }
+  }, [responseData, createProcess]);
   
   const variant = "Success"
   
@@ -151,17 +193,15 @@ export default function GetProcessMetadata({ processFromMetadata }: GetProcessMe
             </div>
             
             {responseData && (
-              <button onClick={createProcess}>Create process</button>
+              <button onClick={onCreateProcess}>Create process</button>
             )}
           </div>
           
-          
-          
-          <div className="process-metadata">
-            {responseData && (
+          {responseData && (
+            <div className="process-metadata">
               <pre className="mt-4 p-4 border">{JSON.stringify(responseData, null, 2)}</pre>
-            )}
-          </div>
+            </div>
+          )}
         </DropdownButton>
       </div>
     );

@@ -57,11 +57,6 @@ export default function App() {
   const vivarium = new VivariumService();
   
   const portCallbackMap = useRef(new Map<string, (nodeId: string, portType: string, portName: string) => void>());
-  const processFromMetadataMap = useRef(new Map<string, (processMetadata: ProcessMetadata) => void>());
-  
-  const registerMetadataCallback = (nodeId: string) => {
-    processFromMetadataMap.current.set(nodeId, newProcessFromMetadata)
-  };
   
   const registerPortCallback = (nodeId: string) => {
     portCallbackMap.current.set(nodeId, handlePortAdded);
@@ -84,38 +79,41 @@ export default function App() {
     
     // link this node id to the port callback listener within the child BigraphNode
     registerPortCallback(newNodeId);
-    registerMetadataCallback(newNodeId);
     
     // buffer on blur (possibly remove)
     renderTimeout(newNodeId);
   }, [bigraphFlowNodes, setBigraphFlowNodes, setNumNodes]);
   
-  const newProcessFromMetadata = useCallback((processMetadata: ProcessMetadata) => {
-    console.log(`Got the process metdata id: ${processMetadata.process_address}`)
-    const nodeId = processMetadata.process_address.split(':')[-1];
-    
-    const nodeData: BigraphNodeData = {
-      _type: "process",
-      config: {},
-      address: processMetadata.process_address,
-      inputs: processMetadata.input_schema,
-      outputs: processMetadata.output_schema,
-      nodeId: nodeId,
-    };
-    const newFlowNode: CustomNodeType = {
-      id: nodeId,
-      type: 'bigraph-node',
-      position: {
-        x: 4,
-        y: 2
-      },
-      data: nodeData
-    };
-    setNewNode(newFlowNode, nodeId);
-  }, [setNewNode]);
+  const addEdge = useCallback((sourceId: string, targetId: string) => {
+    const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
+    setEdges((existingEdges) => {
+      const updatedEdges = [...existingEdges, newEdge];
+      return updatedEdges;
+    });
+  }, [setEdges]);
+  
+  
+  // -- function for automatically adding a new store node whenever an individual node's port is added or changed --
+  
+  const addLinkedStore = useCallback(
+    (newNodeId: string, value: string[], connections: string[], portType: string) => {
+      // create corresponding store node parameterized by the linked bigraph node
+      const newStoreData = vivarium.newStoreNodeData(newNodeId, value, connections);
+      
+      vivarium.addStore(newStoreData, portType);
+      const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
+      
+      if (newFlowNode) {
+        setNewNode(newFlowNode, newNodeId);
+        renderTimeout(newNodeId);
+      } else {
+        // TODO: change this
+        alert("Could not parse a flow node config from this store.")
+      }
+  }, [setNodes]);
   
   // called when user adds new input/output ports in BigraphNode child(parameterized by the child)
-  const handlePortAdded = (nodeId: string, portType: string, portName: string) => {
+  const handlePortAdded = useCallback((nodeId: string, portType: string, portName: string) => {
     // store id should be linked to the port name
     const storeNodeId: string = portName;
     const storeValue: string[] = [portName];
@@ -133,7 +131,7 @@ export default function App() {
       console.log(`source: ${nodeId}, target: ${storeNodeId} Port name: ${portName}(${portType})`);
       addEdge(nodeId, storeNodeId);
     }
-  };
+  }, [addLinkedStore, addEdge]);
   
   const isProcessNode = (nodeKeys: string[]): boolean  => {
     const inputField: string | undefined = nodeKeys.find((key: string) => key === "inputs");
@@ -217,25 +215,6 @@ export default function App() {
     return addEmptyNode("step");
   }
   
-  const addEmptyStoreNode = () => {
-    const uuid = crypto.randomUUID();
-    const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
-    
-    const emptyStore = vivarium.newEmptyStoreNodeData(newNodeId, numObjects);
-    const newFlowNode: CustomNodeType = vivarium.addStore(emptyStore);
-    
-    if (newFlowNode) {
-      setNodes((existingNodes) => {
-        const updatedNodes = [...existingNodes, newFlowNode];
-        return updatedNodes;
-      });
-      
-      renderTimeout(newNodeId);
-    } else {
-      console.log("Could not parse a flow node config from this store.")
-    }
-  };
-  
   const addEmptyObjectNode = () => {
     const uuid = crypto.randomUUID();
     // const newNodeId = `new_data_${uuid.slice(uuid.length - 3, uuid.length)}`;
@@ -254,34 +233,6 @@ export default function App() {
       console.log("Could not parse a flow node config from this store.")
     }
   };
-  
-  const addEdge = useCallback((sourceId: string, targetId: string) => {
-    const newEdge = vivarium.addFlowEdgeConfig(sourceId, targetId);
-    setEdges((existingEdges) => {
-      const updatedEdges = [...existingEdges, newEdge];
-      return updatedEdges;
-    });
-  }, [setEdges]);
-  
-  
-  // -- function for automatically adding a new store node whenever an individual node's port is added or changed --
-  
-  const addLinkedStore = useCallback(
-    (newNodeId: string, value: string[], connections: string[], portType: string) => {
-      // create corresponding store node parameterized by the linked bigraph node
-      const newStoreData = vivarium.newStoreNodeData(newNodeId, value, connections);
-      
-      vivarium.addStore(newStoreData, portType);
-      const newFlowNode = vivarium.getFlowNodeConfig(newNodeId) as CustomNodeType;
-      
-      if (newFlowNode) {
-        setNewNode(newFlowNode, newNodeId);
-        renderTimeout(newNodeId);
-      } else {
-        // TODO: change this
-        alert("Could not parse a flow node config from this store.")
-      }
-  }, [setNodes]);
   
   const renderTimeout = useCallback((newNodeId: string) => {
     setTimeout(() => {
@@ -370,38 +321,38 @@ export default function App() {
     addEdge(source, target);
   }, [setNodes, addEdge]);
   
-  const setterButtonConfig: SetterButtonConfig[] = [
-    {
-      title: "Add new object",
-      onClick: addEmptyObjectNode,
-      style: {
-        position: "absolute",
-        top: 20,
-        //right: 10,
-        left: 700,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    },
-    {
-      title: "Add new process",
-      onClick: addEmptyProcessNode,
-      style: {
-        position: "absolute",
-        top: 20,
-        //right: 10,
-        left: 475,
-        padding: "10.5px 16px",
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }
-    }
-  ]
+  // const setterButtonConfig: SetterButtonConfig[] = [
+  //   {
+  //     title: "Add new object",
+  //     onClick: addEmptyObjectNode,
+  //     style: {
+  //       position: "absolute",
+  //       top: 20,
+  //       //right: 10,
+  //       left: 700,
+  //       padding: "10.5px 16px",
+  //       color: "#fff",
+  //       border: "none",
+  //       borderRadius: "4px",
+  //       cursor: "pointer",
+  //     }
+  //   },
+  //   {
+  //     title: "Add new process",
+  //     onClick: addEmptyProcessNode,
+  //     style: {
+  //       position: "absolute",
+  //       top: 20,
+  //       //right: 10,
+  //       left: 475,
+  //       padding: "10.5px 16px",
+  //       color: "#fff",
+  //       border: "none",
+  //       borderRadius: "4px",
+  //       cursor: "pointer",
+  //     }
+  //   }
+  // ]
   
   return (
     <div className="reactflow-wrapper">
@@ -414,12 +365,17 @@ export default function App() {
           placeholder="Enter project name..."
         />
       </div>
-      <FromMetadataContext.Provider value={newProcessFromMetadata}>
-      <div className="nav-util-bar">
-        <NavUtilBar brand="Tools" setterButtonConfig={setterButtonConfig} />
-      </div>
       <PortChangeCallbackContext.Provider value={onPortValueChanged}>
         <NewPortCallbackContext.Provider value={portCallbackMap.current}>
+          <div className="nav-util-bar">
+            <NavUtilBar
+              brand="Tools"
+              addEmptyObjectNode={addEmptyObjectNode}
+              addEmptyProcessNode={addEmptyProcessNode}
+            />
+            
+            <GetProcessMetadata setNewNode={setNewNode} handlePortAdded={handlePortAdded} />
+          </div>
           <ReactFlow<CustomNodeType, CustomEdgeType>
             nodes={nodes}
             nodeTypes={nodeTypes}
@@ -437,7 +393,6 @@ export default function App() {
           </ReactFlow>
         </NewPortCallbackContext.Provider>
       </PortChangeCallbackContext.Provider>
-      </FromMetadataContext.Provider>
       
       <div className="page-header">
         <UploadSpec onLoadGraph={importComposition}/>

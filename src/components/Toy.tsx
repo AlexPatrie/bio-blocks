@@ -6,6 +6,19 @@ export type ToyProps = {
   x: number;
 }
 
+const SimpleParent = () => {
+  const [count, setCount] = useState(0);
+
+  const increment = () => setCount(count + 1);
+
+  return <SimpleChild increment={increment} />;
+};
+
+const SimpleChild = ({ increment }: { increment: () => void }) => (
+  <button onClick={increment}>Increment</button>
+);
+
+
 function Child({ x }: ToyProps) {
   const [xVal, setXval] = useState<number>(0);
 

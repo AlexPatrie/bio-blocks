@@ -6,7 +6,7 @@ import {InputPortSchema, OutputPortSchema, ProcessMetadata} from "../components/
 
 export const NewProcessContext = createContext<Map<
   string,
-  (nodeId: string, portType: string, portName: string) => void> | null>(null);
+  (processMetadata: ProcessMetadata) => void> | null>(null);
 
 // Create a context with default empty function
 export const FromMetadataParamsContext = createContext<

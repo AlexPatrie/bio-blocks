@@ -22,7 +22,9 @@ const Home: NextPage = () => {
         />
       </Head>
       
-      <header className={styles.header}>Bigraph Composer</header>
+      <header className={styles.header}>
+        Bigraph Composer
+      </header>
       <Flow/>
     </div>
   );
